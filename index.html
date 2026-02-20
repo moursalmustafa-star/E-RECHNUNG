@@ -134,8 +134,8 @@
             <span id="logoFallback">MS</span>
           </div>
         <div>
-          <h1>Masculine Security — Rechnung</h1>
-          <div class="sub">Professionelle Rechnung (Lexoffice‑Style) · automatisch: Datum, Rechnungsnummer, Summen</div>
+          <h1>Masculine Security — Rechnung <span id="statusBadge" style="display:inline-block;margin-left:8px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#f8fafc;color:var(--muted);vertical-align:middle">Offen</span></h1>
+          <div class="sub">Professionelle Rechnung (Lexoffice-Style) · automatisch: Datum, Rechnungsnummer, Summen</div>
         </div>
       </div>
       <div class="actions">
@@ -164,15 +164,33 @@
     <div>
       <div class="boxTitle">Rechnungsdaten</div>
       <div class="meta">
-        <div class="metaRow"><span>Rechnungsdatum</span><code id="invDate">—</code></div>
-        <div class="metaRow"><span>Rechnungsnummer</span><code id="invNo">—</code></div>
-        <div class="metaRow"><span>Fällig am</span><code id="dueDate">—</code></div>
+        <div class="metaRow"><span>Rechnungsdatum</span>
+          <input id="invDateInput" type="date" oninput="recalcDatesFromInput();scheduleSave()" style="max-width:190px">
+        </div>
+        <div class="metaRow"><span>Rechnungsnummer</span>
+          <input id="invNoInput" type="text" oninput="syncInvNo();scheduleSave()" style="max-width:190px;font-family:var(--mono)">
+        </div>
+        <div class="metaRow"><span>Status</span>
+          <select id="invStatus" onchange="scheduleSave();updateStatusBadge()">
+            <option value="Entwurf">Entwurf</option>
+            <option value="Offen" selected>Offen</option>
+            <option value="Bezahlt">Bezahlt</option>
+            <option value="Überfällig">Überfällig</option>
+          </select>
+        </div>
+        <div class="metaRow"><span>Fällig am</span>
+          <input id="dueDateInput" type="date" oninput="scheduleSave()" style="max-width:190px">
+        </div>
         <div class="metaRow"><span>Zahlungsziel</span>
           <select id="payTerm" onchange="recalcDates()">
+            <option value="custom">Manuell</option>
             <option value="7">7 Tage</option>
             <option value="14" selected>14 Tage</option>
             <option value="30">30 Tage</option>
           </select>
+        </div>
+        <div class="metaRow"><span>Auto</span>
+          <button class="btn" type="button" style="padding:8px 10px;border-radius:10px" onclick="regenInvoiceMeta()">Neu generieren</button>
         </div>
       </div>
     </div>
@@ -182,11 +200,25 @@
     <div class="grid">
       <div class="field">
         <label>Kunde / Rechnungsempfänger</label>
-        <textarea id="kunde" placeholder="Firma / Name
 
-Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
+        <div class="split" style="grid-template-columns:1fr auto;align-items:center">
+          <select id="kundeSelect" onchange="loadCustomerFromSelect();scheduleSave()">
+            <option value="">— Kunde wählen —</option>
+          </select>
+          <button class="btn" type="button" style="padding:8px 10px;border-radius:10px" onclick="newCustomer()">Neu</button>
+        </div>
 
-<div class="field">
+        <div class="split" style="margin-top:8px;grid-template-columns:1fr auto auto;align-items:center">
+          <input id="kundeName" placeholder="Kundenname (zum Speichern)"/>
+          <button class="btn" type="button" style="padding:8px 10px;border-radius:10px" onclick="saveCustomer()">Speichern</button>
+          <button class="btn" type="button" style="padding:8px 10px;border-radius:10px" onclick="deleteCustomer()">Löschen</button>
+        </div>
+
+        <textarea id="kunde" placeholder="Firma / Name&#10;Straße Hausnr.&#10;PLZ Ort&#10;(optional: Ansprechpartner)" oninput="scheduleSave()"></textarea>
+        <div class="muted" style="font-size:12px;margin-top:6px">Tipp: Speichere häufige Kunden einmal – beim nächsten Mal nur auswählen.</div>
+      </div>
+
+      <div class="field">
         <label>Leistungsbeschreibung</label>
         <textarea id="leistung" placeholder="z.B. Objektschutz / Empfangsdienst / Baustellenbewachung">Security Dienstleistung</textarea>
       </div>
@@ -287,8 +319,24 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
 
     <div class="totals">
       <div class="notes">
-        <p><strong>Hinweis:</strong> Zuschläge sind in der Rechnung als separate Positionen ausgewiesen. Passe die Prozentwerte nach Vertrag an (z. B. Nachtschicht 5% → 10%).</p>
-        <p style="margin-top:8px"><em id="vatNote">Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).</em></p>
+        <p><strong>Hinweis:</strong> Zuschläge sind in der Rechnung als separate Positionen ausgewiesen. Passe die Prozentwerte nach Vertrag an (z. B. Nachtschicht 5% → 10%).</p>
+
+        <div style="margin-top:10px;display:grid;gap:8px">
+          <div class="pill" style="justify-content:space-between">
+            <span><strong>USt-Status</strong></span>
+            <select id="vatMode" onchange="calc();updateVatNote();scheduleSave()" style="max-width:260px">
+              <option value="kru" selected>Kleinunternehmer (§19 UStG) — 0%</option>
+              <option value="vat19">Regelbesteuerung — 19%</option>
+              <option value="custom">Individuell (frei wählbar)</option>
+            </select>
+          </div>
+          <div class="field" id="vatCustomWrap" style="display:none">
+            <label>USt-Satz (%)</label>
+            <input id="vatPct" type="number" min="0" step="0.1" value="19" oninput="calc();scheduleSave()"/>
+          </div>
+        </div>
+
+        <p style="margin-top:10px"><em id="vatNote">Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).</em></p>
       </div>
 
       <div class="sumBox">
@@ -324,7 +372,8 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
   </div>  <script>
     // ---------- Helpers ----------
     const $ = (id)=>document.getElementById(id);
-    const LS_KEY = 'ms_invoice_app_v1';
+    const LS_KEY = 'ms_invoice_app_v3';
+    const LS_CUSTOMERS = 'ms_invoice_customers_v1';
     function num(id){
       const v = parseFloat($(id).value);
       return Number.isFinite(v) ? v : 0;
@@ -337,9 +386,18 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
       return pad2(d.getDate()) + '.' + pad2(d.getMonth()+1) + '.' + d.getFullYear();
     }
 
+    function formatISOToDE(iso){
+      if(!iso) return '';
+      const d = new Date(iso);
+      if(Number.isNaN(d.getTime())) return String(iso);
+      return fmtDate(d);
+    }
+
     function saveState(){
       const state = {
-        invNo: $('invNo').textContent,
+        invNo: ($('invNoInput') ? $('invNoInput').value : ($('invNo') ? $('invNo').textContent : '')),
+        invDate: $('invDateInput') ? $('invDateInput').value : '',
+        dueDate: $('dueDateInput') ? $('dueDateInput').value : '',
         payTerm: $('payTerm').value,
         kunde: $('kunde').value,
         leistung: $('leistung').value,
@@ -355,7 +413,12 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
         hol_hours: $('hol_hours').value,
         hol_pct: $('hol_pct').value,
         discount: $('discount').value,
-        logoDataUrl: $('logoImg')?.getAttribute('src') || ''
+        logoDataUrl: ($('logoImg') && $('logoImg').getAttribute('src')) ? $('logoImg').getAttribute('src') : '',
+        invStatus: $('invStatus').value,
+        kundeName: $('kundeName') ? $('kundeName').value : '',
+        kundeSelected: $('kundeSelect') ? $('kundeSelect').value : ''
+        vatMode: $('vatMode').value,
+        vatPct: $('vatPct') ? $('vatPct').value : '19'
       };
       localStorage.setItem(LS_KEY, JSON.stringify(state));
     }
@@ -365,7 +428,12 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
         const raw = localStorage.getItem(LS_KEY);
         if(!raw) return;
         const s = JSON.parse(raw);
-        if(s.invNo) $('invNo').textContent = s.invNo;
+        if(s.invNo){
+          if($('invNoInput')) $('invNoInput').value = s.invNo;
+          if($('invNo')) $('invNo').textContent = s.invNo;
+        }
+        if(s.invDate && $('invDateInput')) $('invDateInput').value = s.invDate;
+        if(s.dueDate && $('dueDateInput')) $('dueDateInput').value = s.dueDate;
         if(s.payTerm) $('payTerm').value = s.payTerm;
         $('kunde').value = s.kunde || '';
         $('leistung').value = s.leistung || 'Security Dienstleistung';
@@ -381,16 +449,144 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
         $('hol_hours').value = s.hol_hours || '';
         $('hol_pct').value = s.hol_pct || '100';
         $('discount').value = s.discount || '0';
+        if(s.invStatus) $('invStatus').value = s.invStatus;
+        if(s.vatMode) $('vatMode').value = s.vatMode;
+        if(s.vatPct && $('vatPct')) $('vatPct').value = s.vatPct;
         if(s.logoDataUrl){
           applyLogo(s.logoDataUrl);
         }
+        // Optional: restore selected customer name
+        if(s.kundeName && $('kundeName')) $('kundeName').value = s.kundeName;
+        if(s.kundeSelected && $('kundeSelect')) $('kundeSelect').value = s.kundeSelected;
       }catch(e){/* ignore */}
+    }
+
+    // ---------- Customers (Kundenliste) ----------
+    function getCustomers(){
+      try{
+        const raw = localStorage.getItem(LS_CUSTOMERS);
+        if(!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function setCustomers(arr){
+      localStorage.setItem(LS_CUSTOMERS, JSON.stringify(arr));
+    }
+
+    function refreshCustomerSelect(selectedName=''){
+      const sel = $('kundeSelect');
+      if(!sel) return;
+      const customers = getCustomers().sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'de'));
+      sel.innerHTML = '<option value="">— Kunde wählen —</option>' + customers.map(c=>{
+        const n = (c.name||'').replace(/"/g,'&quot;');
+        return `<option value="${n}">${n}</option>`;
+      }).join('');
+      sel.value = selectedName || '';
+    }
+
+    function loadCustomerFromSelect(){
+      const sel = $('kundeSelect');
+      const name = sel ? sel.value : '';
+      const customers = getCustomers();
+      const c = customers.find(x=>x.name===name);
+      if(c){
+        $('kunde').value = c.text || '';
+        if($('kundeName')) $('kundeName').value = c.name || '';
+      }
+      scheduleSave();
+    }
+
+    function newCustomer(){
+      if($('kundeSelect')) $('kundeSelect').value = '';
+      if($('kundeName')) $('kundeName').value = '';
+      $('kunde').value = '';
+      scheduleSave();
+    }
+
+    function saveCustomer(){
+      const name = ($('kundeName')?.value || '').trim();
+      const text = ($('kunde')?.value || '').trim();
+      if(!name){
+        alert('Bitte Kundenname eingeben.');
+        return;
+      }
+      if(!text){
+        alert('Bitte Kundendaten eingeben.');
+        return;
+      }
+      const customers = getCustomers();
+      const idx = customers.findIndex(x=>x.name===name);
+      const entry = { name, text, updatedAt: Date.now() };
+      if(idx>=0) customers[idx]=entry; else customers.push(entry);
+      setCustomers(customers);
+      refreshCustomerSelect(name);
+      if($('kundeSelect')) $('kundeSelect').value = name;
+      scheduleSave();
+    }
+
+    function deleteCustomer(){
+      const name = ($('kundeSelect')?.value || $('kundeName')?.value || '').trim();
+      if(!name){
+        alert('Bitte zuerst einen Kunden auswählen.');
+        return;
+      }
+      if(!confirm(`Kunde "${name}" löschen?`)) return;
+      const customers = getCustomers().filter(x=>x.name!==name);
+      setCustomers(customers);
+      refreshCustomerSelect('');
+      newCustomer();
+      scheduleSave();
     }
 
     let saveTimer;
     function scheduleSave(){
       clearTimeout(saveTimer);
       saveTimer = setTimeout(saveState, 250);
+    }
+
+    // ---------- Status badge ----------
+    function updateStatusBadge(){
+      const s = $('invStatus') ? $('invStatus').value : 'Offen';
+      const b = $('statusBadge');
+      if(!b) return;
+      b.textContent = s;
+      // simple styling
+      if(s === 'Bezahlt'){
+        b.style.background = 'rgba(22,163,74,.12)';
+        b.style.borderColor = 'rgba(22,163,74,.35)';
+        b.style.color = '#166534';
+      }else if(s === 'Überfällig'){
+        b.style.background = 'rgba(239,68,68,.10)';
+        b.style.borderColor = 'rgba(239,68,68,.35)';
+        b.style.color = '#991b1b';
+      }else if(s === 'Entwurf'){
+        b.style.background = 'rgba(59,130,246,.10)';
+        b.style.borderColor = 'rgba(59,130,246,.25)';
+        b.style.color = '#1e3a8a';
+      }else{
+        b.style.background = '#f8fafc';
+        b.style.borderColor = 'var(--line)';
+        b.style.color = 'var(--muted)';
+      }
+    }
+
+    // ---------- VAT Note ----------
+    function updateVatNote(){
+      const mode = $('vatMode') ? $('vatMode').value : 'kru';
+      const note = $('vatNote');
+      if(!note) return;
+      if(mode === 'kru'){
+        note.textContent = 'Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).';
+      }else if(mode === 'vat19'){
+        note.textContent = 'Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).';
+      }else{
+        const p = num('vatPct');
+        note.textContent = `Umsatzsteuer wird ausgewiesen (${p || 0}%).`;
+      }
     }
 
     // ---------- Logo ----------
@@ -437,13 +633,64 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
       return `MS-${y}${m}${day}-${rand}`;
     }
 
-    function recalcDates(){
-      const today = new Date();
-      $('invDate').textContent = fmtDate(today);
-      const days = parseInt($('payTerm').value,10) || 14;
-      const due = new Date(today);
+    function toISODate(d){
+      const x = new Date(d);
+      const y = x.getFullYear();
+      const m = pad2(x.getMonth()+1);
+      const day = pad2(x.getDate());
+      return `${y}-${m}-${day}`;
+    }
+
+    function syncInvNo(){
+      // keep legacy spans (if present) in sync
+      const v = $('invNoInput')?.value || '';
+      if($('invNo')) $('invNo').textContent = v;
+    }
+
+    function recalcDatesFromInput(){
+      // When user edits invoice date, recompute due date if payTerm is not manual
+      const inv = $('invDateInput')?.value;
+      if(!inv) return;
+      const term = $('payTerm')?.value || '14';
+      if(term === 'custom') return;
+      const days = parseInt(term,10) || 14;
+      const base = new Date(inv);
+      const due = new Date(base);
       due.setDate(due.getDate() + days);
-      $('dueDate').textContent = fmtDate(due);
+      if($('dueDateInput')) $('dueDateInput').value = toISODate(due);
+    }
+
+    function regenInvoiceMeta(){
+      // Generate new invoice number + set invoice date to today
+      const today = new Date();
+      if($('invNoInput')) $('invNoInput').value = makeInvoiceNo();
+      if($('invDateInput')) $('invDateInput').value = toISODate(today);
+      // if term not manual, recalc due
+      if(($('payTerm')?.value || '14') !== 'custom'){
+        recalcDatesFromInput();
+      }
+      syncInvNo();
+      scheduleSave();
+    }
+
+    function recalcDates(){
+      // If user chose manual, do nothing.
+      const term = $('payTerm') ? $('payTerm').value : '14';
+      if(term === 'custom'){
+        scheduleSave();
+        return;
+      }
+      // Ensure invoice date exists
+      const invVal = $('invDateInput')?.value;
+      if(invVal){
+        recalcDatesFromInput();
+        scheduleSave();
+        return;
+      }
+      // Fallback: set today
+      const today = new Date();
+      if($('invDateInput')) $('invDateInput').value = toISODate(today);
+      recalcDatesFromInput();
       scheduleSave();
     }
 
@@ -487,18 +734,30 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
       const hol = fh * r * (fp/100);
 
       // Discount: treated as subtraction
-      const sub = Math.max(0, base + night + sun + hol - disc);
+      const net = Math.max(0, base + night + sun + hol - disc);
+
+      // VAT logic
+      const mode = $('vatMode') ? $('vatMode').value : 'kru';
+      let vatRate = 0;
+      if(mode === 'vat19') vatRate = 0.19;
+      if(mode === 'custom'){
+        const p = num('vatPct');
+        vatRate = Math.max(0, p) / 100;
+      }
+      const vat = net * vatRate;
+      const gross = net + vat;
 
       $('sum_base').textContent = money(base);
       $('sum_night').textContent = money(night);
       $('sum_sun').textContent = money(sun);
       $('sum_hol').textContent = money(hol);
 
-      $('subTotal').textContent = money(sub);
+      $('subTotal').textContent = money(net);
+      $('vatTotal').textContent = money(vat);
+      $('grandTotal').textContent = money(gross);
 
-      // Kleinunternehmer default: VAT 0
-      $('vatTotal').textContent = money(0);
-      $('grandTotal').textContent = money(sub);
+      // toggle custom VAT UI
+      if($('vatCustomWrap')) $('vatCustomWrap').style.display = (mode === 'custom') ? 'block' : 'none';
 
       scheduleSave();
     }
@@ -506,9 +765,9 @@ Straße Hausnr. PLZ Ort (optional: Ansprechpartner)"></textarea> </div>
     // ---------- Copy helper ----------
     async function copyData(){
       const txt = [
-        `Rechnungsnummer: ${$('invNo').textContent}`,
-        `Rechnungsdatum: ${$('invDate').textContent}`,
-        `Faellig am: ${$('dueDate').textContent}`,
+        `Rechnungsnummer: ${$('invNoInput')?.value || $('invNo')?.textContent || ''}`, 
+        `Rechnungsdatum: ${formatISOToDE($('invDateInput')?.value)}`, 
+        `Faellig am: ${formatISOToDE($('dueDateInput')?.value)}`, 
         `Kunde:
 ${$('kunde').value}`,
         `Leistung:
@@ -520,6 +779,7 @@ ${$('leistung').value}`,
         `Feiertag: ${$('hol_hours').value || 0}h @ ${$('hol_pct').value || 0}%` ,
         `Rabatt/Abschlag: ${$('discount').value || 0} €` ,
         `Gesamt: ${$('grandTotal').textContent}`
+      ]
       ].join('
 ');
 
@@ -548,10 +808,18 @@ ${$('leistung').value}`,
       $('hol_hours').value='';
       $('hol_pct').value='100';
       $('discount').value='0';
+      $('invStatus').value='Offen';
+      $('vatMode').value='kru';
+      if($('vatPct')) $('vatPct').value='19';
       clearLogo();
-      $('invNo').textContent = makeInvoiceNo();
+      if($('invNoInput')) $('invNoInput').value = makeInvoiceNo();
+      if($('invNo')) $('invNo').textContent = $('invNoInput') ? $('invNoInput').value : '';
+      // default invoice date today
+      if($('invDateInput')) $('invDateInput').value = toISODate(new Date());
       syncZeitraum();
       recalcDates();
+      updateStatusBadge();
+      updateVatNote();
       calc();
       saveState();
     }
@@ -559,23 +827,43 @@ ${$('leistung').value}`,
     // ---------- Init ----------
     (function init(){
       // set defaults first
-      $('invNo').textContent = makeInvoiceNo();
+      if($('invNoInput')) $('invNoInput').value = makeInvoiceNo();
+      if($('invNo')) $('invNo').textContent = $('invNoInput') ? $('invNoInput').value : '';
+      if($('invDateInput')) $('invDateInput').value = toISODate(new Date());
       recalcDates();
       syncZeitraum();
+      updateStatusBadge();
+      updateVatNote();
       calc();
+
+      // customers
+      refreshCustomerSelect('');
 
       // load saved state (overrides defaults)
       loadState();
+      refreshCustomerSelect($('kundeSelect') ? $('kundeSelect').value : '');
       recalcDates();
       syncZeitraum();
+      updateStatusBadge();
+      updateVatNote();
       calc();
 
       $('btnCopy').addEventListener('click', copyData);
       $('btnReset').addEventListener('click', resetAll);
 
+      // invoice meta inputs
+      if($('invNoInput')) $('invNoInput').addEventListener('input', ()=>{ syncInvNo(); scheduleSave(); });
+      if($('invDateInput')) $('invDateInput').addEventListener('input', ()=>{ recalcDatesFromInput(); scheduleSave(); });
+      if($('dueDateInput')) $('dueDateInput').addEventListener('input', scheduleSave);
+      if($('payTerm')) $('payTerm').addEventListener('change', recalcDates);
+
+      $('invStatus').addEventListener('change', ()=>{ updateStatusBadge(); scheduleSave(); });
+      $('vatMode').addEventListener('change', ()=>{ updateVatNote(); calc(); scheduleSave(); });
+      if($('vatPct')) $('vatPct').addEventListener('input', ()=>{ updateVatNote(); calc(); scheduleSave(); });
+
       // autosave on text fields
-      ['kunde','leistung','memo','hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','discount'].forEach(id=>{
-        $(id).addEventListener('input', scheduleSave);
+      ['kunde','kundeName','leistung','memo','hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','discount'].forEach(id=>{
+        if($(id)) $(id).addEventListener('input', scheduleSave);
       });
 
       // logo upload
@@ -584,13 +872,6 @@ ${$('leistung').value}`,
         handleLogoFile(f);
         e.target.value = '';
       });
-    })();
-      $('invNo').textContent = makeInvoiceNo();
-      recalcDates();
-      syncZeitraum();
-      calc();
-      $('btnCopy').addEventListener('click', copyData);
-      $('btnReset').addEventListener('click', resetAll);
     })();
   </script></body>
 </html>
