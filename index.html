@@ -22,33 +22,43 @@
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif}
     .wrap{max-width:1050px;margin:22px auto;padding:0 14px}
-    .topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+
+    /* Header shown on screen + print */
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:14px;flex-wrap:wrap
+    }
     .brand{display:flex;align-items:center;gap:12px}
     .logoBox{
       width:44px;height:44px;border-radius:12px;overflow:hidden;
       background:linear-gradient(135deg,var(--accent),#06254f);
       box-shadow:0 10px 26px rgba(11,58,120,.22);
       display:grid;place-items:center;color:#fff;font-weight:800;letter-spacing:.5px;
+      flex:0 0 auto;
     }
     .logoBox img{width:100%;height:100%;object-fit:cover;display:block}
     .brand h1{margin:0;font-size:18px;line-height:1.1}
     .brand .sub{margin-top:4px;color:var(--muted);font-size:12px}
     .badge{display:inline-block;margin-left:8px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#f8fafc;color:var(--muted);vertical-align:middle}
+
     .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
     .btn{border:1px solid var(--line2);background:#fff;border-radius:12px;padding:10px 12px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 10px 24px rgba(2,6,23,.06)}
     .btn.primary{border-color:transparent;background:var(--accent);color:#fff}
     .btn:active{transform:translateY(1px)}
+
     .paper{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
     .paperHeader{padding:22px 22px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1.25fr .75fr;gap:18px}
     .boxTitle{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
     .company{display:grid;gap:2px;font-size:13px}
     .company b{font-size:14px}
     .company a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line2)}
+
     .meta{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
     .metaRow{display:flex;justify-content:space-between;gap:10px;font-size:13px;align-items:center}
     .metaRow span{color:var(--muted)}
     .metaRow input,.metaRow select{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;max-width:220px}
     .metaRow input[type="text"]{font-family:var(--mono)}
+
     .paperBody{padding:18px 22px 8px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .field{display:grid;gap:6px}
@@ -57,15 +67,19 @@
     textarea{min-height:84px;resize:vertical}
     input:focus,textarea:focus,select:focus{border-color:rgba(14,165,233,.55);box-shadow:0 0 0 4px rgba(14,165,233,.12)}
     .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
     .tableWrap{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
     table{width:100%;border-collapse:collapse;font-size:13px}
     thead th{background:#f8fafc;border-bottom:1px solid var(--line);text-align:left;padding:12px 12px;color:#0f172a}
     tbody td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top}
     tbody tr:last-child td{border-bottom:none}
+
     .muted{color:var(--muted)}
     .right{text-align:right}
     .cellInput input{padding:8px 10px;font-size:13px;border-radius:10px}
+
     .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#f8fafc;padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+
     .totals{display:grid;grid-template-columns:1fr 360px;gap:14px;align-items:start;margin-top:14px}
     .notes{border:1px solid var(--line);border-radius:14px;padding:12px 12px;background:#fff}
     .notes p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.4}
@@ -74,19 +88,23 @@
     .sumRow span{color:var(--muted)}
     .sumRow strong{font-variant-numeric:tabular-nums}
     .sumRow.total{border-top:1px dashed var(--line2);margin-top:6px;padding-top:12px;font-size:15px}
+
     .paperFooter{padding:16px 22px 22px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .footCard{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
     .footCard h3{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
     .footCard p{margin:0;font-size:12.8px;line-height:1.45;color:#0f172a}
     .footCard .small{color:var(--muted)}
+
+    /* ✅ PRINT: logo + title visible, buttons hidden */
     @media print{
       body{background:#fff}
       .wrap{max-width:none;margin:0;padding:0}
-      .topbar{display:none !important}
+      .topbar{display:flex !important;margin:0 0 12px 0}
+      .actions{display:none !important}
+
       .paper{border:none;border-radius:0;box-shadow:none}
       input,textarea,select{border:none;padding:0;box-shadow:none}
       a{border:none;text-decoration:none}
-      button{display:none !important}
     }
     @media (max-width:900px){
       .paperHeader{grid-template-columns:1fr}
@@ -98,6 +116,7 @@
 
 <body>
   <div class="wrap">
+    <!-- ✅ This topbar now prints (logo appears in PDF) -->
     <div class="topbar">
       <div class="brand">
         <div class="logoBox" id="logoBox" title="Logo">
@@ -269,14 +288,6 @@
                 </td>
                 <td class="right" id="sum_hol">0,00 €</td>
               </tr>
-
-              <tr>
-                <td><strong>Rabatt / Abschlag</strong><div class="muted">optional (Betrag wird abgezogen)</div></td>
-                <td class="muted">—</td>
-                <td class="muted">—</td>
-                <td class="muted">—</td>
-                <td class="cellInput right"><input id="discount" type="number" step="0.01" value="0" style="text-align:right" placeholder="0"></td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -335,12 +346,11 @@
   </div>
 
   <script>
-    // ---------- Storage keys ----------
-    const LS_STATE = 'ms_invoice_app_state_v3';
+    const LS_STATE = 'ms_invoice_app_state_v5_printlogo_norabatt';
     const LS_CUSTOMERS = 'ms_invoice_customers_v1';
 
-    // ---------- Helpers ----------
     const $ = (id)=>document.getElementById(id);
+
     function pad2(n){return String(n).padStart(2,'0')}
     function toISODate(d){
       const x = new Date(d);
@@ -360,7 +370,7 @@
       return Number.isFinite(v) ? v : 0;
     }
 
-    // ---------- Logo (FIX: no broken icon + works in subfolder like /E-RECHNUNG/) ----------
+    // ---- Logo (no broken icon + correct folder path) ----
     function showFallbackLogo(){
       $('logoImg').style.display = 'none';
       $('logoImg').removeAttribute('src');
@@ -369,12 +379,11 @@
     function applyLogo(dataUrl){
       const img = $('logoImg');
       const fb = $('logoFallback');
-      img.onload = ()=>{ img.style.display = 'block'; fb.style.display = 'none'; };
+      img.onload = ()=>{ img.style.display='block'; fb.style.display='none'; };
       img.onerror = ()=>{ showFallbackLogo(); };
       img.src = dataUrl;
     }
     function clearLogo(){
-      // also clear any saved/broken logo from localStorage
       showFallbackLogo();
       scheduleSave();
     }
@@ -386,11 +395,9 @@
       reader.onload = ()=>{ applyLogo(String(reader.result)); scheduleSave(); };
       reader.readAsDataURL(file);
     }
-
-    // Try to load logo.png from SAME folder as index.html (works with GitHub Pages subpath)
     async function tryLoadDefaultLogo(){
       try{
-        const url = new URL('logo.png', document.baseURI).toString(); // ✅ correct path
+        const url = new URL('logo.png', document.baseURI).toString(); // same folder as index.html
         const res = await fetch(url, {cache:'no-store'});
         if(!res.ok) return;
         const blob = await res.blob();
@@ -400,7 +407,7 @@
       }catch(e){ /* ignore */ }
     }
 
-    // ---------- Rechnungsnummer (AUTOMATIC) ----------
+    // ---- Rechnungsnummer (automatic) ----
     function makeInvoiceNo(){
       const d = new Date();
       const y = d.getFullYear();
@@ -414,7 +421,7 @@
       if(!v) $('invNoInput').value = makeInvoiceNo();
     }
 
-    // ---------- Due date ----------
+    // ---- Due date ----
     function recalcDueFromInvoiceDate(){
       const inv = $('invDateInput').value;
       const term = $('payTerm').value;
@@ -427,7 +434,6 @@
       $('dueDateInput').value = toISODate(due);
     }
 
-    // ---------- Regenerate ----------
     function regenInvoiceMeta(){
       $('invNoInput').value = makeInvoiceNo();
       $('invDateInput').value = toISODate(new Date());
@@ -435,7 +441,7 @@
       scheduleSave();
     }
 
-    // ---------- Status badge ----------
+    // ---- Status badge ----
     function updateStatusBadge(){
       const s = $('invStatus').value;
       const b = $('statusBadge');
@@ -459,7 +465,7 @@
       }
     }
 
-    // ---------- VAT note ----------
+    // ---- VAT note ----
     function updateVatNote(){
       const mode = $('vatMode').value;
       if(mode === 'kru'){
@@ -475,7 +481,7 @@
       }
     }
 
-    // ---------- Calculations ----------
+    // ---- Calculations (Rabatt REMOVED) ----
     function calc(){
       const h = num('hours');
       const r = num('rate');
@@ -485,14 +491,13 @@
       const sp = num('sun_pct');
       const fh = num('hol_hours');
       const fp = num('hol_pct');
-      const disc = num('discount');
 
       const base = h * r;
       const night = nh * r * (np/100);
       const sun = sh * r * (sp/100);
       const hol = fh * r * (fp/100);
 
-      const net = Math.max(0, base + night + sun + hol - disc);
+      const net = Math.max(0, base + night + sun + hol);
 
       let vatRate = 0;
       const mode = $('vatMode').value;
@@ -514,7 +519,7 @@
       scheduleSave();
     }
 
-    // ---------- Zeitraum text ----------
+    // ---- Zeitraum ----
     function syncZeitraum(){
       const v = $('von').value;
       const b = $('bis').value;
@@ -524,7 +529,7 @@
       $('zeitraumText').textContent = `${left} – ${right}`;
     }
 
-    // ---------- Customers ----------
+    // ---- Customers ----
     function getCustomers(){
       try{
         const raw = localStorage.getItem(LS_CUSTOMERS);
@@ -585,7 +590,7 @@
       scheduleSave();
     }
 
-    // ---------- Auto-save ----------
+    // ---- Auto-save ----
     let saveTimer;
     function scheduleSave(){
       clearTimeout(saveTimer);
@@ -616,12 +621,11 @@
         sun_pct: $('sun_pct').value,
         hol_hours: $('hol_hours').value,
         hol_pct: $('hol_pct').value,
-        discount: $('discount').value,
 
         vatMode: $('vatMode').value,
         vatPct: $('vatPct').value,
 
-        logoDataUrl: $('logoImg').getAttribute('src') || '' // may be empty
+        logoDataUrl: $('logoImg').getAttribute('src') || ''
       };
       localStorage.setItem(LS_STATE, JSON.stringify(state));
     }
@@ -654,12 +658,10 @@
         $('sun_pct').value = s.sun_pct || '50';
         $('hol_hours').value = s.hol_hours || '';
         $('hol_pct').value = s.hol_pct || '100';
-        $('discount').value = s.discount || '0';
 
         $('vatMode').value = s.vatMode || 'kru';
         $('vatPct').value = s.vatPct || '19';
 
-        // If saved logo is invalid, fallback (no broken icon)
         const savedLogo = (s.logoDataUrl || '').trim();
         if(savedLogo) applyLogo(savedLogo); else showFallbackLogo();
 
@@ -669,7 +671,7 @@
       }
     }
 
-    // ---------- Copy ----------
+    // ---- Copy ----
     async function copyData(){
       const txt = [
         `Rechnungsnummer: ${$('invNoInput').value || ''}`,
@@ -683,7 +685,6 @@
         `Nachtschicht: ${$('night_hours').value || 0}h @ ${$('night_pct').value || 0}%`,
         `Sonntag: ${$('sun_hours').value || 0}h @ ${$('sun_pct').value || 0}%`,
         `Feiertag: ${$('hol_hours').value || 0}h @ ${$('hol_pct').value || 0}%`,
-        `Rabatt/Abschlag: ${$('discount').value || 0} €`,
         `Netto: ${$('subTotal').textContent}`,
         `USt: ${$('vatTotal').textContent}`,
         `Gesamt: ${$('grandTotal').textContent}`
@@ -698,7 +699,7 @@
       }
     }
 
-    // ---------- Reset ----------
+    // ---- Reset ----
     function resetAll(){
       if(!confirm('Alle Eingaben löschen?')) return;
       localStorage.removeItem(LS_STATE);
@@ -714,7 +715,6 @@
       $('night_hours').value=''; $('night_pct').value='5';
       $('sun_hours').value=''; $('sun_pct').value='50';
       $('hol_hours').value=''; $('hol_pct').value='100';
-      $('discount').value='0';
 
       $('invStatus').value='Offen';
       $('vatMode').value='kru';
@@ -725,30 +725,27 @@
       $('payTerm').value = '14';
       regenInvoiceMeta();
       ensureInvoiceNo();
+
       syncZeitraum();
       updateStatusBadge();
       updateVatNote();
       calc();
       saveState();
 
-      // try repo logo.png again after reset
       tryLoadDefaultLogo();
     }
 
-    // ---------- Init ----------
+    // ---- Init ----
     (function init(){
-      // Always prevent broken logo icon
       $('logoImg').onerror = ()=> showFallbackLogo();
 
       refreshCustomerSelect('');
 
-      // defaults
       $('invDateInput').value = toISODate(new Date());
       $('payTerm').value = '14';
       ensureInvoiceNo();
       recalcDueFromInvoiceDate();
 
-      // events
       $('logoInput').addEventListener('change', (e)=>{ handleLogoFile(e.target.files?.[0]); e.target.value=''; });
       $('btnLogoClear').addEventListener('click', ()=>{ clearLogo(); });
       $('btnReset').addEventListener('click', resetAll);
@@ -770,7 +767,7 @@
 
       [
         'kunde','kundeName','leistung','memo',
-        'hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','discount','vatPct'
+        'hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','vatPct'
       ].forEach(id=>{
         $(id).addEventListener('input', ()=>{
           if(id==='vatPct') updateVatNote();
@@ -781,25 +778,19 @@
 
       $('vatMode').addEventListener('change', ()=>{ updateVatNote(); calc(); scheduleSave(); });
 
-      // load saved state
-      const had = loadState();
+      loadState();
 
-      // invoice number must always exist
       ensureInvoiceNo();
-
-      // UI
       syncZeitraum();
       updateStatusBadge();
       updateVatNote();
       calc();
 
-      // If no saved logo, try logo.png from repo
       const curLogo = ($('logoImg').getAttribute('src') || '').trim();
       if(!curLogo){
         showFallbackLogo();
         tryLoadDefaultLogo();
       }else{
-        // if saved logo is broken, onerror will fallback automatically
         $('logoImg').style.display = 'block';
         $('logoFallback').style.display = 'none';
       }
