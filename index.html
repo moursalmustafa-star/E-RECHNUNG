@@ -47,7 +47,7 @@
     .meta{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
     .metaRow{display:flex;justify-content:space-between;gap:10px;font-size:13px;align-items:center}
     .metaRow span{color:var(--muted)}
-    .metaRow input,.metaRow select{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;max-width:210px}
+    .metaRow input,.metaRow select{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;max-width:220px}
     .metaRow input[type="text"]{font-family:var(--mono)}
     .paperBody{padding:18px 22px 8px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -100,13 +100,13 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <div class="logoBox" id="logoBox">
+        <div class="logoBox" id="logoBox" title="Logo">
           <span id="logoFallback">MS</span>
-          <img id="logoImg" alt="Logo" style="display:none"/>
+          <img id="logoImg" alt="Logo" style="display:none" />
         </div>
         <div>
           <h1>Masculine Security — Rechnung <span class="badge" id="statusBadge">Offen</span></h1>
-          <div class="sub">Professionell · automatisch: Rechnungsnummer, Summen, Zuschläge, USt · Auto-Save · Kundenliste</div>
+          <div class="sub">Automatisch: Rechnungsnummer, Summen, Zuschläge, USt · Auto-Save · Kundenliste · Logo</div>
         </div>
       </div>
 
@@ -115,6 +115,7 @@
           Logo hochladen
           <input id="logoInput" type="file" accept="image/*" style="display:none"/>
         </label>
+        <button class="btn" id="btnLogoClear" type="button">Logo löschen</button>
         <button class="btn" id="btnReset" type="button">Reset</button>
         <button class="btn" id="btnCopy" type="button">Rechnungsdaten kopieren</button>
         <button class="btn primary" type="button" onclick="window.print()">PDF drucken</button>
@@ -140,7 +141,6 @@
           <div class="meta">
             <div class="metaRow"><span>Rechnungsdatum</span><input id="invDateInput" type="date"></div>
 
-            <!-- Rechnungsnummer: AUTOMATIC + READONLY -->
             <div class="metaRow"><span>Rechnungsnummer</span>
               <input id="invNoInput" type="text" readonly>
             </div>
@@ -189,7 +189,7 @@
             </div>
 
             <textarea id="kunde" placeholder="Firma / Name&#10;Straße Hausnr.&#10;PLZ Ort&#10;(optional: Ansprechpartner)"></textarea>
-            <div class="muted" style="font-size:12px;margin-top:6px">Tipp: Speichere häufige Kunden einmal – beim nächsten Mal nur auswählen.</div>
+            <div class="muted" style="font-size:12px;margin-top:6px">Kunden werden lokal gespeichert (nur in deinem Browser).</div>
           </div>
 
           <div class="field">
@@ -336,7 +336,7 @@
 
   <script>
     // ---------- Storage keys ----------
-    const LS_KEY = 'ms_invoice_app_state_v2';
+    const LS_STATE = 'ms_invoice_app_state_v3';
     const LS_CUSTOMERS = 'ms_invoice_customers_v1';
 
     // ---------- Helpers ----------
@@ -360,32 +360,38 @@
       return Number.isFinite(v) ? v : 0;
     }
 
-    // ---------- Logo ----------
+    // ---------- Logo (FIX: no broken icon + works in subfolder like /E-RECHNUNG/) ----------
+    function showFallbackLogo(){
+      $('logoImg').style.display = 'none';
+      $('logoImg').removeAttribute('src');
+      $('logoFallback').style.display = 'block';
+    }
     function applyLogo(dataUrl){
       const img = $('logoImg');
       const fb = $('logoFallback');
+      img.onload = ()=>{ img.style.display = 'block'; fb.style.display = 'none'; };
+      img.onerror = ()=>{ showFallbackLogo(); };
       img.src = dataUrl;
-      img.style.display = 'block';
-      fb.style.display = 'none';
     }
     function clearLogo(){
-      const img = $('logoImg');
-      const fb = $('logoFallback');
-      img.removeAttribute('src');
-      img.style.display = 'none';
-      fb.style.display = 'block';
+      // also clear any saved/broken logo from localStorage
+      showFallbackLogo();
+      scheduleSave();
     }
     function handleLogoFile(file){
       if(!file) return;
-      const maxMB = 2;
-      if(file.size > maxMB*1024*1024){ alert('Logo ist zu groß (max 2MB).'); return; }
+      const maxMB = 3;
+      if(file.size > maxMB*1024*1024){ alert('Logo ist zu groß (max 3MB).'); return; }
       const reader = new FileReader();
       reader.onload = ()=>{ applyLogo(String(reader.result)); scheduleSave(); };
       reader.readAsDataURL(file);
     }
+
+    // Try to load logo.png from SAME folder as index.html (works with GitHub Pages subpath)
     async function tryLoadDefaultLogo(){
       try{
-        const res = await fetch('logo.png', {cache:'no-store'});
+        const url = new URL('logo.png', document.baseURI).toString(); // ✅ correct path
+        const res = await fetch(url, {cache:'no-store'});
         if(!res.ok) return;
         const blob = await res.blob();
         const reader = new FileReader();
@@ -423,7 +429,6 @@
 
     // ---------- Regenerate ----------
     function regenInvoiceMeta(){
-      // ALWAYS NEW invoice number
       $('invNoInput').value = makeInvoiceNo();
       $('invDateInput').value = toISODate(new Date());
       if($('payTerm').value !== 'custom') recalcDueFromInvoiceDate();
@@ -507,6 +512,16 @@
       $('grandTotal').textContent = money(gross);
 
       scheduleSave();
+    }
+
+    // ---------- Zeitraum text ----------
+    function syncZeitraum(){
+      const v = $('von').value;
+      const b = $('bis').value;
+      if(!v && !b){ $('zeitraumText').textContent = '—'; return; }
+      const left = v ? fmtDEFromISO(v) : '…';
+      const right = b ? fmtDEFromISO(b) : '…';
+      $('zeitraumText').textContent = `${left} – ${right}`;
     }
 
     // ---------- Customers ----------
@@ -606,14 +621,14 @@
         vatMode: $('vatMode').value,
         vatPct: $('vatPct').value,
 
-        logoDataUrl: $('logoImg').getAttribute('src') || ''
+        logoDataUrl: $('logoImg').getAttribute('src') || '' // may be empty
       };
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      localStorage.setItem(LS_STATE, JSON.stringify(state));
     }
     function loadState(){
       try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return;
+        const raw = localStorage.getItem(LS_STATE);
+        if(!raw) return false;
         const s = JSON.parse(raw);
 
         if(s.invDate) $('invDateInput').value = s.invDate;
@@ -644,8 +659,14 @@
         $('vatMode').value = s.vatMode || 'kru';
         $('vatPct').value = s.vatPct || '19';
 
-        if(s.logoDataUrl) applyLogo(s.logoDataUrl);
-      }catch(e){ /* ignore */ }
+        // If saved logo is invalid, fallback (no broken icon)
+        const savedLogo = (s.logoDataUrl || '').trim();
+        if(savedLogo) applyLogo(savedLogo); else showFallbackLogo();
+
+        return true;
+      }catch(e){
+        return false;
+      }
     }
 
     // ---------- Copy ----------
@@ -677,36 +698,30 @@
       }
     }
 
-    // ---------- Zeitraum text ----------
-    function syncZeitraum(){
-      const v = $('von').value;
-      const b = $('bis').value;
-      if(!v && !b){ $('zeitraumText').textContent = '—'; return; }
-      const left = v ? fmtDEFromISO(v) : '…';
-      const right = b ? fmtDEFromISO(b) : '…';
-      $('zeitraumText').textContent = `${left} – ${right}`;
-    }
-
     // ---------- Reset ----------
     function resetAll(){
       if(!confirm('Alle Eingaben löschen?')) return;
-      localStorage.removeItem(LS_KEY);
+      localStorage.removeItem(LS_STATE);
+
       $('kunde').value='';
       $('kundeName').value='';
       refreshCustomerSelect('');
+
       $('leistung').value='Security Dienstleistung';
       $('von').value=''; $('bis').value=''; $('memo').value='';
+
       $('hours').value=''; $('rate').value='25';
       $('night_hours').value=''; $('night_pct').value='5';
       $('sun_hours').value=''; $('sun_pct').value='50';
       $('hol_hours').value=''; $('hol_pct').value='100';
       $('discount').value='0';
+
       $('invStatus').value='Offen';
       $('vatMode').value='kru';
       $('vatPct').value='19';
+
       clearLogo();
 
-      // regenerate invoice meta (new number + today)
       $('payTerm').value = '14';
       regenInvoiceMeta();
       ensureInvoiceNo();
@@ -715,10 +730,16 @@
       updateVatNote();
       calc();
       saveState();
+
+      // try repo logo.png again after reset
+      tryLoadDefaultLogo();
     }
 
     // ---------- Init ----------
     (function init(){
+      // Always prevent broken logo icon
+      $('logoImg').onerror = ()=> showFallbackLogo();
+
       refreshCustomerSelect('');
 
       // defaults
@@ -729,13 +750,14 @@
 
       // events
       $('logoInput').addEventListener('change', (e)=>{ handleLogoFile(e.target.files?.[0]); e.target.value=''; });
+      $('btnLogoClear').addEventListener('click', ()=>{ clearLogo(); });
       $('btnReset').addEventListener('click', resetAll);
       $('btnCopy').addEventListener('click', copyData);
       $('btnRegen').addEventListener('click', regenInvoiceMeta);
 
       $('invStatus').addEventListener('change', ()=>{ updateStatusBadge(); scheduleSave(); });
       $('payTerm').addEventListener('change', ()=>{ recalcDueFromInvoiceDate(); scheduleSave(); });
-      $('invDateInput').addEventListener('input', ()=>{ recalcDueFromInvoiceDate(); scheduleSave(); });
+      $('invDateInput').addEventListener('input', ()=>{ if($('payTerm').value !== 'custom') recalcDueFromInvoiceDate(); scheduleSave(); });
       $('dueDateInput').addEventListener('input', scheduleSave);
 
       $('kundeSelect').addEventListener('change', loadCustomerFromSelect);
@@ -746,7 +768,6 @@
       $('von').addEventListener('input', ()=>{ syncZeitraum(); scheduleSave(); });
       $('bis').addEventListener('input', ()=>{ syncZeitraum(); scheduleSave(); });
 
-      // calc triggers
       [
         'kunde','kundeName','leistung','memo',
         'hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','discount','vatPct'
@@ -761,9 +782,9 @@
       $('vatMode').addEventListener('change', ()=>{ updateVatNote(); calc(); scheduleSave(); });
 
       // load saved state
-      loadState();
+      const had = loadState();
 
-      // After load: ensure invoice number ALWAYS exists (automatic)
+      // invoice number must always exist
       ensureInvoiceNo();
 
       // UI
@@ -772,9 +793,15 @@
       updateVatNote();
       calc();
 
-      // default logo from repo logo.png if no saved logo
-      if(!($('logoImg').getAttribute('src'))){
+      // If no saved logo, try logo.png from repo
+      const curLogo = ($('logoImg').getAttribute('src') || '').trim();
+      if(!curLogo){
+        showFallbackLogo();
         tryLoadDefaultLogo();
+      }else{
+        // if saved logo is broken, onerror will fallback automatically
+        $('logoImg').style.display = 'block';
+        $('logoFallback').style.display = 'none';
       }
     })();
   </script>
