@@ -3,236 +3,50 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Masculine Security — Rechnung (99% Auto)</title>
+<title>Masculine Security — Rechnung (Auto Stunden)</title>
 
 <style>
-:root{
-  --blue:#0b5ed7;
-  --blue2:#0a4fb5;
-  --bg:#eef3f9;
-  --card:#ffffff;
-  --soft:#f3f7ff;
-  --line:#d7e6ff;
-  --ink:#0f172a;
-  --muted:#475569;
-  --ok:#16a34a;
-  --warn:#f59e0b;
-  --bad:#ef4444;
-  --r:14px;
-}
+/* NO THEME (clean white, professional) */
 *{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:linear-gradient(180deg,#eaf2ff 0%, #eef3f9 40%, #eef3f9 100%);
-  color:var(--ink);
-  padding:18px;
-}
-
-/* layout */
-.wrap{max-width:1080px;margin:0 auto}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 16px;border-radius:18px;background:#ffffffcc;
-  border:1px solid var(--line);backdrop-filter: blur(8px);
-  box-shadow:0 10px 26px rgba(2,6,23,.08);
-}
-.brand{display:flex;align-items:center;gap:12px;min-width:260px}
-.logoBox{
-  width:52px;height:52px;border-radius:14px;overflow:hidden;
-  border:1px solid var(--line);background:#fff;display:grid;place-items:center;
-}
-.logoBox img{width:100%;height:100%;object-fit:cover;display:block}
-.hgroup{display:flex;flex-direction:column;gap:2px}
-.h1{font-size:18px;font-weight:900;color:var(--blue);letter-spacing:.2px}
-.h2{font-size:12px;color:var(--muted)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.btn{
-  border:1px solid var(--line);
-  background:#fff;
-  padding:10px 12px;
-  border-radius:14px;
-  font-weight:800;
-  font-size:13px;
-  cursor:pointer;
-}
-.btn.primary{background:var(--blue);color:#fff;border-color:transparent}
-.btn.ghost{background:transparent}
-.btn:active{transform:translateY(1px)}
-.btn small{font-weight:700;opacity:.85}
-
-/* content cards */
-.grid{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns: 1.05fr .95fr;
-  gap:14px;
-}
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:14px;
-  box-shadow:0 10px 24px rgba(2,6,23,.06);
-}
-.cardHead{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding-bottom:10px;border-bottom:1px dashed #cfe0ff;
-  margin-bottom:10px;
-}
-.cardTitle{
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  color:var(--muted);
-  font-weight:900;
-}
-.pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.pill{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:999px;
-  border:1px solid var(--line);background:var(--soft);
-  font-weight:900;font-size:12px;color:var(--muted);
-  cursor:pointer;user-select:none;
-}
-.pill.active{background:var(--blue);border-color:transparent;color:#fff}
-.pillDot{width:9px;height:9px;border-radius:999px;background:currentColor;opacity:.9}
-
-/* form */
-label{
-  display:block;
-  font-weight:900;
-  color:var(--blue2);
-  font-size:12.5px;
-  margin-top:12px;
-}
-input, textarea, select{
-  width:100%;
-  padding:10px 10px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  font-size:14px;
-  background:#fff;
-  outline:none;
-}
-textarea{min-height:76px;resize:vertical}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111;padding:18px}
+.wrap{max-width:980px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:2px solid #e5e5e5;padding-bottom:10px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:44px;height:44px;border:1px solid #ddd;border-radius:8px;overflow:hidden;display:grid;place-items:center;background:#fff}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.h1{font-weight:900;font-size:18px}
+.small{font-size:12px;color:#444}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid #ddd;background:#fff;padding:9px 12px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer}
+.btn.primary{background:#111;color:#fff;border-color:#111}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{border:1px solid #ddd;border-radius:12px;padding:12px}
+.title{font-size:12px;font-weight:900;color:#333;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+label{display:block;font-size:12px;font-weight:900;color:#222;margin-top:10px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;background:#fff}
+textarea{min-height:70px;resize:vertical}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.help{margin-top:6px;font-size:12px;color:var(--muted)}
-
-/* table */
-.tableWrap{
-  margin-top:14px;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 10px 24px rgba(2,6,23,.06);
-}
+.tableWrap{margin-top:12px;border:1px solid #ddd;border-radius:12px;overflow:hidden}
 table{width:100%;border-collapse:collapse}
-thead th{
-  background:linear-gradient(180deg,#f5f9ff,#eef6ff);
-  border-bottom:1px solid var(--line);
-  padding:12px 12px;
-  text-align:left;
-  font-size:12px;
-  color:var(--muted);
-  letter-spacing:.06em;
-  text-transform:uppercase;
-}
-tbody td{
-  padding:12px 12px;
-  border-bottom:1px solid #edf3ff;
-  vertical-align:top;
-  font-size:13.5px;
-}
-tbody tr:last-child td{border-bottom:none}
-.tiny{font-size:12px;color:var(--muted);margin-top:4px}
-.right{text-align:right}
-.cell input{padding:9px 10px;border-radius:14px;font-size:13.5px}
-
-/* totals + footer */
-.bottomGrid{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns: 1fr 380px;
-  gap:14px;
-  align-items:start;
-}
-.note{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:14px;
-  box-shadow:0 10px 24px rgba(2,6,23,.06);
-}
-.sum{
-  background:linear-gradient(180deg,#ffffff,#f7fbff);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:14px;
-  box-shadow:0 10px 24px rgba(2,6,23,.06);
-}
-.sumRow{display:flex;justify-content:space-between;gap:10px;padding:8px 0}
-.sumRow span{color:var(--muted);font-weight:800}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:13.5px}
+th{background:#fafafa;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#333}
+td.right,th.right{text-align:right}
+tfoot td{border-bottom:none}
+.note{font-size:12px;color:#444;margin-top:8px;line-height:1.5}
+.sumBox{margin-top:12px;border:1px solid #ddd;border-radius:12px;padding:12px}
+.sumRow{display:flex;justify-content:space-between;gap:10px;padding:6px 0}
+.sumRow span{color:#444;font-weight:800}
 .sumRow b{font-weight:900}
-.sumRow.total{
-  margin-top:8px;padding-top:12px;
-  border-top:1px dashed #bcd3ff;
-  font-size:16px;
-}
-.footer{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-.footer .note{line-height:1.45;font-size:13px}
-.footer b{color:var(--blue2)}
-
-/* status badge in header */
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:999px;
-  border:1px solid var(--line);
-  background:#fff;
-  font-weight:900;font-size:12px;
-}
-.badge .dot{width:10px;height:10px;border-radius:999px;background:var(--ok)}
-.badge.draft .dot{background:var(--muted)}
-.badge.open .dot{background:var(--warn)}
-.badge.paid .dot{background:var(--ok)}
-.badge.overdue .dot{background:var(--bad)}
-
-/* print */
-@page{size:A4;margin:8mm}
+.sumRow.total{border-top:1px dashed #ccc;margin-top:8px;padding-top:10px;font-size:16px}
+a{color:#111}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+@page{size:A4;margin:10mm}
 @media print{
-  body{background:#fff;padding:0;zoom:0.90}
-  .topbar{box-shadow:none;border:0;background:#fff;padding:0 0 10px 0;border-bottom:2px solid #e5efff;border-radius:0}
   .actions{display:none !important}
-  .wrap{max-width:100%}
-  .card,.tableWrap,.note,.sum{box-shadow:none}
-  input,textarea,select{
-    border:none !important;
-    padding:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    appearance:none !important;
-    -webkit-appearance:none !important;
-  }
-  textarea{min-height:0 !important;height:auto !important}
-  .pill{display:none !important}
-  .help{display:none !important}
-  .grid,.bottomGrid,.footer{gap:10px}
-  table, tr, td, th{page-break-inside:avoid !important;}
-}
-
-/* responsive */
-@media (max-width:980px){
-  .grid{grid-template-columns:1fr}
-  .bottomGrid{grid-template-columns:1fr}
-  .footer{grid-template-columns:1fr}
+  body{padding:0}
+  input,select,textarea{border:none !important;padding:0 !important}
+  textarea{min-height:0 !important}
 }
 </style>
 </head>
@@ -240,68 +54,61 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 <div class="wrap" id="app">
 
-  <div class="topbar">
+  <div class="header">
     <div class="brand">
-      <div class="logoBox" title="Logo">
-        <img id="logoImg" alt="Logo" src="logo.png">
-      </div>
-      <div class="hgroup">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <div class="h1">Masculine Security — Rechnung</div>
-          <div id="statusBadge" class="badge open"><span class="dot"></span><span id="statusBadgeText">Offen</span></div>
-        </div>
-        <div class="h2">99% automatisch · Kundenliste · Zuschläge · USt · PDF · Auto-Save</div>
+      <div class="logo"><img id="logoImg" src="logo.png" alt="Logo"></div>
+      <div>
+        <div class="h1">Masculine Security — Rechnung</div>
+        <div class="small">Auto Stunden (Total + Grundlohn) · Zuschläge · USt · Auto-Save</div>
       </div>
     </div>
-
     <div class="actions">
-      <label class="btn" style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;margin:0">
-        <span>Logo ändern</span>
-        <input id="logoFile" type="file" accept="image/*" style="display:none">
+      <label class="btn" style="margin:0">
+        Logo ändern <input id="logoFile" type="file" accept="image/*" style="display:none">
       </label>
-
-      <button class="btn" id="btnCopy" type="button">Daten kopieren</button>
-      <button class="btn" id="btnNew" type="button">Neu <small>(Nr + Datum)</small></button>
+      <button class="btn" id="btnNew" type="button">Neu</button>
       <button class="btn" id="btnSave" type="button">Speichern</button>
-      <button class="btn ghost" id="btnReset" type="button">Reset</button>
+      <button class="btn" id="btnReset" type="button">Reset</button>
       <button class="btn primary" type="button" onclick="window.print()">PDF drucken</button>
     </div>
   </div>
 
   <div class="grid">
-    <!-- LEFT -->
     <div class="card">
-      <div class="cardHead">
-        <div class="cardTitle">Rechnungssteller & Kunde</div>
-        <div class="pills" aria-label="Status wählen">
-          <div class="pill" data-status="Entwurf"><span class="pillDot"></span>Entwurf</div>
-          <div class="pill active" data-status="Offen"><span class="pillDot"></span>Offen</div>
-          <div class="pill" data-status="Bezahlt"><span class="pillDot"></span>Bezahlt</div>
-          <div class="pill" data-status="Überfällig"><span class="pillDot"></span>Überfällig</div>
-        </div>
-      </div>
+      <div class="title">Rechnungssteller & Kunde</div>
 
       <div style="font-size:14px;line-height:1.45">
         <b>Masculine Security</b><br>
         Werschenregerstraße 6 · 28237 Bremen<br>
         Tel: <a href="tel:+4915778697052">015778697052</a> ·
         E-Mail: <a href="mailto:Kontakt.mass.bremen@hotmail.com">Kontakt.mass.bremen@hotmail.com</a><br>
-        <span class="tiny">Steuernummer: (in Bearbeitung)</span>
+        <span class="small">Steuernummer: (in Bearbeitung)</span>
       </div>
 
-      <label>Kunde / Rechnungsempfänger (99% Auto)</label>
-      <div class="row2" style="grid-template-columns: 1fr auto;">
+      <label>Kunde (Auswahl)</label>
+      <div class="row2" style="grid-template-columns:1fr auto">
         <select id="kundeSelect"></select>
         <button class="btn" id="btnKundeNew" type="button">Neu</button>
       </div>
 
-      <div class="row3" style="grid-template-columns: 1fr 1fr auto; margin-top:8px">
-        <input id="kundeName" placeholder="Kundenname (zum Speichern)">
-        <input id="kundeEmail" placeholder="E-Mail (optional)">
-        <button class="btn" id="btnKundeSave" type="button">Speichern</button>
+      <div class="row2">
+        <div>
+          <label>Kundenname (zum Speichern)</label>
+          <input id="kundeName" placeholder="Firma / Name">
+        </div>
+        <div>
+          <label>E-Mail (optional)</label>
+          <input id="kundeEmail" placeholder="kunde@example.com">
+        </div>
       </div>
 
+      <label>Kundendaten</label>
       <textarea id="kundeText" placeholder="Firma / Name&#10;Straße Hausnr.&#10;PLZ Ort&#10;Ansprechpartner (optional)"></textarea>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="btnKundeSave" type="button">Kunde speichern</button>
+        <button class="btn" id="btnKundeDelete" type="button">Kunde löschen</button>
+      </div>
 
       <div class="row2">
         <div>
@@ -314,59 +121,20 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
 
-      <div class="row3">
-        <div>
-          <label>Anzahl Mitarbeiter</label>
-          <input id="ma_count" type="number" min="0" step="1" placeholder="z.B. 5">
-        </div>
-        <div>
-          <label>Stunden gesamt</label>
-          <input id="hours_total" type="number" min="0" step="0.25" placeholder="z.B. 216">
-        </div>
-        <div>
-          <label>Ø Std/MA (Auto)</label>
-          <input id="hours_per_ma" type="number" min="0" step="0.25" placeholder="auto">
-        </div>
-      </div>
+      <label>Leistungsbeschreibung</label>
+      <textarea id="leistung">Security Dienstleistung</textarea>
 
-      <div class="row2">
-        <div>
-          <label>Leistungsbeschreibung</label>
-          <textarea id="leistung">Security Dienstleistung</textarea>
-        </div>
-        <div>
-          <label>Referenz / PO (optional)</label>
-          <input id="ref" placeholder="z.B. Auftrag-Nr. / Ansprechpartner">
-          <div class="help">Kunden + alle Daten werden automatisch gespeichert (nur im Browser).</div>
-        </div>
-      </div>
+      <label>Referenz / PO (optional)</label>
+      <input id="ref" placeholder="z.B. Auftrag-Nr. / Ansprechpartner">
     </div>
 
-    <!-- RIGHT -->
     <div class="card">
-      <div class="cardHead">
-        <div class="cardTitle">Rechnungsdaten (Auto)</div>
-        <div class="tiny" id="autoInfo">Auto: Rechnungsnummer · Datum · Fälligkeit</div>
-      </div>
+      <div class="title">Rechnungsdaten & Auto-Stunden</div>
 
       <div class="row2">
         <div>
           <label>Rechnungsdatum</label>
           <input id="invDate" type="date">
-        </div>
-        <div>
-          <label>Fällig am (Auto +14)</label>
-          <input id="dueDate" type="date" readonly>
-        </div>
-      </div>
-
-      <label>Rechnungsnummer (Auto)</label>
-      <input id="invNo" readonly>
-
-      <div class="row2">
-        <div>
-          <label>Angebotsnummer (optional)</label>
-          <input id="angebot" placeholder="z.B. ANG-2026-001">
         </div>
         <div>
           <label>Zahlungsziel</label>
@@ -379,31 +147,53 @@ tbody tr:last-child td{border-bottom:none}
         </div>
       </div>
 
-      <label>USt-Status</label>
-      <select id="vatMode">
-        <option value="0" selected>0% (Kleinunternehmer §19)</option>
-        <option value="19">19% (Regelbesteuerung)</option>
-      </select>
-      <div class="help" id="vatHint"></div>
-
-      <label>Stundensatz (Grundsatz)</label>
-      <input id="rate" type="number" min="0" step="0.01" value="25">
-
       <div class="row2">
         <div>
-          <label>Nachtschicht % (editable)</label>
-          <input id="p_night" type="number" min="0" step="0.1" value="5">
+          <label>Fällig am (Auto)</label>
+          <input id="dueDate" type="date" readonly>
         </div>
         <div>
-          <label>Sonntag %</label>
-          <input id="p_sun" type="number" min="0" step="0.1" value="50">
+          <label>Rechnungsnummer (Auto)</label>
+          <input id="invNo" readonly>
         </div>
       </div>
 
-      <label>Feiertag %</label>
-      <input id="p_hol" type="number" min="0" step="0.1" value="100">
+      <div class="row2">
+        <div>
+          <label>USt-Status</label>
+          <select id="vatMode">
+            <option value="0" selected>0% (Kleinunternehmer §19)</option>
+            <option value="19">19% (Regelbesteuerung)</option>
+          </select>
+        </div>
+        <div>
+          <label>Stundensatz (€/h)</label>
+          <input id="rate" type="number" min="0" step="0.01" value="25">
+        </div>
+      </div>
 
-      <div class="help">Tipp: Gib nur Stunden ein → Beträge, USt & Gesamt werden automatisch berechnet.</div>
+      <div class="row3">
+        <div>
+          <label>Anzahl Mitarbeiter</label>
+          <input id="ma_count" type="number" min="0" step="1" placeholder="z.B. 10">
+        </div>
+        <div>
+          <label>Ø Std/MA</label>
+          <input id="hours_per_ma" type="number" min="0" step="0.25" placeholder="z.B. 216">
+        </div>
+        <div>
+          <label>Stunden gesamt (Auto)</label>
+          <input id="hours_total" type="number" readonly>
+        </div>
+      </div>
+
+      <div class="note" id="vatHint"></div>
+      <div class="note" style="margin-top:6px">
+        <b>Auto-Regel:</b><br>
+        1) Wenn Mitarbeiter + Ø Std/MA da sind → Stunden gesamt = MA × Ø<br>
+        2) Sonst → Stunden gesamt = Summe der Zeilenstunden<br>
+        3) Grundlohn-Stunden = Stunden gesamt − (Nacht + Sonntag + Feiertag)
+      </div>
     </div>
   </div>
 
@@ -411,533 +201,330 @@ tbody tr:last-child td{border-bottom:none}
     <table>
       <thead>
         <tr>
-          <th style="width:34%">Position</th>
-          <th style="width:16%">Stunden</th>
-          <th style="width:14%">Satz</th>
-          <th style="width:16%">Zuschlag %</th>
-          <th class="right" style="width:20%">Betrag</th>
+          <th>Position</th>
+          <th style="width:160px">Stunden</th>
+          <th style="width:140px">Zuschlag %</th>
+          <th class="right" style="width:180px">Betrag</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><b>Grundlohn</b><div class="tiny">Arbeitszeit (normal)</div></td>
-          <td class="cell"><input id="h_base" type="number" min="0" step="0.25" placeholder="z.B. 216"></td>
-          <td class="tiny">(wie Grundsatz)</td>
-          <td class="tiny">—</td>
+          <td><b>Grundlohn</b><div class="small">automatisch berechnet</div></td>
+          <td><input id="h_base" type="number" readonly></td>
+          <td class="small">—</td>
           <td class="right" id="sum_base">0,00 €</td>
         </tr>
         <tr>
-          <td><b>Nachtschicht</b><div class="tiny">Zuschlag auf Grundsatz</div></td>
-          <td class="cell"><input id="h_night" type="number" min="0" step="0.25" placeholder="z.B. 48"></td>
-          <td class="tiny">(wie Grundsatz)</td>
-          <td class="cell"><input id="p_night_mirror" type="number" min="0" step="0.1" value="5"></td>
+          <td><b>Nachtschicht</b><div class="small">Zuschlag</div></td>
+          <td><input id="h_night" type="number" min="0" step="0.25" placeholder="0"></td>
+          <td><input id="p_night" type="number" min="0" step="0.1" value="5"></td>
           <td class="right" id="sum_night">0,00 €</td>
         </tr>
         <tr>
-          <td><b>Sonntag</b><div class="tiny">Zuschlag (optional)</div></td>
-          <td class="cell"><input id="h_sun" type="number" min="0" step="0.25" placeholder="0"></td>
-          <td class="tiny">(wie Grundsatz)</td>
-          <td class="cell"><input id="p_sun_mirror" type="number" min="0" step="0.1" value="50"></td>
+          <td><b>Sonntag</b><div class="small">Zuschlag</div></td>
+          <td><input id="h_sun" type="number" min="0" step="0.25" placeholder="0"></td>
+          <td><input id="p_sun" type="number" min="0" step="0.1" value="50"></td>
           <td class="right" id="sum_sun">0,00 €</td>
         </tr>
         <tr>
-          <td><b>Feiertag</b><div class="tiny">Zuschlag (optional)</div></td>
-          <td class="cell"><input id="h_hol" type="number" min="0" step="0.25" placeholder="0"></td>
-          <td class="tiny">(wie Grundsatz)</td>
-          <td class="cell"><input id="p_hol_mirror" type="number" min="0" step="0.1" value="100"></td>
+          <td><b>Feiertag</b><div class="small">Zuschlag</div></td>
+          <td><input id="h_hol" type="number" min="0" step="0.25" placeholder="0"></td>
+          <td><input id="p_hol" type="number" min="0" step="0.1" value="100"></td>
           <td class="right" id="sum_hol">0,00 €</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="bottomGrid">
-    <div class="note">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div>
-          <b style="color:var(--blue2)">Zahlungsbedingungen</b><br>
-          <span id="termsText">14 Tage netto ab Rechnungsdatum.</span>
-        </div>
-        <div style="text-align:right">
-          <b style="color:var(--blue2)">Leistungsangaben</b><br>
-          Mitarbeiter: <b id="ma_out">—</b> · Std gesamt: <b id="hours_out">—</b> · Ø Std/MA: <b id="avg_out">—</b>
-        </div>
-      </div>
-
-      <div style="margin-top:10px" class="tiny">
-        <b>Bank:</b> MUSTAFA MURSAL ABDI · IBAN: DE98 1001 1001 2333 0146 96 · BIC: NTSBDEB1XXX
-      </div>
-    </div>
-
-    <div class="sum">
-      <div class="sumRow"><span>Zwischensumme (Netto)</span><b id="netto">0,00 €</b></div>
-      <div class="sumRow"><span>Umsatzsteuer</span><b id="vat">0,00 €</b></div>
-      <div class="sumRow total"><span>Gesamt</span><b id="total">0,00 €</b></div>
-      <div class="tiny" id="legalNote" style="margin-top:10px;color:var(--muted)"></div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <div class="note">
-      <b>Kontakt</b><br>
-      Masculine Security · Werschenregerstraße 6 · 28237 Bremen<br>
-      Tel: <a href="tel:+4915778697052">015778697052</a> ·
-      E-Mail: <a href="mailto:Kontakt.mass.bremen@hotmail.com">Kontakt.mass.bremen@hotmail.com</a><br><br>
-      <span class="tiny">Vielen Dank für Ihren Auftrag.</span>
-    </div>
-    <div class="note">
-      <b>Unternehmensangaben</b><br>
-      Steuernummer: (in Bearbeitung)<br>
-      Angebotsnummer: <span id="angebotOut">—</span><br>
-      Referenz: <span id="refOut">—</span>
+  <div class="sumBox">
+    <div class="sumRow"><span>Zwischensumme (Netto)</span><b id="netto">0,00 €</b></div>
+    <div class="sumRow"><span>Umsatzsteuer</span><b id="vat">0,00 €</b></div>
+    <div class="sumRow total"><span>Gesamt</span><b id="total">0,00 €</b></div>
+    <div class="note" id="legalNote"></div>
+    <div class="note" style="margin-top:8px">
+      <b>Bank:</b> MUSTAFA MURSAL ABDI · IBAN: DE98 1001 1001 2333 0146 96 · BIC: NTSBDEB1XXX
     </div>
   </div>
 
 </div>
 
 <script>
-/* ===========================
-   Masculine Security — 99% AUTO
-   - Auto invoice no/date/due
-   - Status chips (wählen)
-   - Customer list save/select
-   - Auto calc (Grundlohn+Zuschläge+VAT)
-   - Auto staff hours sync
-   - Auto-save (localStorage)
-   - Fixed logo prints in PDF (embed)
-   =========================== */
+/* ONE FILE · AUTO STUNDEN · NO THEME */
+const LS_STATE="ms_simple_autostunden_v1";
+const LS_CUSTOMERS="ms_customers_simple_v1";
+const LS_COUNTER="ms_counter_simple_v1";
+const $=id=>document.getElementById(id);
 
-const LS_STATE = "ms_invoice_state_pro_v1";
-const LS_CUSTOMERS = "ms_customers_pro_v1";
-const LS_COUNTER = "ms_counter_pro_v1";
+const pad2=n=>String(n).padStart(2,"0");
+const toISO=d=>{const x=new Date(d);return `${x.getFullYear()}-${pad2(x.getMonth()+1)}-${pad2(x.getDate())}`;}
+const num=el=>{const v=parseFloat(el.value);return Number.isFinite(v)?v:0;}
+const money=x=>(x||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
 
-const $ = (id)=>document.getElementById(id);
-
-function pad2(n){return String(n).padStart(2,"0");}
-function toISO(d){
-  const x = new Date(d);
-  return `${x.getFullYear()}-${pad2(x.getMonth()+1)}-${pad2(x.getDate())}`;
-}
-function money(x){
-  return (x||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
-}
-function num(el){
-  const v = parseFloat(el.value);
-  return Number.isFinite(v) ? v : 0;
+function nextInvoiceNo(){
+  const d=new Date();
+  const key=`${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
+  let store={}; try{store=JSON.parse(localStorage.getItem(LS_COUNTER)||"{}")}catch(e){store={}}
+  store[key]=(store[key]||0)+1;
+  localStorage.setItem(LS_COUNTER,JSON.stringify(store));
+  return `MS-${key}-${store[key]}`;
 }
 
-/* ---------- LOGO (embed for PDF) ---------- */
-async function embedLogoIfNeeded(){
-  try{
-    const img = $("logoImg");
-    if((img.getAttribute("src")||"").startsWith("data:")) return;
-    const res = await fetch("logo.png", {cache:"no-store"});
-    if(!res.ok) return;
-    const blob = await res.blob();
-    const r = new FileReader();
-    r.onload = ()=>{ img.src = String(r.result); scheduleSave(); };
-    r.readAsDataURL(blob);
-  }catch(e){}
+function setDue(){
+  const days=parseInt($("terms").value,10)||14;
+  const inv=$("invDate").value||toISO(new Date());
+  $("invDate").value=inv;
+  const base=new Date(inv); const due=new Date(base); due.setDate(due.getDate()+days);
+  $("dueDate").value=toISO(due);
 }
-function setLogoFromFile(file){
-  const r = new FileReader();
-  r.onload = ()=>{ $("logoImg").src = String(r.result); scheduleSave(); };
-  r.readAsDataURL(file);
-}
-$("logoFile").addEventListener("change", (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(f) setLogoFromFile(f);
-});
 
-/* ---------- STATUS (chips) ---------- */
-function setStatus(status){
-  // update pills
-  document.querySelectorAll(".pill").forEach(p=>{
-    p.classList.toggle("active", p.dataset.status===status);
-  });
-  // badge
-  const badge = $("statusBadge");
-  badge.classList.remove("draft","open","paid","overdue");
-  let cls="open", dotText=status;
-  if(status==="Entwurf"){cls="draft";}
-  if(status==="Offen"){cls="open";}
-  if(status==="Bezahlt"){cls="paid";}
-  if(status==="Überfällig"){cls="overdue";}
-  badge.classList.add(cls);
-  $("statusBadgeText").textContent = dotText;
-  scheduleSave();
+function updateVatText(){
+  const v=$("vatMode").value;
+  if(v==="0"){
+    $("vatHint").textContent="Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
+    $("legalNote").textContent="Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
+  }else{
+    $("vatHint").textContent="Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).";
+    $("legalNote").textContent="Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).";
+  }
 }
-document.querySelectorAll(".pill").forEach(p=>{
-  p.addEventListener("click", ()=> setStatus(p.dataset.status));
-});
 
-/* ---------- CUSTOMERS ---------- */
 function getCustomers(){
-  try{
-    const raw = localStorage.getItem(LS_CUSTOMERS);
-    const arr = JSON.parse(raw || "[]");
-    return Array.isArray(arr) ? arr : [];
-  }catch(e){return [];}
+  try{const a=JSON.parse(localStorage.getItem(LS_CUSTOMERS)||"[]");return Array.isArray(a)?a:[]}catch(e){return []}
 }
-function setCustomers(arr){
-  localStorage.setItem(LS_CUSTOMERS, JSON.stringify(arr));
-}
+function setCustomers(a){localStorage.setItem(LS_CUSTOMERS,JSON.stringify(a))}
 function refreshCustomerSelect(selected=""){
-  const sel = $("kundeSelect");
-  const list = getCustomers().slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"", "de"));
-  sel.innerHTML = `<option value="">— Kunde wählen —</option>` + list.map(c=>{
-    const n = (c.name||"").replace(/"/g,"&quot;");
+  const sel=$("kundeSelect");
+  const list=getCustomers().slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","de"));
+  sel.innerHTML=`<option value="">— Kunde wählen —</option>`+list.map(c=>{
+    const n=(c.name||"").replace(/"/g,"&quot;");
     return `<option value="${n}">${n}</option>`;
   }).join("");
-  sel.value = selected || "";
+  sel.value=selected||"";
 }
-function loadCustomerFromSelect(){
-  const name = $("kundeSelect").value;
-  const c = getCustomers().find(x=>x.name===name);
-  if(c){
-    $("kundeName").value = c.name || "";
-    $("kundeEmail").value = c.email || "";
-    $("kundeText").value = c.text || "";
-  }
-  scheduleSave();
+function loadCustomer(){
+  const name=$("kundeSelect").value;
+  const c=getCustomers().find(x=>x.name===name);
+  if(!c) return;
+  $("kundeName").value=c.name||"";
+  $("kundeEmail").value=c.email||"";
+  $("kundeText").value=c.text||"";
+  saveSoon();
 }
-$("kundeSelect").addEventListener("change", loadCustomerFromSelect);
-
-$("btnKundeNew").addEventListener("click", ()=>{
-  $("kundeSelect").value="";
-  $("kundeName").value="";
-  $("kundeEmail").value="";
-  $("kundeText").value="";
-  scheduleSave();
-});
-
-$("btnKundeSave").addEventListener("click", ()=>{
-  const name = ($("kundeName").value||"").trim();
-  const email = ($("kundeEmail").value||"").trim();
-  const text = ($("kundeText").value||"").trim();
-  if(!name){ alert("Bitte Kundenname eingeben."); return; }
-  if(!text){ alert("Bitte Kundendaten eingeben."); return; }
-  const list = getCustomers();
-  const idx = list.findIndex(x=>x.name===name);
-  const entry = {name,email,text,updatedAt:Date.now()};
+function saveCustomer(){
+  const name=($("kundeName").value||"").trim();
+  const email=($("kundeEmail").value||"").trim();
+  const text=($("kundeText").value||"").trim();
+  if(!name){alert("Bitte Kundenname eingeben.");return;}
+  if(!text){alert("Bitte Kundendaten eingeben.");return;}
+  const list=getCustomers();
+  const idx=list.findIndex(x=>x.name===name);
+  const entry={name,email,text,updatedAt:Date.now()};
   if(idx>=0) list[idx]=entry; else list.push(entry);
   setCustomers(list);
   refreshCustomerSelect(name);
   $("kundeSelect").value=name;
-  scheduleSave();
+  saveSoon();
+}
+function deleteCustomer(){
+  const name=$("kundeSelect").value || ($("kundeName").value||"").trim();
+  if(!name){alert("Kein Kunde ausgewählt.");return;}
+  if(!confirm(`Kunde "${name}" löschen?`)) return;
+  const list=getCustomers().filter(x=>x.name!==name);
+  setCustomers(list);
+  refreshCustomerSelect("");
+  $("kundeName").value=""; $("kundeEmail").value=""; $("kundeText").value="";
+  saveSoon();
+}
+
+async function embedLogoIfNeeded(){
+  try{
+    const img=$("logoImg");
+    if((img.getAttribute("src")||"").startsWith("data:")) return;
+    const res=await fetch("logo.png",{cache:"no-store"});
+    if(!res.ok) return;
+    const blob=await res.blob();
+    const r=new FileReader();
+    r.onload=()=>{img.src=String(r.result);saveSoon();}
+    r.readAsDataURL(blob);
+  }catch(e){}
+}
+$("logoFile").addEventListener("change",e=>{
+  const f=e.target.files && e.target.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{$("logoImg").src=String(r.result);saveSoon();}
+  r.readAsDataURL(f);
 });
 
-/* ---------- INVOICE NUMBER / DATES ---------- */
-function nextInvoiceNo(){
-  const d = new Date();
-  const key = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;
-  let store={};
-  try{ store = JSON.parse(localStorage.getItem(LS_COUNTER) || "{}"); }catch(e){ store={}; }
-  store[key] = (store[key]||0)+1;
-  localStorage.setItem(LS_COUNTER, JSON.stringify(store));
-  return `MS-${key}-${store[key]}`;
-}
-function setDueFromTerms(){
-  const days = parseInt($("terms").value,10) || 14;
-  const inv = $("invDate").value || toISO(new Date());
-  $("invDate").value = inv;
-  const base = new Date(inv);
-  const due = new Date(base); due.setDate(due.getDate()+days);
-  $("dueDate").value = toISO(due);
-  $("termsText").textContent = `${days} Tage netto ab Rechnungsdatum.`;
-  scheduleSave();
-}
-$("invDate").addEventListener("change", setDueFromTerms);
-$("terms").addEventListener("change", setDueFromTerms);
+function autoHours(){
+  // 1) If MA + Ø given => total = MA * Ø
+  const ma=Math.max(0,Math.floor(num($("ma_count"))));
+  const per=num($("hours_per_ma"));
+  const hNight=num($("h_night"));
+  const hSun=num($("h_sun"));
+  const hHol=num($("h_hol"));
 
-function newInvoice(){
-  $("invNo").value = nextInvoiceNo();
-  $("invDate").value = toISO(new Date());
-  setDueFromTerms();
-  setStatus("Offen");
-  scheduleSave();
-}
+  let total=0;
 
-/* ---------- VAT texts ---------- */
-function updateVatTexts(){
-  const v = $("vatMode").value;
-  if(v==="0"){
-    $("vatHint").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
-    $("legalNote").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
+  if(ma>0 && per>0){
+    total=ma*per;
   }else{
-    $("vatHint").textContent = "Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).";
-    $("legalNote").textContent = "Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).";
-  }
-  scheduleSave();
-}
-$("vatMode").addEventListener("change", ()=>{ updateVatTexts(); calc(); });
-
-/* ---------- Staff hours sync (99% auto) ---------- */
-let syncing=false;
-function syncStaff(source){
-  if(syncing) return;
-  syncing=true;
-
-  const ma = Math.max(0, Math.floor(num($("ma_count"))));
-  const total = num($("hours_total"));
-  const per = num($("hours_per_ma"));
-
-  if(source==="total"){
-    if(ma>0) $("hours_per_ma").value = (total/ma).toFixed(2);
-  }
-  if(source==="per"){
-    if(ma>0) $("hours_total").value = (per*ma).toFixed(2);
-  }
-  if(source==="ma"){
-    const t = num($("hours_total"));
-    const p = num($("hours_per_ma"));
-    if(t>0 && ma>0) $("hours_per_ma").value = (t/ma).toFixed(2);
-    else if(p>0 && ma>0) $("hours_total").value = (p*ma).toFixed(2);
+    // 2) else total = sum of rows (base+others) but base is auto, so use others + (base current)
+    const hBaseCur=num($("h_base"));
+    total=hBaseCur+hNight+hSun+hHol;
   }
 
-  // mirror total -> Grundlohn hours (only if empty)
-  const t2 = num($("hours_total"));
-  if((($("h_base").value||"").trim()==="") && t2>0) $("h_base").value = String(t2);
+  // 3) base = total - (others)
+  let hBase=total-(hNight+hSun+hHol);
+  if(hBase<0) hBase=0;
 
-  $("ma_out").textContent = ma>0 ? String(ma) : "—";
-  $("hours_out").textContent = (num($("hours_total"))>0) ? num($("hours_total")).toFixed(2) : "—";
-  $("avg_out").textContent = (ma>0 && num($("hours_per_ma"))>0) ? num($("hours_per_ma")).toFixed(2) : (ma>0 && num($("hours_total"))>0 ? (num($("hours_total"))/ma).toFixed(2) : "—");
+  $("hours_total").value=total>0?total.toFixed(2):"";
+  $("h_base").value=total>0?hBase.toFixed(2):"";
 
-  syncing=false;
   calc();
 }
-$("ma_count").addEventListener("input", ()=>syncStaff("ma"));
-$("hours_total").addEventListener("input", ()=>syncStaff("total"));
-$("hours_per_ma").addEventListener("input", ()=>syncStaff("per"));
 
-/* ---------- Percent mirrors (right panel <-> table) ---------- */
-function mirrorPercents(){
-  // mirror from right panel to table
-  $("p_night_mirror").value = $("p_night").value;
-  $("p_sun_mirror").value = $("p_sun").value;
-  $("p_hol_mirror").value = $("p_hol").value;
-}
-function mirrorPercentsBack(){
-  // mirror from table to right panel
-  $("p_night").value = $("p_night_mirror").value;
-  $("p_sun").value = $("p_sun_mirror").value;
-  $("p_hol").value = $("p_hol_mirror").value;
-}
-["p_night","p_sun","p_hol"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ mirrorPercents(); calc(); });
-});
-["p_night_mirror","p_sun_mirror","p_hol_mirror"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ mirrorPercentsBack(); calc(); });
-});
-
-/* ---------- Calculation ---------- */
 function calc(){
-  const rate = num($("rate"));
+  const rate=num($("rate"));
+  const hBase=num($("h_base"));
+  const hNight=num($("h_night"));
+  const hSun=num($("h_sun"));
+  const hHol=num($("h_hol"));
 
-  const hBase = num($("h_base"));
-  const hNight = num($("h_night"));
-  const hSun = num($("h_sun"));
-  const hHol = num($("h_hol"));
+  const pNight=num($("p_night"));
+  const pSun=num($("p_sun"));
+  const pHol=num($("p_hol"));
 
-  const pNight = num($("p_night"));
-  const pSun = num($("p_sun"));
-  const pHol = num($("p_hol"));
+  const base=hBase*rate;
+  const night=hNight*rate*(pNight/100);
+  const sun=hSun*rate*(pSun/100);
+  const hol=hHol*rate*(pHol/100);
 
-  const base = hBase * rate;
-  const night = hNight * rate * (pNight/100);
-  const sun = hSun * rate * (pSun/100);
-  const hol = hHol * rate * (pHol/100);
+  $("sum_base").textContent=money(base);
+  $("sum_night").textContent=money(night);
+  $("sum_sun").textContent=money(sun);
+  $("sum_hol").textContent=money(hol);
 
-  $("sum_base").textContent = money(base);
-  $("sum_night").textContent = money(night);
-  $("sum_sun").textContent = money(sun);
-  $("sum_hol").textContent = money(hol);
+  const net=Math.max(0,base+night+sun+hol);
+  const vatRate=(parseFloat($("vatMode").value)||0)/100;
+  const vat=net*vatRate;
+  const total=net+vat;
 
-  const net = Math.max(0, base+night+sun+hol);
-  const vatRate = (parseFloat($("vatMode").value)||0)/100;
-  const vat = net*vatRate;
-  const total = net+vat;
+  $("netto").textContent=money(net);
+  $("vat").textContent=money(vat);
+  $("total").textContent=money(total);
 
-  $("netto").textContent = money(net);
-  $("vat").textContent = money(vat);
-  $("total").textContent = money(total);
-
-  // footer quick fields
-  $("angebotOut").textContent = ($("angebot").value||"").trim() || "—";
-  $("refOut").textContent = ($("ref").value||"").trim() || "—";
-
-  scheduleSave();
+  saveSoon();
 }
 
-/* ---------- Autosave ---------- */
-let saveTimer;
-function scheduleSave(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveState, 160);
-}
+let t;
+function saveSoon(){clearTimeout(t);t=setTimeout(saveState,140);}
 function saveState(){
-  const state = {
-    // logo
-    logoSrc: $("logoImg").src || "logo.png",
+  const state={
+    logoSrc:$("logoImg").src||"logo.png",
+    invDate:$("invDate").value, dueDate:$("dueDate").value, invNo:$("invNo").value,
+    terms:$("terms").value, vatMode:$("vatMode").value, rate:$("rate").value,
 
-    // status
-    status: document.querySelector(".pill.active")?.dataset.status || "Offen",
+    kundeSelect:$("kundeSelect").value,
+    kundeName:$("kundeName").value, kundeEmail:$("kundeEmail").value, kundeText:$("kundeText").value,
 
-    // invoice
-    invNo: $("invNo").value,
-    invDate: $("invDate").value,
-    dueDate: $("dueDate").value,
-    terms: $("terms").value,
-    vatMode: $("vatMode").value,
-    angebot: $("angebot").value,
+    objekt:$("objekt").value, zeitraum:$("zeitraum").value, leistung:$("leistung").value, ref:$("ref").value,
 
-    // customer
-    kundeSelect: $("kundeSelect").value,
-    kundeName: $("kundeName").value,
-    kundeEmail: $("kundeEmail").value,
-    kundeText: $("kundeText").value,
-
-    // job info
-    objekt: $("objekt").value,
-    zeitraum: $("zeitraum").value,
-    ma_count: $("ma_count").value,
-    hours_total: $("hours_total").value,
-    hours_per_ma: $("hours_per_ma").value,
-    leistung: $("leistung").value,
-    ref: $("ref").value,
-
-    // calc inputs
-    rate: $("rate").value,
-    h_base: $("h_base").value,
-    h_night: $("h_night").value,
-    h_sun: $("h_sun").value,
-    h_hol: $("h_hol").value,
-    p_night: $("p_night").value,
-    p_sun: $("p_sun").value,
-    p_hol: $("p_hol").value
+    ma_count:$("ma_count").value, hours_per_ma:$("hours_per_ma").value,
+    h_night:$("h_night").value, h_sun:$("h_sun").value, h_hol:$("h_hol").value,
+    p_night:$("p_night").value, p_sun:$("p_sun").value, p_hol:$("p_hol").value
   };
-  localStorage.setItem(LS_STATE, JSON.stringify(state));
+  localStorage.setItem(LS_STATE,JSON.stringify(state));
 }
+
 function loadState(){
   try{
-    const raw = localStorage.getItem(LS_STATE);
+    const raw=localStorage.getItem(LS_STATE);
     if(!raw) return false;
-    const s = JSON.parse(raw);
+    const s=JSON.parse(raw);
 
-    if(s.logoSrc) $("logoImg").src = s.logoSrc;
+    if(s.logoSrc) $("logoImg").src=s.logoSrc;
 
-    // invoice
-    $("invNo").value = s.invNo || "";
-    $("invDate").value = s.invDate || "";
-    $("dueDate").value = s.dueDate || "";
-    $("terms").value = s.terms || "14";
-    $("vatMode").value = s.vatMode || "0";
-    $("angebot").value = s.angebot || "";
+    $("invDate").value=s.invDate||"";
+    $("dueDate").value=s.dueDate||"";
+    $("invNo").value=s.invNo||"";
+    $("terms").value=s.terms||"14";
+    $("vatMode").value=s.vatMode||"0";
+    $("rate").value=s.rate||"25";
 
-    // customer
-    refreshCustomerSelect(s.kundeSelect || "");
-    $("kundeName").value = s.kundeName || "";
-    $("kundeEmail").value = s.kundeEmail || "";
-    $("kundeText").value = s.kundeText || "";
+    refreshCustomerSelect(s.kundeSelect||"");
+    $("kundeName").value=s.kundeName||"";
+    $("kundeEmail").value=s.kundeEmail||"";
+    $("kundeText").value=s.kundeText||"";
 
-    // job info
-    $("objekt").value = s.objekt || "";
-    $("zeitraum").value = s.zeitraum || "";
-    $("ma_count").value = s.ma_count || "";
-    $("hours_total").value = s.hours_total || "";
-    $("hours_per_ma").value = s.hours_per_ma || "";
-    $("leistung").value = s.leistung || "Security Dienstleistung";
-    $("ref").value = s.ref || "";
+    $("objekt").value=s.objekt||"";
+    $("zeitraum").value=s.zeitraum||"";
+    $("leistung").value=s.leistung||"Security Dienstleistung";
+    $("ref").value=s.ref||"";
 
-    // calc inputs
-    $("rate").value = s.rate || "25";
-    $("h_base").value = s.h_base || "";
-    $("h_night").value = s.h_night || "";
-    $("h_sun").value = s.h_sun || "";
-    $("h_hol").value = s.h_hol || "";
-    $("p_night").value = s.p_night || "5";
-    $("p_sun").value = s.p_sun || "50";
-    $("p_hol").value = s.p_hol || "100";
-    mirrorPercents();
+    $("ma_count").value=s.ma_count||"";
+    $("hours_per_ma").value=s.hours_per_ma||"";
 
-    setStatus(s.status || "Offen");
+    $("h_night").value=s.h_night||"";
+    $("h_sun").value=s.h_sun||"";
+    $("h_hol").value=s.h_hol||"";
+
+    $("p_night").value=s.p_night||"5";
+    $("p_sun").value=s.p_sun||"50";
+    $("p_hol").value=s.p_hol||"100";
+
     return true;
-  }catch(e){ return false; }
+  }catch(e){return false;}
 }
 
-/* ---------- Copy data (quick reuse) ---------- */
-$("btnCopy").addEventListener("click", ()=>{
-  const payload = {
-    invNo:$("invNo").value, invDate:$("invDate").value, dueDate:$("dueDate").value,
-    status: document.querySelector(".pill.active")?.dataset.status || "Offen",
-    kunde: $("kundeText").value, kundeName:$("kundeName").value, kundeEmail:$("kundeEmail").value,
-    objekt:$("objekt").value, zeitraum:$("zeitraum").value,
-    ma_count:$("ma_count").value, hours_total:$("hours_total").value, hours_per_ma:$("hours_per_ma").value,
-    leistung:$("leistung").value, angebot:$("angebot").value, ref:$("ref").value,
-    rate:$("rate").value,
-    h_base:$("h_base").value, h_night:$("h_night").value, h_sun:$("h_sun").value, h_hol:$("h_hol").value,
-    p_night:$("p_night").value, p_sun:$("p_sun").value, p_hol:$("p_hol").value,
-    vatMode:$("vatMode").value, terms:$("terms").value
-  };
-  navigator.clipboard?.writeText(JSON.stringify(payload,null,2));
-  alert("Daten kopiert ✓");
-});
+function newInvoice(){
+  $("invNo").value=nextInvoiceNo();
+  $("invDate").value=toISO(new Date());
+  setDue();
+  saveSoon();
+}
 
-/* ---------- Buttons ---------- */
-$("btnNew").addEventListener("click", newInvoice);
-$("btnSave").addEventListener("click", ()=>{ saveState(); alert("Gespeichert ✓"); });
-$("btnReset").addEventListener("click", ()=>{
-  if(!confirm("Alles zurücksetzen? (Nur Eingaben werden gelöscht)")) return;
+$("btnNew").addEventListener("click",()=>{newInvoice();autoHours();});
+$("btnSave").addEventListener("click",()=>{saveState();alert("Gespeichert ✓");});
+$("btnReset").addEventListener("click",()=>{
+  if(!confirm("Reset? (Eingaben löschen, Kundenliste bleibt)")) return;
   localStorage.removeItem(LS_STATE);
-
-  // keep customers + counter
-  $("kundeSelect").value=""; $("kundeName").value=""; $("kundeEmail").value=""; $("kundeText").value="";
-  $("objekt").value=""; $("zeitraum").value=""; $("ma_count").value=""; $("hours_total").value=""; $("hours_per_ma").value="";
-  $("leistung").value="Security Dienstleistung"; $("ref").value=""; $("angebot").value="";
-  $("rate").value="25"; $("h_base").value=""; $("h_night").value=""; $("h_sun").value=""; $("h_hol").value="";
-  $("p_night").value="5"; $("p_sun").value="50"; $("p_hol").value="100";
-  mirrorPercents();
-
-  $("vatMode").value="0"; $("terms").value="14";
-  updateVatTexts();
-  newInvoice();
-  syncStaff("ma");
-  calc();
-  embedLogoIfNeeded();
+  location.reload();
 });
 
-/* ---------- Auto events for inputs ---------- */
-[
-  "kundeName","kundeEmail","kundeText","objekt","zeitraum","leistung","ref","angebot",
-  "rate","h_base","h_night","h_sun","h_hol",
-  "vatMode","terms"
-].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ calc(); });
-  $(id).addEventListener("change", ()=>{ calc(); });
+$("kundeSelect").addEventListener("change",loadCustomer);
+$("btnKundeNew").addEventListener("click",()=>{$("kundeSelect").value="";$("kundeName").value="";$("kundeEmail").value="";$("kundeText").value="";saveSoon();});
+$("btnKundeSave").addEventListener("click",saveCustomer);
+$("btnKundeDelete").addEventListener("click",deleteCustomer);
+
+["invDate","terms"].forEach(id=>$(id).addEventListener("change",()=>{setDue();saveSoon();}));
+$("vatMode").addEventListener("change",()=>{updateVatText();calc();});
+["rate","p_night","p_sun","p_hol"].forEach(id=>$(id).addEventListener("input",calc));
+
+["ma_count","hours_per_ma","h_night","h_sun","h_hol"].forEach(id=>{
+  $(id).addEventListener("input",autoHours);
+  $(id).addEventListener("change",autoHours);
 });
 
-/* ---------- INIT ---------- */
+["kundeName","kundeEmail","kundeText","objekt","zeitraum","leistung","ref"].forEach(id=>{
+  $(id).addEventListener("input",saveSoon);
+});
+
 (function init(){
   refreshCustomerSelect("");
+  const loaded=loadState();
 
-  // Load state if exists
-  const loaded = loadState();
+  if(!$("invNo").value) newInvoice();
+  if(!$("invDate").value) $("invDate").value=toISO(new Date());
+  setDue();
+  updateVatText();
 
-  // Ensure invoice exists
-  if(!loaded || !$("invNo").value){
-    newInvoice();
-  }else{
-    // ensure due date correct based on terms
-    setDueFromTerms();
-  }
-
-  updateVatTexts();
-  mirrorPercents();
-  syncStaff("ma");
-  calc();
-
-  // Perfect logo for PDF
+  // embed logo for PDF printing
   embedLogoIfNeeded();
+
+  // IMPORTANT: Always enforce automatic hours (no mismatch)
+  autoHours();
+  calc();
 })();
 </script>
 </body>
