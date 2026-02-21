@@ -23,17 +23,14 @@
     body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif}
     .wrap{max-width:1050px;margin:22px auto;padding:0 14px}
 
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      margin-bottom:14px;flex-wrap:wrap
-    }
+    /* Header shown on screen + print */
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:12px}
     .logoBox{
       width:44px;height:44px;border-radius:12px;overflow:hidden;
       background:linear-gradient(135deg,var(--accent),#06254f);
       box-shadow:0 10px 26px rgba(11,58,120,.22);
-      display:grid;place-items:center;color:#fff;font-weight:800;letter-spacing:.5px;
-      flex:0 0 auto;
+      display:grid;place-items:center;color:#fff;font-weight:800;letter-spacing:.5px;flex:0 0 auto;
     }
     .logoBox img{width:100%;height:100%;object-fit:cover;display:block}
     .brand h1{margin:0;font-size:18px;line-height:1.1}
@@ -98,30 +95,41 @@
     .noPrint{display:block}
     .printOnly{display:none}
 
-    /* ✅ PRINT: remove app-controls, remove boxes, keep logo+data */
+    /* ✅ PRINT: 1-page compact + clean PDF (no controls) */
+    @page{ size:A4; margin:10mm; }
+
     @media print{
       body{background:#fff}
       .wrap{max-width:none;margin:0;padding:0}
 
-      /* show header (logo + title), hide buttons */
-      .topbar{display:flex !important;margin:0 0 12px 0}
+      /* keep header (logo+title), hide buttons */
+      .topbar{display:flex !important;margin:0 0 8px 0}
       .actions{display:none !important}
+      .sub{display:none !important}
 
-      /* hide app-only controls */
+      /* hide any app-only bits */
       .noPrint{display:none !important}
       .printOnly{display:block !important}
 
-      /* make it look like real invoice */
+      /* compact layout */
       .paper{border:none;border-radius:0;box-shadow:none}
-      .paperHeader{padding:18px 18px 10px}
-      .paperBody{padding:12px 18px 0}
-      .paperFooter{padding:12px 18px 18px}
-      .meta, .tableWrap, .notes, .sumBox, .footCard{
-        border:1px solid var(--line) !important;
-        box-shadow:none !important;
-      }
+      .paperHeader{padding:12px 12px 8px !important;gap:10px !important}
+      .paperBody{padding:8px 12px 0 !important}
+      .paperFooter{padding:8px 12px 10px !important;gap:10px !important}
 
-      /* remove input/textarea/select UI */
+      .grid{gap:8px !important}
+      .totals{gap:8px !important}
+      .meta{padding:10px !important}
+      .notes,.sumBox,.footCard{padding:10px !important}
+
+      /* prevent textarea forcing extra height */
+      textarea{min-height:0 !important;height:auto !important}
+
+      /* slightly smaller print text */
+      h1{font-size:15px !important}
+      body, table, input, textarea, select{font-size:12px !important;line-height:1.25 !important}
+
+      /* remove form UI in print */
       input,textarea,select{
         border:none !important;
         padding:0 !important;
@@ -131,9 +139,14 @@
         -webkit-appearance:none !important;
       }
 
-      /* remove little calendar/dropdown icons spacing */
-      select{background:transparent !important}
+      /* avoid ugly splits */
+      .paperHeader,.tableWrap,.totals,.paperFooter{page-break-inside:avoid}
+      table,tr,td,th{page-break-inside:avoid}
+
       a{border:none;text-decoration:none}
+
+      /* final squeeze if needed */
+      .paper{zoom:0.98}
     }
 
     @media (max-width:900px){
@@ -198,6 +211,8 @@
               </select>
             </div>
             <div class="metaRow"><span>Fällig am</span><input id="dueDateInput" type="date"></div>
+
+            <!-- app-only -->
             <div class="metaRow noPrint"><span>Zahlungsziel</span>
               <select id="payTerm">
                 <option value="custom">Manuell</option>
@@ -218,7 +233,6 @@
           <div class="field">
             <label>Kunde / Rechnungsempfänger</label>
 
-            <!-- app controls hidden in print -->
             <div class="split noPrint" style="grid-template-columns:1fr auto;align-items:center">
               <select id="kundeSelect"></select>
               <button class="btn" type="button" style="padding:8px 10px;border-radius:10px" id="btnKundeNeu">Neu</button>
@@ -329,7 +343,6 @@
                 </select>
               </div>
 
-              <!-- print shows simple VAT line only -->
               <div class="printOnly" style="font-size:12.5px;color:var(--muted)">
                 <strong>USt-Status:</strong> <span id="vatPrint">—</span>
               </div>
@@ -375,7 +388,7 @@
   </div>
 
   <script>
-    const LS_STATE = 'ms_invoice_app_state_v6_printclean';
+    const LS_STATE = 'ms_invoice_app_state_v7_print1page';
     const LS_CUSTOMERS = 'ms_invoice_customers_v1';
     const $ = (id)=>document.getElementById(id);
 
@@ -394,7 +407,9 @@
       return x.toLocaleString('de-DE',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
     }
     function num(id){
-      const v = parseFloat($(id).value);
+      const el = $(id);
+      if(!el) return 0;
+      const v = parseFloat(el.value);
       return Number.isFinite(v) ? v : 0;
     }
 
@@ -432,7 +447,7 @@
       }catch(e){}
     }
 
-    // Invoice no
+    // Invoice number
     function makeInvoiceNo(){
       const d = new Date();
       const y = d.getFullYear();
@@ -458,7 +473,6 @@
       due.setDate(due.getDate() + days);
       $('dueDateInput').value = toISODate(due);
     }
-
     function regenInvoiceMeta(){
       $('invNoInput').value = makeInvoiceNo();
       $('invDateInput').value = toISODate(new Date());
@@ -492,25 +506,25 @@
 
     // VAT
     function updateVatNote(){
-      const mode = $('vatMode') ? $('vatMode').value : 'kru';
+      const mode = $('vatMode').value;
       const vatPrint = $('vatPrint');
       if(mode === 'kru'){
         $('vatNote').textContent = 'Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).';
-        if($('vatCustomWrap')) $('vatCustomWrap').style.display = 'none';
+        $('vatCustomWrap').style.display = 'none';
         if(vatPrint) vatPrint.textContent = 'Kleinunternehmer (§19 UStG) — 0%';
       }else if(mode === 'vat19'){
         $('vatNote').textContent = 'Umsatzsteuer wird gemäß Regelbesteuerung ausgewiesen (19%).';
-        if($('vatCustomWrap')) $('vatCustomWrap').style.display = 'none';
+        $('vatCustomWrap').style.display = 'none';
         if(vatPrint) vatPrint.textContent = 'Regelbesteuerung — 19%';
       }else{
-        if($('vatCustomWrap')) $('vatCustomWrap').style.display = 'block';
+        $('vatCustomWrap').style.display = 'block';
         const p = num('vatPct');
         $('vatNote').textContent = `Umsatzsteuer wird ausgewiesen (${p || 0}%).`;
         if(vatPrint) vatPrint.textContent = `Individuell — ${p || 0}%`;
       }
     }
 
-    // Calculations
+    // Calculations (NO RABATT)
     function calc(){
       const h = num('hours');
       const r = num('rate');
@@ -529,7 +543,7 @@
       const net = Math.max(0, base + night + sun + hol);
 
       let vatRate = 0;
-      const mode = $('vatMode') ? $('vatMode').value : 'kru';
+      const mode = $('vatMode').value;
       if(mode === 'vat19') vatRate = 0.19;
       if(mode === 'custom') vatRate = Math.max(0, num('vatPct')) / 100;
 
@@ -570,7 +584,6 @@
     function setCustomers(arr){ localStorage.setItem(LS_CUSTOMERS, JSON.stringify(arr)); }
     function refreshCustomerSelect(selected=''){
       const sel = $('kundeSelect');
-      if(!sel) return;
       const customers = getCustomers().sort((a,b)=>(a.name||'').localeCompare(b.name||'', 'de'));
       sel.innerHTML = '<option value="">— Kunde wählen —</option>' + customers.map(c=>{
         const n = (c.name||'').replace(/"/g,'&quot;');
@@ -630,11 +643,11 @@
         invNo: $('invNoInput').value,
         invStatus: $('invStatus').value,
         dueDate: $('dueDateInput').value,
-        payTerm: $('payTerm') ? $('payTerm').value : '14',
+        payTerm: $('payTerm').value,
 
         kunde: $('kunde').value,
-        kundeName: $('kundeName') ? $('kundeName').value : '',
-        kundeSelected: $('kundeSelect') ? $('kundeSelect').value : '',
+        kundeName: $('kundeName').value,
+        kundeSelected: $('kundeSelect').value,
 
         leistung: $('leistung').value,
         von: $('von').value,
@@ -650,8 +663,8 @@
         hol_hours: $('hol_hours').value,
         hol_pct: $('hol_pct').value,
 
-        vatMode: $('vatMode') ? $('vatMode').value : 'kru',
-        vatPct: $('vatPct') ? $('vatPct').value : '19',
+        vatMode: $('vatMode').value,
+        vatPct: $('vatPct').value,
 
         logoDataUrl: $('logoImg').getAttribute('src') || ''
       };
@@ -667,10 +680,10 @@
         if(s.invNo) $('invNoInput').value = s.invNo;
         if(s.invStatus) $('invStatus').value = s.invStatus;
         if(s.dueDate) $('dueDateInput').value = s.dueDate;
-        if($('payTerm') && s.payTerm) $('payTerm').value = s.payTerm;
+        if(s.payTerm) $('payTerm').value = s.payTerm;
 
         $('kunde').value = s.kunde || '';
-        if($('kundeName')) $('kundeName').value = s.kundeName || '';
+        $('kundeName').value = s.kundeName || '';
         refreshCustomerSelect(s.kundeSelected || '');
 
         $('leistung').value = s.leistung || 'Security Dienstleistung';
@@ -687,8 +700,8 @@
         $('hol_hours').value = s.hol_hours || '';
         $('hol_pct').value = s.hol_pct || '100';
 
-        if($('vatMode') && s.vatMode) $('vatMode').value = s.vatMode;
-        if($('vatPct') && s.vatPct) $('vatPct').value = s.vatPct;
+        $('vatMode').value = s.vatMode || 'kru';
+        $('vatPct').value = s.vatPct || '19';
 
         const savedLogo = (s.logoDataUrl || '').trim();
         if(savedLogo) applyLogo(savedLogo); else showFallbackLogo();
@@ -727,7 +740,7 @@
       localStorage.removeItem(LS_STATE);
 
       $('kunde').value='';
-      if($('kundeName')) $('kundeName').value='';
+      $('kundeName').value='';
       refreshCustomerSelect('');
 
       $('leistung').value='Security Dienstleistung';
@@ -739,12 +752,12 @@
       $('hol_hours').value=''; $('hol_pct').value='100';
 
       $('invStatus').value='Offen';
-      if($('vatMode')) $('vatMode').value='kru';
-      if($('vatPct')) $('vatPct').value='19';
+      $('vatMode').value='kru';
+      $('vatPct').value='19';
 
       clearLogo();
 
-      if($('payTerm')) $('payTerm').value = '14';
+      $('payTerm').value = '14';
       regenInvoiceMeta();
       ensureInvoiceNo();
 
@@ -763,9 +776,9 @@
       refreshCustomerSelect('');
 
       $('invDateInput').value = toISODate(new Date());
-      if($('payTerm')) $('payTerm').value = '14';
+      $('payTerm').value = '14';
       ensureInvoiceNo();
-      if($('payTerm')) recalcDueFromInvoiceDate();
+      recalcDueFromInvoiceDate();
 
       $('logoInput').addEventListener('change', (e)=>{ handleLogoFile(e.target.files?.[0]); e.target.value=''; });
       $('btnLogoClear').addEventListener('click', ()=>{ clearLogo(); });
@@ -774,15 +787,11 @@
       $('btnRegen').addEventListener('click', regenInvoiceMeta);
 
       $('invStatus').addEventListener('change', ()=>{ updateStatusBadge(); scheduleSave(); });
-      if($('payTerm')){
-        $('payTerm').addEventListener('change', ()=>{ recalcDueFromInvoiceDate(); scheduleSave(); });
-      }
-      $('invDateInput').addEventListener('input', ()=>{ if($('payTerm') && $('payTerm').value !== 'custom') recalcDueFromInvoiceDate(); scheduleSave(); });
+      $('payTerm').addEventListener('change', ()=>{ recalcDueFromInvoiceDate(); scheduleSave(); });
+      $('invDateInput').addEventListener('input', ()=>{ if($('payTerm').value !== 'custom') recalcDueFromInvoiceDate(); scheduleSave(); });
       $('dueDateInput').addEventListener('input', scheduleSave);
 
-      if($('kundeSelect')){
-        $('kundeSelect').addEventListener('change', loadCustomerFromSelect);
-      }
+      $('kundeSelect').addEventListener('change', loadCustomerFromSelect);
       $('btnKundeNeu').addEventListener('click', newCustomer);
       $('btnKundeSave').addEventListener('click', saveCustomer);
       $('btnKundeDel').addEventListener('click', deleteCustomer);
@@ -791,14 +800,17 @@
       $('bis').addEventListener('input', ()=>{ syncZeitraum(); scheduleSave(); });
 
       [
-        'kunde','leistung','memo',
-        'hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct'
+        'kunde','kundeName','leistung','memo',
+        'hours','rate','night_hours','night_pct','sun_hours','sun_pct','hol_hours','hol_pct','vatPct'
       ].forEach(id=>{
-        $(id).addEventListener('input', ()=>{ calc(); scheduleSave(); });
+        $(id).addEventListener('input', ()=>{
+          if(id==='vatPct') updateVatNote();
+          calc();
+          scheduleSave();
+        });
       });
 
-      if($('vatPct')) $('vatPct').addEventListener('input', ()=>{ updateVatNote(); calc(); scheduleSave(); });
-      if($('vatMode')) $('vatMode').addEventListener('change', ()=>{ updateVatNote(); calc(); scheduleSave(); });
+      $('vatMode').addEventListener('change', ()=>{ updateVatNote(); calc(); scheduleSave(); });
 
       loadState();
 
