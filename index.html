@@ -3,483 +3,315 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung (Pro)</title>
+  <title>Masculine Security — Rechnung</title>
   <meta name="theme-color" content="#0b3a78"/>
-
-  <!-- PDF libs -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{
       --blue:#0b3a78;
       --blue2:#0a2f62;
-      --ink:#0f172a;
-      --muted:#6b7280;
-      --bg:#f4f6fa;
+      --bg:#f3f6fb;
       --card:#ffffff;
-      --line:#e5e7eb;
-      --soft:#f8fafc;
-      --good:#16a34a;
-      --warn:#b45309;
-      --danger:#b91c1c;
+      --ink:#0d1b2a;
+      --muted:#5b6b7a;
+      --line:#e3e9f2;
+      --good:#1aa36f;
+      --bad:#c0392b;
+      --shadow:0 10px 26px rgba(11,58,120,.12);
       --r:16px;
-      --shadow: 0 10px 25px rgba(15,23,42,.08);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: Arial, Helvetica, sans-serif;
-      color:var(--ink);
-      background:linear-gradient(180deg,#eaf0ff 0%, var(--bg) 22%, var(--bg) 100%);
-    }
-    a{color:inherit; text-decoration:underline}
+    body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink)}
     .topbar{
-      position:sticky; top:0; z-index:20;
-      background:linear-gradient(90deg,var(--blue) 0%, #1362c7 60%, #1aa1ff 130%);
-      color:#fff;
-      box-shadow: 0 6px 18px rgba(2,6,23,.20);
+      position:sticky;top:0;z-index:10;
+      background:linear-gradient(90deg,var(--blue),#1b64c8);
+      color:#fff;border-bottom:1px solid rgba(255,255,255,.18);
     }
-    .topbar-inner{
-      max-width:1200px;
-      margin:0 auto;
-      padding:12px 14px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      min-width:280px;
-      flex:1;
-    }
-    .brand .logo{
-      width:38px;height:38px;border-radius:10px;
-      background:rgba(255,255,255,.12);
-      display:flex;align-items:center;justify-content:center;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.18);
-      flex:0 0 auto;
-    }
-    .brand .logo img{width:100%;height:100%;object-fit:cover;display:block}
-    .brand h1{margin:0; font-size:16px; font-weight:700; letter-spacing:.2px; line-height:1.1}
-    .brand .sub{font-size:12px; opacity:.9; margin-top:2px}
-    .pill{
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .tag{
-      font-size:12px; padding:6px 10px; border-radius:999px;
+    .topbar .inner{max-width:1180px;margin:0 auto;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:10px;align-items:center;min-width:260px}
+    .brandLogo{
+      width:36px;height:36px;border-radius:10px;overflow:hidden;
       background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.18);
-      white-space:nowrap;
+      display:grid;place-items:center;border:1px solid rgba(255,255,255,.22)
     }
+    .brandLogo img{width:100%;height:100%;object-fit:cover;display:block}
+    .brandTitle{display:flex;flex-direction:column;line-height:1.1}
+    .brandTitle b{font-size:15px}
+    .brandTitle span{font-size:12px;opacity:.9}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .btn{
-      appearance:none; border:0; cursor:pointer;
-      border-radius:999px;
-      padding:9px 12px;
-      font-weight:800;
-      font-size:13px;
-      background:rgba(255,255,255,.92);
-      color:#0b2b55;
-      box-shadow: 0 8px 18px rgba(2,6,23,.16);
-      display:inline-flex; align-items:center; gap:8px;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn.secondary{background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.22); box-shadow:none}
-    .btn.danger{background:#fff; color:var(--danger)}
-    .wrap{max-width:1200px;margin:18px auto;padding:0 14px 30px}
-    .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; align-items:start}
-    @media(max-width:980px){ .grid{grid-template-columns:1fr} .brand{min-width:auto} .pill{justify-content:flex-start} }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding:12px 14px;
-      background:linear-gradient(180deg,#ffffff 0%, #f7fbff 100%);
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .card .hd h2{
-      margin:0; font-size:13px; letter-spacing:.4px;
-      text-transform:uppercase;
-      color:#0b2b55;
-    }
-    .card .bd{padding:14px}
-    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
-    @media(max-width:680px){ .row, .row3{grid-template-columns:1fr} }
-    .field{display:flex; flex-direction:column; gap:6px}
-    .field label{font-size:12px; color:var(--muted)}
-    .field input, .field select, .field textarea{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 11px;
-      font-size:14px;
-      background:#fff;
-      outline:none;
-    }
-    .field textarea{min-height:88px; resize:vertical}
-    .field input[readonly]{background:var(--soft); color:#111827}
-    .hint{font-size:12px; color:var(--muted); line-height:1.35}
-    .mini-actions{display:flex; gap:10px; flex-wrap:wrap}
-    .mini{
-      border:1px solid var(--line);
-      background:var(--soft);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:13px;
-      cursor:pointer;
-      font-weight:800;
-      color:#0b2b55;
-    }
-    .mini:active{transform:translateY(1px)}
-    .mini.red{color:var(--danger)}
-    .mono{font-family:var(--mono)}
-    .right{text-align:right}
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:var(--soft);
-      font-size:13px;
-      font-weight:900;
-      color:#0b2b55;
-      white-space:nowrap;
-    }
-    .badge.ok{border-color:#b7f7c7;background:#ecfdf3;color:#064e3b}
-    .badge.warn{border-color:#f4d7ad;background:#fff7ed;color:#7c2d12}
-    .badge.info{border-color:#b7d7ff;background:#eff6ff;color:#1e3a8a}
-
-    .table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:hidden;
-    }
-    .table th, .table td{
-      padding:10px 10px;
-      border-bottom:1px solid var(--line);
-      font-size:13px;
-      vertical-align:middle;
-    }
-    .table th{
-      background:linear-gradient(180deg,#f7fbff 0%, #eef6ff 100%);
-      color:#0b2b55;
-      text-align:left;
-      font-weight:900;
-    }
-    .table tr:last-child td{border-bottom:0}
-
-    .split{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
-    @media(max-width:980px){ .split{grid-template-columns:1fr} }
-    .hr{height:1px;background:var(--line);margin:12px 0}
-
-    /* PAPER preview (for PDF) */
-    .paper{
-      margin-top:14px;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .paper .ph{
-      padding:14px 16px;
-      background:linear-gradient(180deg,#ffffff 0%, #f7fbff 100%);
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .paper .ph .left{display:flex; gap:10px; align-items:center}
-    .paper .ph .logo2{
-      width:38px;height:38px;border-radius:12px;
-      border:1px solid var(--line);
-      overflow:hidden;
-      background:var(--soft);
-      display:flex;align-items:center;justify-content:center;
-      flex:0 0 auto;
-    }
-    .paper .ph .logo2 img{width:100%;height:100%;object-fit:cover;display:block}
-    .paper .ph .ttl{display:flex;flex-direction:column}
-    .paper .ph .ttl b{font-size:14px}
-    .paper .ph .ttl span{font-size:12px;color:var(--muted)}
-    .paper .pb{padding:16px}
-    .paper .cols{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
-    @media(max-width:900px){ .paper .cols{grid-template-columns:1fr} }
-    .kv{
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      background:#fff;
-    }
-    .kv h4{
-      margin:0 0 10px 0;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.45px;
-      color:#0b2b55;
-    }
-    .kv .line{
-      display:flex; justify-content:space-between; gap:10px;
-      padding:6px 0;
-      border-bottom:1px dashed #edf2f7;
-      font-size:13px;
-    }
-    .kv .line:last-child{border-bottom:0}
-    .kv .k{color:var(--muted)}
-    .kv .v{font-weight:900; text-align:right}
-    .foot{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:12px 14px;
-      border-top:1px solid var(--line);
-      background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    /* Modal */
-    .modal{
-      position:fixed; inset:0;
-      display:none;
-      align-items:center; justify-content:center;
-      background:rgba(15,23,42,.55);
-      z-index:999;
-      padding:14px;
-    }
-    .modal.open{display:flex}
-    .modal .box{
-      width:min(920px, 100%);
-      max-height:86vh;
-      overflow:auto;
-      background:#fff;
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:18px;
-      box-shadow: 0 28px 70px rgba(2,6,23,.35);
-    }
-    .modal .box .mhd{
-      position:sticky; top:0; z-index:2;
-      background:linear-gradient(90deg,var(--blue) 0%, #1362c7 60%, #1aa1ff 130%);
-      color:#fff;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:12px 14px;
-    }
-    .modal .box .mhd h3{margin:0;font-size:14px;letter-spacing:.3px}
-    .modal .box .bd{padding:14px}
-    .modal .close{
+      border:1px solid rgba(255,255,255,.28);
       background:rgba(255,255,255,.14);
-      color:#fff;
-      border:1px solid rgba(255,255,255,.2);
-      border-radius:999px;
-      padding:8px 10px;
-      font-weight:900;
-      cursor:pointer;
+      color:#fff;padding:8px 10px;border-radius:999px;
+      font-weight:700;font-size:12px;cursor:pointer;
+      display:inline-flex;gap:8px;align-items:center;
     }
-    .list{
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:hidden;
+    .btn:hover{background:rgba(255,255,255,.2)}
+    .btn.primary{background:#fff;color:var(--blue);border-color:#fff}
+    .btn.primary:hover{background:#eef5ff}
+    .btn.danger{background:rgba(192,57,43,.18);border-color:rgba(255,255,255,.35)}
+    .badge{
+      padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;
+      background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);
+      cursor:pointer;user-select:none;
+      display:inline-flex;align-items:center;gap:8px;
     }
-    .list .item{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:10px;
-      padding:12px 12px;
-      border-bottom:1px solid var(--line);
-      align-items:center;
+    .badge .dot{width:8px;height:8px;border-radius:50%}
+    .wrap{max-width:1180px;margin:18px auto;padding:0 14px 22px}
+    .grid{display:grid;grid-template-columns:1.05fr 1.1fr;gap:14px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+      box-shadow:var(--shadow);overflow:hidden;
     }
-    .list .item:last-child{border-bottom:0}
-    .list .item .t{font-weight:900}
-    .list .item .s{font-size:12px;color:var(--muted);margin-top:2px}
-    .list .item .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .smallbtn{
-      border:1px solid var(--line);
-      background:var(--soft);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-      color:#0b2b55;
-      white-space:nowrap;
+    .card h3{margin:0;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;letter-spacing:.35px;text-transform:uppercase;color:var(--muted)}
+    .card .body{padding:14px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){.row{grid-template-columns:1fr}}
+    .field{display:flex;flex-direction:column;gap:6px}
+    label{font-size:12px;color:var(--muted);font-weight:700}
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;border-radius:12px;border:1px solid var(--line);
+      background:#fff;color:var(--ink);outline:none;
+      font-size:14px;
     }
-    .smallbtn.red{color:var(--danger)}
-    .smallbtn.blue{background:#eff6ff;border-color:#bfdcff;color:#1e3a8a}
-
-    /* Print (only paper) */
+    textarea{min-height:84px;resize:vertical}
+    input:focus, select:focus, textarea:focus{border-color:#b6cdf4;box-shadow:0 0 0 3px rgba(27,100,200,.12)}
+    .hint{font-size:12px;color:var(--muted);line-height:1.35}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    th,td{padding:10px 10px;border-bottom:1px solid var(--line);font-size:14px}
+    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.35px;text-align:left}
+    td.r, th.r{text-align:right}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+      background:#f8fbff;font-weight:800;font-size:12px;color:var(--blue2)
+    }
+    .sumGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    @media (max-width:680px){.sumGrid{grid-template-columns:1fr}}
+    .sumBox{
+      border:1px solid var(--line);border-radius:14px;background:#fbfdff;
+      padding:12px
+    }
+    .sumBox b{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.35px}
+    .sumBox .v{font-size:20px;font-weight:900;margin-top:6px}
+    .footerNote{
+      margin-top:12px;
+      border:1px dashed #cfe0ff;background:#f6f9ff;border-radius:14px;padding:10px 12px;
+      color:#1e3a66;font-size:12px
+    }
+    .miniBtns{display:flex;gap:8px;flex-wrap:wrap}
+    .mini{
+      padding:9px 10px;border-radius:12px;border:1px solid var(--line);
+      background:#fff;cursor:pointer;font-weight:800;font-size:12px;color:var(--blue)
+    }
+    .mini:hover{background:#f3f7ff}
+    .mini.red{color:var(--bad)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .invItem{
+      border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px 12px;
+      display:flex;gap:10px;align-items:flex-start;justify-content:space-between
+    }
+    .invItem b{display:block}
+    .invItem small{color:var(--muted)}
+    .invItem .right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .tiny{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:800;font-size:12px;color:var(--blue)}
+    .tiny:hover{background:#f3f7ff}
+    .tiny.red{color:var(--bad)}
+    /* PRINT */
     @media print{
-      .topbar, .grid, .modal{display:none !important}
-      .wrap{max-width:unset;margin:0;padding:0}
-      .paper{border:0; box-shadow:none; border-radius:0}
-      @page{ size: A4; margin: 10mm; }
+      body{background:#fff}
+      .topbar,.noPrint{display:none !important}
+      .wrap{max-width:860px;margin:0;padding:0}
+      .card{box-shadow:none;border:0;border-radius:0}
+      .grid{grid-template-columns:1fr;gap:0}
+      .card h3{border:0}
+      input,select,textarea{border:0;padding:0}
+      .sumBox{border:1px solid #ddd}
+      .footerNote{border:1px solid #ddd;background:#fff}
+      a{color:inherit;text-decoration:none}
     }
   </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="topbar-inner">
+  <div class="topbar noPrint">
+    <div class="inner">
       <div class="brand">
-        <div class="logo" title="Logo">
-          <img id="topLogo" alt="Logo" src="logo.png">
+        <div class="brandLogo" title="Logo">
+          <img id="logoImg" src="logo.png" alt="Logo" onerror="this.style.display='none';"/>
         </div>
-        <div>
-          <h1>Masculine Security — Rechnung</h1>
-          <div class="sub">99% Auto • Auto Datum • Auto Rechnungsnummer • Kunden • Zuschläge • PDF • Save</div>
+        <div class="brandTitle">
+          <b>Masculine Security — Rechnung</b>
+          <span>99% Auto · Auto Datum · Auto Rechnungsnummer · Kundenliste · Zuschläge · PDF · Save</span>
         </div>
       </div>
 
-      <div class="pill">
-        <span class="tag" id="statusTag">Status: Entwurf</span>
-        <button class="btn secondary" id="btnLogo">Logo ändern</button>
-        <button class="btn secondary" id="btnNeu">Neu</button>
-        <button class="btn" id="btnSaveInvoice">Rechnung speichern</button>
-        <button class="btn" id="btnListInvoices">Rechnungen</button>
-        <button class="btn danger" id="btnReset">Reset</button>
-        <button class="btn" id="btnPDF">PDF speichern</button>
+      <div class="actions">
+        <div id="autoBadge" class="badge" onclick="toggleSchichtMode()" title="Klicken: Modus wechseln">
+          <span class="dot" id="autoDot"></span>
+          <span id="autoText">Schicht-Modus: AN</span>
+        </div>
+        <button class="btn" onclick="changeLogo()">Logo ändern</button>
+        <button class="btn" onclick="resetForm()">Neu</button>
+        <button class="btn primary" onclick="saveInvoice()">Rechnung speichern</button>
+        <button class="btn" onclick="openInvoices()">Rechnungen</button>
+        <button class="btn danger" onclick="hardReset()">Reset</button>
+        <button class="btn primary" onclick="printPDF()">PDF speichern</button>
       </div>
     </div>
   </div>
 
   <div class="wrap">
     <div class="grid">
-      <!-- LEFT -->
+      <!-- LEFT: Seller + Customer + Service -->
       <div class="card">
-        <div class="hd">
-          <h2>Rechnungssteller & Kunde</h2>
-          <span class="badge info">Professional Firmen-Workflow</span>
-        </div>
-        <div class="bd">
-          <div class="split">
-            <div class="kv">
-              <h4>Rechnungssteller</h4>
-              <div class="line"><span class="k">Firma</span><span class="v">Masculine Security</span></div>
-              <div class="line"><span class="k">Adresse</span><span class="v">Werschenregerstraße 6 • 28237 Bremen</span></div>
-              <div class="line"><span class="k">Telefon</span><span class="v"><a href="tel:+4915778697052">015778697052</a></span></div>
-              <div class="line"><span class="k">E-Mail</span><span class="v"><a href="mailto:Kontakt.mass.bremen@hotmail.com">Kontakt.mass.bremen@hotmail.com</a></span></div>
-              <div class="line"><span class="k">Steuernummer</span><span class="v">in Bearbeitung</span></div>
-              <div class="line"><span class="k">Bank</span><span class="v mono">IBAN DE98 1001 1001 2333 0146 96 • BIC NTSBDEB1XXX</span></div>
-              <div class="line"><span class="k">Status</span><span class="v" id="sellerStatusPreview">Entwurf</span></div>
+        <h3>Rechnungssteller & Kunde</h3>
+        <div class="body">
+          <div class="row">
+            <div class="field">
+              <label>Firma</label>
+              <input id="sellerName" value="Masculine Security"/>
             </div>
+            <div class="field">
+              <label>Status (Auto)</label>
+              <div class="pill" id="statusPill">Entwurf</div>
+            </div>
+          </div>
 
-            <div class="card" style="box-shadow:none">
-              <div class="bd" style="padding:0">
-                <div class="row">
-                  <div class="field">
-                    <label>Kunde (Auswahl)</label>
-                    <select id="customerSelect">
-                      <option value="">— Kunde wählen —</option>
-                    </select>
-                    <div class="hint">Kunden werden lokal (Browser) gespeichert.</div>
-                  </div>
-                  <div class="field">
-                    <label>&nbsp;</label>
-                    <div class="mini-actions">
-                      <button class="mini" id="btnCustomerNew">Neu</button>
-                      <button class="mini red" id="btnCustomerDelete">Kunde löschen</button>
-                    </div>
-                  </div>
-                </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field">
+              <label>Adresse</label>
+              <input id="sellerAddr" value="Werschenregerstraße 6 · 28237 Bremen"/>
+            </div>
+            <div class="field">
+              <label>Telefon</label>
+              <input id="sellerTel" value="015778697052"/>
+            </div>
+          </div>
 
-                <div class="row">
-                  <div class="field">
-                    <label>Kundenname (zum Speichern)</label>
-                    <input id="custName" placeholder="Firma / Name"/>
-                  </div>
-                  <div class="field">
-                    <label>E-Mail (optional)</label>
-                    <input id="custEmail" placeholder="kunde@email.de"/>
-                  </div>
-                </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field">
+              <label>E-Mail</label>
+              <input id="sellerMail" value="Kontakt.mass.bremen@hotmail.com"/>
+            </div>
+            <div class="field">
+              <label>Steuernummer</label>
+              <input id="sellerTax" value="in Bearbeitung"/>
+            </div>
+          </div>
 
-                <div class="field">
-                  <label>Kundendaten (Adresse / Ansprechpartner)</label>
-                  <textarea id="custData" placeholder="Straße Hausnr.\nPLZ Ort\nAnsprechpartner (optional)"></textarea>
-                </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field">
+              <label>IBAN</label>
+              <input id="sellerIBAN" value="DE98 1001 1001 2333 0146 96"/>
+            </div>
+            <div class="field">
+              <label>BIC</label>
+              <input id="sellerBIC" value="NTSBDEB1XXX"/>
+            </div>
+          </div>
 
-                <div class="mini-actions">
-                  <button class="mini" id="btnCustomerSave">Kunde speichern</button>
-                </div>
+          <div class="hr"></div>
 
-                <div class="hr"></div>
-
-                <div class="row">
-                  <div class="field">
-                    <label>Einsatzort / Objekt</label>
-                    <input id="objekt" placeholder="z. B. Hotel / Baustelle / Adresse"/>
-                  </div>
-                  <div class="field">
-                    <label>Leistungszeitraum</label>
-                    <input id="zeitraum" placeholder="z. B. 01.02.2026 – 15.02.2026"/>
-                  </div>
-                </div>
-
-                <div class="field">
-                  <label>Leistungsbeschreibung</label>
-                  <textarea id="leistung" placeholder="Security Dienstleistung"></textarea>
-                </div>
-
-                <div class="field">
-                  <label>Referenz / PO (optional)</label>
-                  <input id="po" placeholder="z. B. Auftrag-Nr. / Ansprechpartner"/>
-                </div>
+          <div class="row">
+            <div class="field">
+              <label>Kunde auswählen</label>
+              <select id="customerSelect" onchange="loadCustomerFromSelect()">
+                <option value="">— Kunde wählen —</option>
+              </select>
+              <div class="miniBtns" style="margin-top:8px">
+                <button class="mini" onclick="newCustomer()">Neu</button>
+                <button class="mini red" onclick="deleteCustomer()">Kunde löschen</button>
               </div>
             </div>
+            <div class="field">
+              <label>Kundenname (zum Speichern)</label>
+              <input id="custName" placeholder="Firma / Name"/>
+              <label style="margin-top:6px">E-Mail (optional)</label>
+              <input id="custMail" placeholder="kunde@email.de"/>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:10px">
+            <label>Kundendaten (Adresse / Ansprechpartner)</label>
+            <textarea id="custData" placeholder="Straße · PLZ Ort&#10;Ansprechpartner"></textarea>
+          </div>
+
+          <div class="miniBtns" style="margin-top:10px">
+            <button class="mini" onclick="saveCustomer()">Kunde speichern</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div class="field">
+              <label>Einsatzort / Objekt</label>
+              <input id="objekt" placeholder="z.B. Hotel / Baustelle / Adresse"/>
+            </div>
+            <div class="field">
+              <label>Leistungszeitraum</label>
+              <input id="zeitraum" placeholder="z.B. 01.02.2026 – 15.02.2026"/>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:10px">
+            <label>Leistungsbeschreibung</label>
+            <textarea id="desc">Security Dienstleistung</textarea>
+          </div>
+
+          <div class="field" style="margin-top:10px">
+            <label>Referenz / PO (optional)</label>
+            <input id="refpo" placeholder="z.B. Auftrags-Nr. / Ansprechpartner"/>
+          </div>
+
+          <div class="footerNote">
+            Tipp: <b>Schicht-Modus AN</b> = du gibst Start/Ende je Schicht (optional) — oder einfach Stunden (unten).<br/>
+            <b>Schicht-Modus AUS</b> = du gibst <b>nur Gesamtstunden</b> + Zuschlagsstunden (Nacht/Sonntag/Feiertag). Grundlohn wird automatisch berechnet.
           </div>
         </div>
       </div>
 
-      <!-- RIGHT -->
+      <!-- RIGHT: Invoice data + calc -->
       <div class="card">
-        <div class="hd">
-          <h2>Rechnungsdaten & Berechnung</h2>
-          <span class="badge ok">Auto aktiv</span>
-        </div>
-        <div class="bd">
+        <h3>Rechnungsdaten & Berechnung</h3>
+        <div class="body">
           <div class="row">
             <div class="field">
               <label>Rechnungsdatum (Auto, klickbar)</label>
-              <input id="invDate" type="date"/>
-              <div class="hint">Standard = heute (du kannst ändern).</div>
+              <input id="invDate" type="date" onchange="onDateChanged()"/>
+              <div class="hint">Standard = heute (du kannst ändern)</div>
             </div>
             <div class="field">
               <label>Zahlungsziel</label>
-              <select id="payTerm">
+              <select id="payTerm" onchange="updateDueDate()">
                 <option value="7">7 Tage</option>
                 <option value="14" selected>14 Tage</option>
                 <option value="30">30 Tage</option>
-                <option value="0">Sofort</option>
               </select>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row" style="margin-top:10px">
             <div class="field">
               <label>Fällig am (Auto, klickbar)</label>
-              <input id="dueDate" type="date"/>
-              <div class="hint">Auto berechnet – du kannst auch manuell ändern.</div>
+              <input id="dueDate" type="date" onchange="recalc()"/>
+              <div class="hint">Auto berechnet — du kannst auch manuell ändern</div>
             </div>
             <div class="field">
               <label>Rechnungsnummer (Auto, klickbar)</label>
-              <input id="invNo" class="mono"/>
-              <div class="hint mono">Auto-Format: MS-YYYYMMDD-0001 (pro Tag laufend)</div>
+              <input id="invNo" onchange="saveLastInvoiceNoManual()"/>
+              <div class="hint">Format: MS-YYYYMMDD-0001 (pro Tag laufend)</div>
             </div>
           </div>
 
-          <div class="row">
+          <div class="row" style="margin-top:10px">
             <div class="field">
               <label>Status wählen</label>
-              <select id="status">
+              <select id="status" onchange="syncStatus()">
                 <option value="Entwurf" selected>Entwurf</option>
                 <option value="Offen">Offen</option>
                 <option value="Bezahlt">Bezahlt</option>
@@ -488,7 +320,7 @@
             </div>
             <div class="field">
               <label>USt-Status</label>
-              <select id="vatMode">
+              <select id="vatMode" onchange="recalc()">
                 <option value="0">0% (Kleinunternehmer §19)</option>
                 <option value="19" selected>19% (Regelbesteuerung)</option>
               </select>
@@ -496,817 +328,687 @@
             </div>
           </div>
 
-          <div class="row3">
+          <div class="row" style="margin-top:10px">
             <div class="field">
               <label>Stundensatz (€/h)</label>
-              <input id="rate" type="number" step="0.01" min="0" value="23"/>
+              <input id="rate" type="number" step="0.01" value="23" oninput="recalc()"/>
             </div>
             <div class="field">
-              <label>Nacht %</label>
-              <input id="pctNight" type="number" step="0.01" min="0" value="5"/>
-            </div>
-            <div class="field">
-              <label>Sonntag %</label>
-              <input id="pctSun" type="number" step="0.01" min="0" value="50"/>
+              <label>Zuschläge editierbar (%)</label>
+              <div class="row" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
+                <div class="field">
+                  <label>Nacht %</label>
+                  <input id="pNight" type="number" step="0.1" value="5" oninput="recalc()"/>
+                </div>
+                <div class="field">
+                  <label>Sonntag %</label>
+                  <input id="pSun" type="number" step="0.1" value="50" oninput="recalc()"/>
+                </div>
+                <div class="field">
+                  <label>Feiertag %</label>
+                  <input id="pHol" type="number" step="0.1" value="100" oninput="recalc()"/>
+                </div>
+              </div>
+              <div class="hint">Keine Doppelzählung: Feiertag &gt; Sonntag &gt; Nacht</div>
             </div>
           </div>
 
-          <div class="row3">
-            <div class="field">
-              <label>Feiertag %</label>
-              <input id="pctHol" type="number" step="0.01" min="0" value="100"/>
-              <div class="hint">Keine Doppelzählung: Feiertag > Sonntag > Nacht</div>
-            </div>
+          <div class="row" style="margin-top:10px">
             <div class="field">
               <label>Anzahl Mitarbeiter</label>
-              <input id="ma" type="number" min="1" step="1" value="10"/>
+              <input id="ma" type="number" step="1" value="1" min="1" oninput="recalc()"/>
             </div>
             <div class="field">
               <label>Stunden gesamt</label>
-              <input id="totalHours" type="number" min="0" step="0.01" value="2160"/>
+              <input id="gesamt" type="number" step="0.01" value="0" oninput="recalc()"/>
               <div class="hint">Gib nur Gesamtstunden ein → Grundlohn wird automatisch berechnet.</div>
             </div>
           </div>
 
           <div class="hr"></div>
 
-          <table class="table">
+          <table>
             <thead>
               <tr>
                 <th>Position</th>
-                <th class="right">Stunden</th>
-                <th class="right">Zuschlag %</th>
-                <th class="right">Betrag</th>
+                <th class="r">Stunden</th>
+                <th class="r">Zuschlag %</th>
+                <th class="r">Betrag</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><b>Grundlohn</b><div class="hint">Arbeitszeit (normal)</div></td>
-                <td class="right mono" id="hBase">0.00</td>
-                <td class="right mono">—</td>
-                <td class="right mono" id="aBase">0.00 €</td>
+                <td><b>Grundlohn</b><br/><span class="hint">Arbeitszeit (normal)</span></td>
+                <td class="r"><span id="hGrund">0.00</span></td>
+                <td class="r">—</td>
+                <td class="r"><b><span id="aGrund">0.00</span> €</b></td>
               </tr>
               <tr>
-                <td><b>Nachtschicht</b><div class="hint">Zuschlag</div></td>
-                <td class="right">
-                  <input id="hNight" type="number" step="0.01" min="0" value="12" style="width:120px;text-align:right;border-radius:10px;padding:7px 8px;border:1px solid var(--line)"/>
-                </td>
-                <td class="right mono"><span id="sNight">5</span>%</td>
-                <td class="right mono" id="aNight">0.00 €</td>
+                <td><b>Nachtschicht</b><br/><span class="hint">Zuschlag</span></td>
+                <td class="r"><input id="hNight" type="number" step="0.01" value="0" oninput="recalc()" /></td>
+                <td class="r"><span id="pNightTxt">5%</span></td>
+                <td class="r"><span id="aNight">0.00</span> €</td>
               </tr>
               <tr>
-                <td><b>Sonntag</b><div class="hint">Zuschlag</div></td>
-                <td class="right">
-                  <input id="hSun" type="number" step="0.01" min="0" value="12" style="width:120px;text-align:right;border-radius:10px;padding:7px 8px;border:1px solid var(--line)"/>
-                </td>
-                <td class="right mono"><span id="sSun">50</span>%</td>
-                <td class="right mono" id="aSun">0.00 €</td>
+                <td><b>Sonntag</b><br/><span class="hint">Zuschlag</span></td>
+                <td class="r"><input id="hSun" type="number" step="0.01" value="0" oninput="recalc()" /></td>
+                <td class="r"><span id="pSunTxt">50%</span></td>
+                <td class="r"><span id="aSun">0.00</span> €</td>
               </tr>
               <tr>
-                <td><b>Feiertag</b><div class="hint">Zuschlag</div></td>
-                <td class="right">
-                  <input id="hHol" type="number" step="0.01" min="0" value="12" style="width:120px;text-align:right;border-radius:10px;padding:7px 8px;border:1px solid var(--line)"/>
-                </td>
-                <td class="right mono"><span id="sHol">100</span>%</td>
-                <td class="right mono" id="aHol">0.00 €</td>
+                <td><b>Feiertag</b><br/><span class="hint">Zuschlag</span></td>
+                <td class="r"><input id="hHol" type="number" step="0.01" value="0" oninput="recalc()" /></td>
+                <td class="r"><span id="pHolTxt">100%</span></td>
+                <td class="r"><span id="aHol">0.00</span> €</td>
               </tr>
             </tbody>
           </table>
 
-          <div class="hr"></div>
-
-          <div class="row">
-            <div class="badge info">Stunden/MA (Auto): <span class="mono" id="hPerMA">0.00</span></div>
-            <div class="badge ok">Stunden gesamt: <span class="mono" id="hTotal">0.00</span></div>
+          <div class="sumGrid">
+            <div class="sumBox">
+              <b>Stunden/MA (Auto)</b>
+              <div class="v"><span id="hPerMA">0.00</span></div>
+            </div>
+            <div class="sumBox">
+              <b>Stunden gesamt</b>
+              <div class="v"><span id="hTotal">0.00</span></div>
+            </div>
+            <div class="sumBox">
+              <b>Zwischensumme (Netto)</b>
+              <div class="v"><span id="netto">0.00</span> €</div>
+            </div>
+            <div class="sumBox">
+              <b>Umsatzsteuer</b>
+              <div class="v"><span id="ust">0.00</span> €</div>
+            </div>
+            <div class="sumBox">
+              <b>Gesamt</b>
+              <div class="v"><span id="gesamtEUR">0.00</span> €</div>
+            </div>
+            <div class="sumBox">
+              <b>Hinweis</b>
+              <div class="hint">
+                Zahlung bitte innerhalb der Zahlungsfrist auf das unten angegebene Konto.<br/>
+                Bank: <b id="bankLine">MUSTAFA MURSAL ABDI · IBAN DE98… · BIC NTSBDEB1XXX</b>
+              </div>
+            </div>
           </div>
 
-          <div class="hr"></div>
-
-          <div class="row">
-            <div class="badge">Zwischensumme (Netto): <span class="mono" id="net">0.00 €</span></div>
-            <div class="badge">Umsatzsteuer: <span class="mono" id="vat">0.00 €</span></div>
-          </div>
-          <div style="margin-top:10px" class="badge ok">Gesamt: <span class="mono" id="gross">0.00 €</span></div>
-
-          <div class="hr"></div>
-          <div class="hint">
-            ✅ Berechnung: Grundlohn-Stunden = Gesamt − (Nacht + Sonntag + Feiertag) • Zuschläge werden nur auf ihre Stunden gerechnet.
+          <div class="footerNote">
+            <b>Wichtig:</b> Nacht/Sonntag/Feiertag sind <u>Zuschlags-Stunden</u> (nicht Grundlohn-Stunden).<br/>
+            Grundlohn-Stunden = Gesamtstunden − (Nacht + Sonntag + Feiertag). (wenn Modus AUS)
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PAPER (for PDF) -->
-    <div class="paper" id="paper">
-      <div class="ph">
-        <div class="left">
-          <div class="logo2">
-            <img id="paperLogo" alt="Logo" src="logo.png">
-          </div>
-          <div class="ttl">
-            <b>Masculine Security — Rechnung</b>
-            <span id="paperMini">Entwurf • Auto • Zuschläge • PDF</span>
-          </div>
-        </div>
-        <div class="badge" id="paperStatus">Entwurf</div>
-      </div>
-
-      <div class="pb">
-        <div class="cols">
-          <div class="kv">
-            <h4>Rechnungssteller</h4>
-            <div class="line"><span class="k">Firma</span><span class="v">Masculine Security</span></div>
-            <div class="line"><span class="k">Adresse</span><span class="v">Werschenregerstraße 6, 28237 Bremen</span></div>
-            <div class="line"><span class="k">Telefon</span><span class="v"><a href="tel:+4915778697052">015778697052</a></span></div>
-            <div class="line"><span class="k">E-Mail</span><span class="v"><a href="mailto:Kontakt.mass.bremen@hotmail.com">Kontakt.mass.bremen@hotmail.com</a></span></div>
-            <div class="line"><span class="k">Steuernummer</span><span class="v">in Bearbeitung</span></div>
-          </div>
-
-          <div class="kv">
-            <h4>Rechnungsdaten</h4>
-            <div class="line"><span class="k">Rechnungsnummer</span><span class="v mono" id="pInvNo">—</span></div>
-            <div class="line"><span class="k">Rechnungsdatum</span><span class="v mono" id="pInvDate">—</span></div>
-            <div class="line"><span class="k">Fällig am</span><span class="v mono" id="pDue">—</span></div>
-            <div class="line"><span class="k">Zahlungsziel</span><span class="v mono" id="pTerm">—</span></div>
-            <div class="line"><span class="k">USt-Status</span><span class="v mono" id="pVatMode">—</span></div>
-          </div>
-        </div>
-
-        <div style="margin-top:14px" class="cols">
-          <div class="kv">
-            <h4>Kunde / Rechnungsempfänger</h4>
-            <div class="line"><span class="k">Kunde</span><span class="v" id="pCustName">—</span></div>
-            <div class="line"><span class="k">E-Mail</span><span class="v" id="pCustEmail">—</span></div>
-            <div class="line"><span class="k">Kundendaten</span><span class="v" style="text-align:right; white-space:pre-line" id="pCustData">—</span></div>
-          </div>
-
-          <div class="kv">
-            <h4>Leistung</h4>
-            <div class="line"><span class="k">Einsatzort / Objekt</span><span class="v" id="pObjekt">—</span></div>
-            <div class="line"><span class="k">Leistungszeitraum</span><span class="v" id="pZeitraum">—</span></div>
-            <div class="line"><span class="k">Beschreibung</span><span class="v" style="text-align:right; white-space:pre-line" id="pLeistung">—</span></div>
-            <div class="line"><span class="k">Referenz / PO</span><span class="v" id="pPO">—</span></div>
-          </div>
-        </div>
-
-        <div style="margin-top:14px">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th class="right">Std</th>
-                <th class="right">Satz</th>
-                <th class="right">Zuschlag</th>
-                <th class="right">Betrag</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>Grundlohn</b><div class="hint">Arbeitszeit (normal)</div></td>
-                <td class="right mono" id="ppBaseH">0.00</td>
-                <td class="right mono" id="ppRate">0.00 €</td>
-                <td class="right mono">—</td>
-                <td class="right mono" id="ppBaseA">0.00 €</td>
-              </tr>
-              <tr>
-                <td><b>Nachtschicht</b><div class="hint">Zuschlag</div></td>
-                <td class="right mono" id="ppNightH">0.00</td>
-                <td class="right mono">wie Grundsatz</td>
-                <td class="right mono" id="ppNightP">0%</td>
-                <td class="right mono" id="ppNightA">0.00 €</td>
-              </tr>
-              <tr>
-                <td><b>Sonntag</b><div class="hint">Zuschlag</div></td>
-                <td class="right mono" id="ppSunH">0.00</td>
-                <td class="right mono">wie Grundsatz</td>
-                <td class="right mono" id="ppSunP">0%</td>
-                <td class="right mono" id="ppSunA">0.00 €</td>
-              </tr>
-              <tr>
-                <td><b>Feiertag</b><div class="hint">Zuschlag</div></td>
-                <td class="right mono" id="ppHolH">0.00</td>
-                <td class="right mono">wie Grundsatz</td>
-                <td class="right mono" id="ppHolP">0%</td>
-                <td class="right mono" id="ppHolA">0.00 €</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div style="margin-top:12px" class="cols">
-          <div class="kv">
-            <h4>Zahlungsbedingungen</h4>
-            <div class="line"><span class="k">Hinweis</span><span class="v" style="text-align:right;white-space:pre-line">Bitte überweisen Sie den Rechnungsbetrag innerhalb der Zahlungsfrist auf das unten angegebene Konto.</span></div>
-            <div class="line"><span class="k">Bank</span><span class="v mono">MUSTAFA MURSAL ABDI • IBAN DE98 1001 1001 2333 0146 96 • BIC NTSBDEB1XXX</span></div>
-          </div>
-          <div class="kv">
-            <h4>Summe</h4>
-            <div class="line"><span class="k">Zwischensumme (Netto)</span><span class="v mono" id="ppNet">0.00 €</span></div>
-            <div class="line"><span class="k">Umsatzsteuer</span><span class="v mono" id="ppVat">0.00 €</span></div>
-            <div class="line"><span class="k">Gesamt</span><span class="v mono" id="ppGross">0.00 €</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="foot">
-        <div>Masculine Security • Werschenregerstraße 6 • 28237 Bremen</div>
-        <div class="mono">Erstellt: <span id="pCreated">—</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- file input logo -->
-  <input id="logoFile" type="file" accept="image/*" style="display:none"/>
-
-  <!-- MODAL -->
-  <div class="modal" id="mInvoices" aria-hidden="true">
-    <div class="box">
-      <div class="mhd">
-        <h3>Rechnungen (lokal gespeichert)</h3>
-        <button class="close" id="closeInvoices">Schließen</button>
-      </div>
-      <div class="bd">
+    <!-- Invoices modal/list -->
+    <div id="invPanel" class="card" style="margin-top:14px;display:none">
+      <h3>Gespeicherte Rechnungen</h3>
+      <div class="body">
         <div class="hint" style="margin-bottom:10px">
-          Hinweis: Rechnungen werden im Browser gespeichert (localStorage). Für Backup: PDF speichern.
+          Hier sind deine gespeicherten Rechnungen (nur im Browser gespeichert). Du kannst öffnen, PDF drucken oder löschen.
         </div>
-        <div class="list" id="invoiceList"></div>
+        <div id="invList" class="list"></div>
       </div>
     </div>
   </div>
 
-  <script>
-    const $ = (id)=>document.getElementById(id);
-    const fmt = (n)=> (isFinite(n)? n:0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
-    const eur = (n)=> fmt(n) + " €";
-    const pad = (n, w=4)=> String(n).padStart(w,"0");
-    const safeNum = (v)=> {
-      const x = Number(String(v).replace(",","."));
-      return isFinite(x)? x:0;
+<script>
+/* =========================
+   1) STORAGE KEYS
+========================= */
+const KEY_CUSTOMERS = "ms_customers_v1";
+const KEY_INVOICES  = "ms_invoices_v1";
+const KEY_LOGO      = "ms_logo_dataurl_v1";
+const KEY_INVSEQ    = "ms_inv_seq_v1";
+const KEY_LAST_INVNO = "ms_last_invno_v1";
+const KEY_MODE      = "ms_schicht_mode_v1";
+
+/* =========================
+   2) HELPERS
+========================= */
+function pad(n, len){ n = String(n); while(n.length < len) n = "0"+n; return n; }
+function yyyymmddFromDate(d){
+  const y = d.getFullYear();
+  const m = pad(d.getMonth()+1,2);
+  const day = pad(d.getDate(),2);
+  return `${y}${m}${day}`;
+}
+function toMoney(n){
+  n = Number(n || 0);
+  return n.toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function parseNum(id){
+  const el = document.getElementById(id);
+  const v = (el && el.value !== undefined) ? el.value : (el ? el.innerText : 0);
+  const x = parseFloat(String(v).replace(",","."));
+  return isNaN(x) ? 0 : x;
+}
+function setText(id, txt){ const el = document.getElementById(id); if(el) el.innerText = txt; }
+function setValue(id, v){ const el = document.getElementById(id); if(el) el.value = v; }
+
+/* =========================
+   3) MODE (Schicht AN/AUS)
+========================= */
+let schichtMode = true; // AN by default
+
+function applyBadge(){
+  const dot = document.getElementById("autoDot");
+  const txt = document.getElementById("autoText");
+  if(schichtMode){
+    dot.style.background = "#1ee08a";
+    txt.innerText = "Schicht-Modus: AN";
+  }else{
+    dot.style.background = "#ffcc00";
+    txt.innerText = "Schicht-Modus: AUS";
+  }
+  // In Modus AN erlauben wir trotzdem Gesamtstunden (weil du es willst),
+  // aber die Regel für Grundlohn bleibt:
+  // - Modus AUS: Grundlohn = Gesamt - Zuschlagsstunden
+  // - Modus AN : Grundlohn = Gesamt (falls Zuschlagsstunden leer) ODER ebenfalls die gleiche Logik.
+  // Wir nehmen die gleiche Logik wie Firmen: Grundlohn = Gesamt - Zuschläge (immer),
+  // aber du kannst Modus AN für "Auto aktiv" Gefühl.
+}
+function toggleSchichtMode(){
+  schichtMode = !schichtMode;
+  localStorage.setItem(KEY_MODE, schichtMode ? "1":"0");
+  applyBadge();
+  recalc();
+}
+
+/* =========================
+   4) LOGO (stable in PDF)
+   - store as dataURL -> prints always
+========================= */
+function loadLogo(){
+  const data = localStorage.getItem(KEY_LOGO);
+  const img = document.getElementById("logoImg");
+  if(data && img){
+    img.src = data;
+    img.style.display = "block";
+  }
+}
+function changeLogo(){
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.onchange = () => {
+    const file = inp.files && inp.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem(KEY_LOGO, reader.result);
+      loadLogo();
     };
-    const todayISO = ()=>{
-      const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
-      return d.toISOString().slice(0,10);
-    };
-    const dateToYMD = (d)=> d.toISOString().slice(0,10);
-    const addDays = (ymd, days)=>{
-      const d = new Date(ymd+"T00:00:00");
-      d.setDate(d.getDate()+Number(days||0));
-      return dateToYMD(d);
-    };
-    const ls = {
-      get(k,def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def; }catch(e){ return def; } },
-      set(k,v){ localStorage.setItem(k, JSON.stringify(v)); },
-      del(k){ localStorage.removeItem(k); }
-    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
 
-    const STORE_KEY="ms_rechnung_pro_v2";
-    const INVOICES_KEY="ms_rechnungen_list_v2";
-    const CUSTOMERS_KEY="ms_kunden_v2";
-    const LOGO_KEY="ms_logo_dataurl_v2";
-    const COUNTER_KEY="ms_inv_counter_v2";
+/* =========================
+   5) CUSTOMERS
+========================= */
+function getCustomers(){
+  try{ return JSON.parse(localStorage.getItem(KEY_CUSTOMERS) || "[]"); }catch(e){ return []; }
+}
+function setCustomers(arr){
+  localStorage.setItem(KEY_CUSTOMERS, JSON.stringify(arr || []));
+}
+function refreshCustomerSelect(){
+  const sel = document.getElementById("customerSelect");
+  if(!sel) return;
+  const current = sel.value;
+  const customers = getCustomers();
+  sel.innerHTML = `<option value="">— Kunde wählen —</option>` + customers
+    .map(c => `<option value="${encodeURIComponent(c.id)}">${escapeHtml(c.name || "Kunde")}</option>`)
+    .join("");
+  // try restore
+  if(current){
+    const ok = customers.some(c => c.id === decodeURIComponent(current));
+    if(ok) sel.value = current;
+  }
+}
+function newCustomer(){
+  setValue("customerSelect","");
+  setValue("custName","");
+  setValue("custMail","");
+  setValue("custData","");
+}
+function saveCustomer(){
+  const name = (document.getElementById("custName").value || "").trim();
+  if(!name){ alert("Bitte Kundennamen eingeben."); return; }
+  const mail = (document.getElementById("custMail").value || "").trim();
+  const data = (document.getElementById("custData").value || "").trim();
+  const customers = getCustomers();
 
-    function defaultData(){
-      return {
-        objekt:"Bremen",
-        zeitraum:"01.01.2026 – 31.01.2026",
-        leistung:"Security Dienstleistung",
-        po:"",
-        invDate: todayISO(),
-        payTerm: 14,
-        dueDate: addDays(todayISO(),14),
-        status:"Entwurf",
-        vatMode: 19,
-        rate: 23,
-        pctNight:5,
-        pctSun:50,
-        pctHol:100,
-        ma:10,
-        totalHours:2160,
-        hNight:12,
-        hSun:12,
-        hHol:12,
-        customerId:"",
-        custName:"",
-        custEmail:"",
-        custData:"",
-        invNo:""
-      };
-    }
+  // if selected -> update
+  const sel = document.getElementById("customerSelect").value;
+  let id = sel ? decodeURIComponent(sel) : ("c_"+Date.now());
+  const idx = customers.findIndex(c => c.id === id);
+  const obj = {id, name, mail, data, updatedAt: Date.now()};
+  if(idx >= 0) customers[idx] = obj; else customers.unshift(obj);
 
-    function state(){ return ls.get(STORE_KEY, defaultData()); }
-    function apply(d){
-      $("objekt").value = d.objekt || "";
-      $("zeitraum").value = d.zeitraum || "";
-      $("leistung").value = d.leistung || "";
-      $("po").value = d.po || "";
+  setCustomers(customers);
+  refreshCustomerSelect();
+  document.getElementById("customerSelect").value = encodeURIComponent(id);
+  alert("Kunde gespeichert.");
+}
+function loadCustomerFromSelect(){
+  const sel = document.getElementById("customerSelect").value;
+  if(!sel){ newCustomer(); return; }
+  const id = decodeURIComponent(sel);
+  const c = getCustomers().find(x => x.id === id);
+  if(!c) return;
+  setValue("custName", c.name || "");
+  setValue("custMail", c.mail || "");
+  setValue("custData", c.data || "");
+}
+function deleteCustomer(){
+  const sel = document.getElementById("customerSelect").value;
+  if(!sel){ alert("Kein Kunde ausgewählt."); return; }
+  const id = decodeURIComponent(sel);
+  if(!confirm("Kunde wirklich löschen?")) return;
+  const customers = getCustomers().filter(c => c.id !== id);
+  setCustomers(customers);
+  refreshCustomerSelect();
+  newCustomer();
+}
 
-      $("invDate").value = d.invDate || todayISO();
-      $("payTerm").value = String(d.payTerm ?? 14);
-      $("dueDate").value = d.dueDate || addDays($("invDate").value, Number($("payTerm").value||14));
-      $("status").value = d.status || "Entwurf";
-      $("vatMode").value = String(d.vatMode ?? 19);
+/* =========================
+   6) INVOICE NUMBER (Auto)
+   Format: MS-YYYYMMDD-0001
+========================= */
+function getInvSeq(){
+  try{ return JSON.parse(localStorage.getItem(KEY_INVSEQ) || "{}"); }catch(e){ return {}; }
+}
+function setInvSeq(obj){
+  localStorage.setItem(KEY_INVSEQ, JSON.stringify(obj || {}));
+}
+function generateInvoiceNumber(dateObj){
+  const dkey = yyyymmddFromDate(dateObj);
+  const seq = getInvSeq();
+  const next = (seq[dkey] || 0) + 1;
+  seq[dkey] = next;
+  setInvSeq(seq);
+  return `MS-${dkey}-${pad(next,4)}`;
+}
+function ensureInvoiceNo(){
+  const invDate = new Date(document.getElementById("invDate").value);
+  const invNoEl = document.getElementById("invNo");
+  if(!invNoEl.value || invNoEl.value.trim()===""){
+    invNoEl.value = generateInvoiceNumber(invDate);
+    localStorage.setItem(KEY_LAST_INVNO, invNoEl.value);
+  }
+}
+function saveLastInvoiceNoManual(){
+  const v = (document.getElementById("invNo").value || "").trim();
+  if(v) localStorage.setItem(KEY_LAST_INVNO, v);
+}
 
-      $("rate").value = d.rate ?? 23;
-      $("pctNight").value = d.pctNight ?? 5;
-      $("pctSun").value = d.pctSun ?? 50;
-      $("pctHol").value = d.pctHol ?? 100;
+/* =========================
+   7) DATES AUTO
+========================= */
+function initDates(){
+  const today = new Date();
+  const invDateEl = document.getElementById("invDate");
+  const dueDateEl = document.getElementById("dueDate");
+  if(!invDateEl.value){
+    invDateEl.valueAsDate = today;
+  }
+  updateDueDate();
+  // invoice number
+  const last = localStorage.getItem(KEY_LAST_INVNO);
+  if(last){
+    document.getElementById("invNo").value = last;
+  }else{
+    ensureInvoiceNo();
+  }
+  // due date if empty
+  if(!dueDateEl.value){
+    updateDueDate();
+  }
+}
+function updateDueDate(){
+  const invDateEl = document.getElementById("invDate");
+  const dueDateEl = document.getElementById("dueDate");
+  const days = parseInt(document.getElementById("payTerm").value || "14",10);
+  const d = invDateEl.value ? new Date(invDateEl.value) : new Date();
+  const due = new Date(d.getTime() + days*24*60*60*1000);
+  dueDateEl.valueAsDate = due;
+  recalc();
+}
+function onDateChanged(){
+  updateDueDate();
+  // new day -> new invoice number (auto)
+  document.getElementById("invNo").value = "";
+  ensureInvoiceNo();
+}
 
-      $("ma").value = d.ma ?? 10;
-      $("totalHours").value = d.totalHours ?? 2160;
-      $("hNight").value = d.hNight ?? 12;
-      $("hSun").value = d.hSun ?? 12;
-      $("hHol").value = d.hHol ?? 12;
+/* =========================
+   8) STATUS SYNC
+========================= */
+function syncStatus(){
+  const v = document.getElementById("status").value;
+  document.getElementById("statusPill").innerText = v;
+  const pill = document.getElementById("statusPill");
+  pill.style.background = "#f8fbff";
+  pill.style.border = "1px solid var(--line)";
+  pill.style.color = "var(--blue2)";
+  if(v==="Bezahlt"){ pill.style.background="#eafaf2"; pill.style.color= "var(--good)"; }
+  if(v==="Storniert"){ pill.style.background="#fdecea"; pill.style.color= "var(--bad)"; }
+}
 
-      renderCustomerSelect(d.customerId || "");
-      $("customerSelect").value = d.customerId || "";
+/* =========================
+   9) CALCULATION (Auto)
+   - Grundlohn = Gesamtstunden - (Nacht+Sonntag+Feiertag)
+   - Zuschläge: in € nur der Zuschlag-Anteil (wie Firmen)
+     z.B. Nacht 5% => NachtStd * Satz * 0.05
+   - Netto = GrundlohnStd*Satz + Zuschlag€
+   - USt = Netto * VAT
+========================= */
+function recalc(){
+  // badge text
+  applyBadge();
 
-      $("custName").value = d.custName || "";
-      $("custEmail").value = d.custEmail || "";
-      $("custData").value = d.custData || "";
+  const vat = parseFloat(document.getElementById("vatMode").value || "0");
+  document.getElementById("vatHint").innerText = vat===0
+    ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung)."
+    : "Umsatzsteuer wird mit 19% berechnet.";
 
-      $("invNo").value = d.invNo || "";
-      ensureInvoiceNo();
+  const rate = parseNum("rate");
+  const ma = Math.max(1, parseInt(document.getElementById("ma").value || "1",10));
+  const totalHours = parseNum("gesamt");
 
-      recalc();
-    }
+  const hN = Math.max(0, parseNum("hNight"));
+  const hS = Math.max(0, parseNum("hSun"));
+  const hH = Math.max(0, parseNum("hHol"));
 
-    function gather(){
-      return {
-        objekt:$("objekt").value,
-        zeitraum:$("zeitraum").value,
-        leistung:$("leistung").value,
-        po:$("po").value,
-        invDate:$("invDate").value,
-        payTerm:Number($("payTerm").value||14),
-        dueDate:$("dueDate").value,
-        status:$("status").value,
-        vatMode:Number($("vatMode").value||0),
-        rate:safeNum($("rate").value),
-        pctNight:safeNum($("pctNight").value),
-        pctSun:safeNum($("pctSun").value),
-        pctHol:safeNum($("pctHol").value),
-        ma:Math.max(1, Math.floor(safeNum($("ma").value)||1)),
-        totalHours:safeNum($("totalHours").value),
-        hNight:safeNum($("hNight").value),
-        hSun:safeNum($("hSun").value),
-        hHol:safeNum($("hHol").value),
-        customerId:$("customerSelect").value,
-        custName:$("custName").value,
-        custEmail:$("custEmail").value,
-        custData:$("custData").value,
-        invNo:$("invNo").value
-      };
-    }
-    function saveState(){ ls.set(STORE_KEY, gather()); }
+  // Grundlohn always auto from total - extras
+  let hG = totalHours - (hN + hS + hH);
+  if(hG < 0) hG = 0;
 
-    // Customers
-    function loadCustomers(){ return ls.get(CUSTOMERS_KEY, []); }
-    function saveCustomers(arr){ ls.set(CUSTOMERS_KEY, arr); }
-    function renderCustomerSelect(selectedId){
-      const sel = $("customerSelect");
-      const customers = loadCustomers();
-      const keep = selectedId || sel.value || "";
-      sel.innerHTML = `<option value="">— Kunde wählen —</option>` + customers.map(c=>{
-        const t = (c.name||"").replaceAll('"','&quot;');
-        return `<option value="${c.id}">${t}</option>`;
-      }).join("");
-      if(keep) sel.value = keep;
-    }
-    function loadCustomerToFields(){
-      const id = $("customerSelect").value;
-      const c = loadCustomers().find(x=>x.id===id);
-      if(!c){
-        $("custName").value = "";
-        $("custEmail").value = "";
-        $("custData").value = "";
-      }else{
-        $("custName").value = c.name || "";
-        $("custEmail").value = c.email || "";
-        $("custData").value = c.data || "";
+  const pN = Math.max(0, parseNum("pNight"))/100;
+  const pS = Math.max(0, parseNum("pSun"))/100;
+  const pH = Math.max(0, parseNum("pHol"))/100;
+
+  setText("pNightTxt", (pN*100).toFixed(0) + "%");
+  setText("pSunTxt",   (pS*100).toFixed(0) + "%");
+  setText("pHolTxt",   (pH*100).toFixed(0) + "%");
+
+  const grundEUR = hG * rate;
+
+  // Zuschläge als separater Betrag (nur Zuschlag-Anteil)
+  const nachtEUR = hN * rate * pN;
+  const sonEUR   = hS * rate * pS;
+  const feiEUR   = hH * rate * pH;
+
+  const netto = grundEUR + nachtEUR + sonEUR + feiEUR;
+  const ust = netto * (vat/100);
+  const ges = netto + ust;
+
+  setText("hGrund", hG.toFixed(2));
+  setText("aGrund", toMoney(grundEUR));
+  setText("aNight", toMoney(nachtEUR));
+  setText("aSun",   toMoney(sonEUR));
+  setText("aHol",   toMoney(feiEUR));
+
+  setText("hPerMA", (totalHours/ma).toFixed(2));
+  setText("hTotal", totalHours.toFixed(2));
+  setText("netto", toMoney(netto));
+  setText("ust",   toMoney(ust));
+  setText("gesamtEUR", toMoney(ges));
+
+  // bank line in summary
+  const bank = `MUSTAFA MURSAL ABDI · IBAN ${document.getElementById("sellerIBAN").value} · BIC ${document.getElementById("sellerBIC").value}`;
+  document.getElementById("bankLine").innerText = bank;
+}
+
+/* =========================
+   10) INVOICE SAVE + LIST
+========================= */
+function getInvoices(){
+  try{ return JSON.parse(localStorage.getItem(KEY_INVOICES) || "[]"); }catch(e){ return []; }
+}
+function setInvoices(arr){
+  localStorage.setItem(KEY_INVOICES, JSON.stringify(arr || []));
+}
+function collectData(){
+  return {
+    savedAt: Date.now(),
+    seller: {
+      name: val("sellerName"), addr: val("sellerAddr"),
+      tel: val("sellerTel"), mail: val("sellerMail"),
+      tax: val("sellerTax"), iban: val("sellerIBAN"), bic: val("sellerBIC")
+    },
+    customer: {
+      id: selectedCustomerId(),
+      name: val("custName"), mail: val("custMail"), data: val("custData")
+    },
+    service: { objekt: val("objekt"), zeitraum: val("zeitraum"), desc: val("desc"), refpo: val("refpo") },
+    invoice: {
+      date: val("invDate"), due: val("dueDate"), no: val("invNo"),
+      status: val("status"), vat: val("vatMode"), term: val("payTerm")
+    },
+    calc: {
+      rate: val("rate"), ma: val("ma"), gesamt: val("gesamt"),
+      hNight: val("hNight"), hSun: val("hSun"), hHol: val("hHol"),
+      pNight: val("pNight"), pSun: val("pSun"), pHol: val("pHol"),
+      totals: {
+        netto: document.getElementById("netto").innerText,
+        ust: document.getElementById("ust").innerText,
+        gesamt: document.getElementById("gesamtEUR").innerText
       }
-      recalc();
-      saveState();
-    }
-    function upsertCustomer(){
-      const name = $("custName").value.trim();
-      if(!name){ alert("Bitte Kundennamen eingeben."); return; }
-      const email = $("custEmail").value.trim();
-      const data = $("custData").value.trim();
-      const customers = loadCustomers();
-      let id = $("customerSelect").value || "";
-      if(!id) id = "K-"+Date.now();
-      const idx = customers.findIndex(c=>c.id===id);
-      const obj = {id, name, email, data, updatedAt: Date.now()};
-      if(idx>=0) customers[idx]=obj; else customers.push(obj);
-      customers.sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
-      saveCustomers(customers);
-      renderCustomerSelect(id);
-      $("customerSelect").value = id;
-      alert("Kunde gespeichert.");
-      recalc();
-      saveState();
-    }
-    function deleteCustomer(){
-      const id = $("customerSelect").value;
-      if(!id){ alert("Bitte zuerst einen Kunden wählen."); return; }
-      if(!confirm("Kunde wirklich löschen?")) return;
-      saveCustomers(loadCustomers().filter(c=>c.id!==id));
-      renderCustomerSelect("");
-      $("customerSelect").value = "";
-      $("custName").value = "";
-      $("custEmail").value = "";
-      $("custData").value = "";
-      recalc();
-      saveState();
-    }
+    },
+    mode: schichtMode ? 1 : 0,
+    logoDataUrl: localStorage.getItem(KEY_LOGO) || null
+  };
+}
+function val(id){ return (document.getElementById(id).value || "").trim(); }
+function selectedCustomerId(){
+  const sel = document.getElementById("customerSelect").value;
+  return sel ? decodeURIComponent(sel) : "";
+}
+function saveInvoice(){
+  ensureInvoiceNo();
+  const data = collectData();
+  if(!data.customer.name){ alert("Bitte Kundennamen eingeben (oder Kunde auswählen)."); return; }
+  if(!data.invoice.no){ alert("Rechnungsnummer fehlt."); return; }
 
-    // Invoice No (auto per day)
-    function nextInvoiceNo(ymd){
-      const counters = ls.get(COUNTER_KEY, {});
-      const key = ymd.replaceAll("-","");
-      const cur = Number(counters[key]||0) + 1;
-      counters[key] = cur;
-      ls.set(COUNTER_KEY, counters);
-      return `MS-${key}-${pad(cur,4)}`;
-    }
-    function ensureInvoiceNo(){
-      const d = $("invDate").value || todayISO();
-      const key = d.replaceAll("-","");
-      const current = ($("invNo").value || "").trim();
-      if(current.startsWith(`MS-${key}-`)) return current;
-      // if user already typed something non-empty, keep it
-      if(current && !current.startsWith("MS-")) return current;
-      const no = nextInvoiceNo(d);
-      $("invNo").value = no;
-      return no;
-    }
+  const invoices = getInvoices();
+  // update if same invoice no
+  const idx = invoices.findIndex(x => x.invoice && x.invoice.no === data.invoice.no);
+  if(idx >= 0) invoices[idx] = data; else invoices.unshift(data);
+  setInvoices(invoices);
+  localStorage.setItem(KEY_LAST_INVNO, data.invoice.no);
+  alert("Rechnung gespeichert.");
+}
+function openInvoices(){
+  const panel = document.getElementById("invPanel");
+  panel.style.display = (panel.style.display === "none" || !panel.style.display) ? "block" : "none";
+  renderInvoiceList();
+  // scroll into view
+  if(panel.style.display==="block") panel.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderInvoiceList(){
+  const list = document.getElementById("invList");
+  const invoices = getInvoices();
+  if(!invoices.length){
+    list.innerHTML = `<div class="hint">Keine Rechnungen gespeichert.</div>`;
+    return;
+  }
+  list.innerHTML = invoices.map((inv, i) => {
+    const no = inv.invoice.no;
+    const c = inv.customer.name || "Kunde";
+    const d = inv.invoice.date || "";
+    const g = inv.calc?.totals?.gesamt || "0,00";
+    return `
+      <div class="invItem">
+        <div>
+          <b>${escapeHtml(no)}</b>
+          <small>${escapeHtml(c)} · ${escapeHtml(d)} · Gesamt: ${escapeHtml(g)} €</small>
+        </div>
+        <div class="right">
+          <button class="tiny" onclick="loadInvoice('${encodeURIComponent(no)}')">Öffnen</button>
+          <button class="tiny" onclick="printInvoice('${encodeURIComponent(no)}')">PDF</button>
+          <button class="tiny red" onclick="deleteInvoice('${encodeURIComponent(no)}')">Löschen</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+function loadInvoice(noEnc){
+  const no = decodeURIComponent(noEnc);
+  const inv = getInvoices().find(x => x.invoice && x.invoice.no === no);
+  if(!inv){ alert("Nicht gefunden."); return; }
 
-    // Calc (SAX 100%)
-    function recalc(){
-      // auto due if user didn't change it manually today (simple: always recompute from date+term unless dueDate is empty)
-      const invDate = $("invDate").value || todayISO();
-      const term = Number($("payTerm").value||0);
-      if(!$("dueDate").value) $("dueDate").value = addDays(invDate, term);
+  // logo
+  if(inv.logoDataUrl){
+    localStorage.setItem(KEY_LOGO, inv.logoDataUrl);
+    loadLogo();
+  }
 
-      ensureInvoiceNo();
+  // seller
+  setValue("sellerName", inv.seller.name || "");
+  setValue("sellerAddr", inv.seller.addr || "");
+  setValue("sellerTel", inv.seller.tel || "");
+  setValue("sellerMail", inv.seller.mail || "");
+  setValue("sellerTax", inv.seller.tax || "");
+  setValue("sellerIBAN", inv.seller.iban || "");
+  setValue("sellerBIC", inv.seller.bic || "");
 
-      const totalHours = safeNum($("totalHours").value);
-      const hNight = safeNum($("hNight").value);
-      const hSun = safeNum($("hSun").value);
-      const hHol = safeNum($("hHol").value);
+  // customer
+  setValue("custName", inv.customer.name || "");
+  setValue("custMail", inv.customer.mail || "");
+  setValue("custData", inv.customer.data || "");
 
-      const rate = safeNum($("rate").value);
-      const pn = safeNum($("pctNight").value)/100;
-      const ps = safeNum($("pctSun").value)/100;
-      const ph = safeNum($("pctHol").value)/100;
+  // service
+  setValue("objekt", inv.service.objekt || "");
+  setValue("zeitraum", inv.service.zeitraum || "");
+  setValue("desc", inv.service.desc || "");
+  setValue("refpo", inv.service.refpo || "");
 
-      const baseHours = Math.max(0, totalHours - (hNight + hSun + hHol));
+  // invoice
+  setValue("invDate", inv.invoice.date || "");
+  setValue("dueDate", inv.invoice.due || "");
+  setValue("invNo", inv.invoice.no || "");
+  setValue("status", inv.invoice.status || "Entwurf");
+  setValue("vatMode", inv.invoice.vat || "19");
+  setValue("payTerm", inv.invoice.term || "14");
 
-      const aBase = baseHours * rate;
-      const aNight = hNight * rate * pn;
-      const aSun = hSun * rate * ps;
-      const aHol = hHol * rate * ph;
+  // calc
+  setValue("rate", inv.calc.rate || "23");
+  setValue("ma", inv.calc.ma || "1");
+  setValue("gesamt", inv.calc.gesamt || "0");
+  setValue("hNight", inv.calc.hNight || "0");
+  setValue("hSun", inv.calc.hSun || "0");
+  setValue("hHol", inv.calc.hHol || "0");
+  setValue("pNight", inv.calc.pNight || "5");
+  setValue("pSun", inv.calc.pSun || "50");
+  setValue("pHol", inv.calc.pHol || "100");
 
-      const net = aBase + aNight + aSun + aHol;
+  schichtMode = inv.mode ? true : false;
+  localStorage.setItem(KEY_MODE, schichtMode ? "1":"0");
 
-      const vatRate = Number($("vatMode").value||0)/100;
-      const vat = net * vatRate;
-      const gross = net + vat;
+  syncStatus();
+  recalc();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function deleteInvoice(noEnc){
+  const no = decodeURIComponent(noEnc);
+  if(!confirm("Rechnung löschen?")) return;
+  const invoices = getInvoices().filter(x => x.invoice && x.invoice.no !== no);
+  setInvoices(invoices);
+  renderInvoiceList();
+}
+function printInvoice(noEnc){
+  loadInvoice(noEnc);
+  setTimeout(() => printPDF(), 150);
+}
 
-      $("hBase").textContent = fmt(baseHours);
-      $("aBase").textContent = eur(aBase);
-      $("aNight").textContent = eur(aNight);
-      $("aSun").textContent = eur(aSun);
-      $("aHol").textContent = eur(aHol);
+/* =========================
+   11) PDF PRINT (logo stable)
+   - just window.print with print CSS
+========================= */
+function printPDF(){
+  // ensure invoice number exists
+  ensureInvoiceNo();
+  // force clickable mail/tel in print by temporarily converting (optional)
+  window.print();
+}
 
-      $("sNight").textContent = fmt(safeNum($("pctNight").value)).replace(",00","");
-      $("sSun").textContent = fmt(safeNum($("pctSun").value)).replace(",00","");
-      $("sHol").textContent = fmt(safeNum($("pctHol").value)).replace(",00","");
+/* =========================
+   12) RESET
+========================= */
+function resetForm(){
+  // keep logo, customers, invoices
+  document.getElementById("objekt").value = "";
+  document.getElementById("zeitraum").value = "";
+  document.getElementById("desc").value = "Security Dienstleistung";
+  document.getElementById("refpo").value = "";
 
-      const ma = Math.max(1, Math.floor(safeNum($("ma").value)||1));
-      $("hTotal").textContent = fmt(totalHours);
-      $("hPerMA").textContent = fmt(totalHours / ma);
+  newCustomer();
 
-      $("net").textContent = eur(net);
-      $("vat").textContent = eur(vat);
-      $("gross").textContent = eur(gross);
+  // reset calc
+  setValue("rate","23");
+  setValue("ma","1");
+  setValue("gesamt","0");
+  setValue("hNight","0");
+  setValue("hSun","0");
+  setValue("hHol","0");
+  setValue("pNight","5");
+  setValue("pSun","50");
+  setValue("pHol","100");
 
-      $("vatHint").textContent = vatRate===0
-        ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung)."
-        : "Umsatzsteuer wird mit 19% berechnet.";
+  // reset dates + invoice no
+  document.getElementById("invDate").value = "";
+  document.getElementById("dueDate").value = "";
+  document.getElementById("status").value = "Entwurf";
+  document.getElementById("vatMode").value = "19";
+  document.getElementById("payTerm").value = "14";
+  document.getElementById("invNo").value = "";
 
-      const st = $("status").value;
-      $("statusTag").textContent = "Status: " + st;
-      $("sellerStatusPreview").textContent = st;
-      $("paperStatus").textContent = st;
-      $("paperMini").textContent = st + " • Auto Datum • Auto Nummer • Zuschläge • PDF";
-      $("pCreated").textContent = new Date().toLocaleString("de-DE");
+  initDates();
+  syncStatus();
+  recalc();
+}
+function hardReset(){
+  if(!confirm("Alles zurücksetzen? (Kunden + Rechnungen bleiben nur wenn du nicht bestätigst)")) return;
+  // full clear
+  localStorage.removeItem(KEY_CUSTOMERS);
+  localStorage.removeItem(KEY_INVOICES);
+  localStorage.removeItem(KEY_INVSEQ);
+  localStorage.removeItem(KEY_LAST_INVNO);
+  localStorage.removeItem(KEY_MODE);
+  // keep logo? remove too:
+  // localStorage.removeItem(KEY_LOGO);
+  location.reload();
+}
 
-      syncPreview();
-      saveState();
-    }
+/* =========================
+   13) SECURITY: escape HTML
+========================= */
+function escapeHtml(str){
+  return String(str||"").replace(/[&<>"']/g, s => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[s]));
+}
 
-    function syncPreview(){
-      $("pInvNo").textContent = ($("invNo").value||"—").trim() || "—";
-      const invDate = $("invDate").value ? new Date($("invDate").value+"T00:00:00") : new Date();
-      const due = $("dueDate").value ? new Date($("dueDate").value+"T00:00:00") : invDate;
+/* =========================
+   14) INIT
+========================= */
+(function init(){
+  // mode
+  const m = localStorage.getItem(KEY_MODE);
+  if(m === "0") schichtMode = false;
+  applyBadge();
 
-      $("pInvDate").textContent = invDate.toLocaleDateString("de-DE");
-      $("pDue").textContent = due.toLocaleDateString("de-DE");
-      $("pTerm").textContent = ($("payTerm").value||"") + " Tage";
-      $("pVatMode").textContent = $("vatMode").value==="0" ? "0% (§19 UStG)" : "19% (Regelbesteuerung)";
-
-      const customers = loadCustomers();
-      const selected = customers.find(c=>c.id===$("customerSelect").value);
-
-      const cName = $("custName").value.trim() || (selected?.name) || "—";
-      const cEmail = $("custEmail").value.trim() || (selected?.email) || "—";
-      const cData = $("custData").value.trim() || (selected?.data) || "—";
-
-      $("pCustName").textContent = cName || "—";
-      $("pCustEmail").textContent = cEmail || "—";
-      $("pCustData").textContent = cData || "—";
-
-      $("pObjekt").textContent = $("objekt").value.trim() || "—";
-      $("pZeitraum").textContent = $("zeitraum").value.trim() || "—";
-      $("pLeistung").textContent = $("leistung").value.trim() || "—";
-      $("pPO").textContent = $("po").value.trim() || "—";
-
-      $("ppBaseH").textContent = $("hBase").textContent;
-      $("ppRate").textContent = eur(safeNum($("rate").value));
-      $("ppBaseA").textContent = $("aBase").textContent;
-
-      $("ppNightH").textContent = fmt(safeNum($("hNight").value));
-      $("ppNightP").textContent = fmt(safeNum($("pctNight").value)).replace(",00","") + "%";
-      $("ppNightA").textContent = $("aNight").textContent;
-
-      $("ppSunH").textContent = fmt(safeNum($("hSun").value));
-      $("ppSunP").textContent = fmt(safeNum($("pctSun").value)).replace(",00","") + "%";
-      $("ppSunA").textContent = $("aSun").textContent;
-
-      $("ppHolH").textContent = fmt(safeNum($("hHol").value));
-      $("ppHolP").textContent = fmt(safeNum($("pctHol").value)).replace(",00","") + "%";
-      $("ppHolA").textContent = $("aHol").textContent;
-
-      $("ppNet").textContent = $("net").textContent;
-      $("ppVat").textContent = $("vat").textContent;
-      $("ppGross").textContent = $("gross").textContent;
-    }
-
-    // Logo: make sure it appears in PDF (convert logo.png to dataURL automatically)
-    async function fetchLogoToDataURL(){
-      try{
-        const res = await fetch("logo.png", {cache:"no-store"});
-        if(!res.ok) return null;
-        const blob = await res.blob();
-        const dataUrl = await new Promise((resolve,reject)=>{
-          const r = new FileReader();
-          r.onload = ()=>resolve(r.result);
-          r.onerror = reject;
-          r.readAsDataURL(blob);
-        });
-        return dataUrl;
-      }catch(e){
-        return null;
-      }
-    }
-    function applyLogo(src){
-      ["topLogo","paperLogo"].forEach(id=>{
-        const img = $(id);
-        img.src = src || "logo.png";
-      });
-    }
-    async function loadLogo(){
-      const saved = ls.get(LOGO_KEY, null);
-      if(saved){
-        applyLogo(saved);
-        return;
-      }
-      const auto = await fetchLogoToDataURL();
-      if(auto){
-        ls.set(LOGO_KEY, auto);
-        applyLogo(auto);
-      }else{
-        applyLogo("logo.png");
-      }
-    }
-    async function setLogoFromFile(file){
-      const dataUrl = await new Promise((res, rej)=>{
-        const r = new FileReader();
-        r.onload = ()=>res(r.result);
-        r.onerror = rej;
-        r.readAsDataURL(file);
-      });
-      ls.set(LOGO_KEY, dataUrl);
-      applyLogo(dataUrl);
-    }
-
-    // Invoices save/list
-    function loadInvoices(){ return ls.get(INVOICES_KEY, []); }
-    function saveInvoices(list){ ls.set(INVOICES_KEY, list); }
-
-    function saveCurrentInvoice(){
-      recalc();
-      const d = gather();
-      const inv = {
-        id: (d.invNo||("INV-"+Date.now())).trim(),
-        invNo: (d.invNo||"").trim(),
-        date: d.invDate,
-        due: d.dueDate,
-        status: d.status,
-        customer: d.custName || (loadCustomers().find(c=>c.id===d.customerId)?.name) || "",
-        net: $("net").textContent,
-        gross: $("gross").textContent,
-        data: d,
-        savedAt: Date.now()
-      };
-      const list = loadInvoices();
-      const idx = list.findIndex(x=>x.id===inv.id);
-      if(idx>=0) list[idx]=inv; else list.unshift(inv);
-      saveInvoices(list);
-      alert("Rechnung gespeichert.");
-    }
-
-    function openModal(){ $("mInvoices").classList.add("open"); }
-    function closeModal(){ $("mInvoices").classList.remove("open"); }
-
-    function renderInvoiceList(){
-      const box = $("invoiceList");
-      const list = loadInvoices();
-      if(!list.length){
-        box.innerHTML = `<div class="item"><div><div class="t">Keine Rechnungen gespeichert</div><div class="s">Klicke „Rechnung speichern“.</div></div><div></div></div>`;
-        return;
-      }
-      box.innerHTML = "";
-      list.forEach((inv)=>{
-        const el = document.createElement("div");
-        el.className="item";
-        const when = new Date(inv.savedAt).toLocaleString("de-DE");
-        el.innerHTML = `
-          <div>
-            <div class="t mono">${inv.invNo || inv.id}</div>
-            <div class="s">${inv.customer || "—"} • ${inv.status} • Datum ${inv.date} • Netto ${inv.net} • Gesamt ${inv.gross} • gespeichert ${when}</div>
-          </div>
-          <div class="acts">
-            <button class="smallbtn blue" data-load="${inv.id}">Laden</button>
-            <button class="smallbtn" data-pdf="${inv.id}">PDF</button>
-            <button class="smallbtn red" data-del="${inv.id}">Löschen</button>
-          </div>
-        `;
-        box.appendChild(el);
-      });
-
-      box.querySelectorAll("button[data-load]").forEach(b=>{
-        b.addEventListener("click", ()=>{
-          const id = b.getAttribute("data-load");
-          const inv = loadInvoices().find(x=>x.id===id);
-          if(!inv) return;
-          ls.set(STORE_KEY, inv.data);
-          apply(state());
-          closeModal();
-        });
-      });
-      box.querySelectorAll("button[data-del]").forEach(b=>{
-        b.addEventListener("click", ()=>{
-          const id = b.getAttribute("data-del");
-          if(!confirm("Rechnung löschen?")) return;
-          saveInvoices(loadInvoices().filter(x=>x.id!==id));
-          renderInvoiceList();
-        });
-      });
-      box.querySelectorAll("button[data-pdf]").forEach(b=>{
-        b.addEventListener("click", async ()=>{
-          const id = b.getAttribute("data-pdf");
-          const inv = loadInvoices().find(x=>x.id===id);
-          if(!inv) return;
-          ls.set(STORE_KEY, inv.data);
-          apply(state());
-          await exportPDF();
-        });
-      });
-    }
-
-    // PDF export: FORCE 1 PAGE (fit-to-one-page) to avoid "2 pages"
-    async function exportPDF(){
-      recalc();
-      const { jsPDF } = window.jspdf;
-
-      // Ensure logo is dataurl
-      const logo = ls.get(LOGO_KEY, null);
-      if(logo) applyLogo(logo);
-
-      const paper = $("paper");
-      const scale = 2;
-      const canvas = await html2canvas(paper, {scale, useCORS:true, backgroundColor:"#ffffff"});
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-
-      // Fit image into one page (scale down if needed)
-      const imgW = pageW;
-      const imgH = (canvas.height * imgW) / canvas.width;
-
-      let drawW = imgW;
-      let drawH = imgH;
-
-      if(drawH > pageH){
-        const ratio = pageH / drawH;
-        drawH = pageH;
-        drawW = drawW * ratio;
-      }
-
-      const x = (pageW - drawW) / 2;
-      const y = 0;
-
-      pdf.addImage(imgData, "PNG", x, y, drawW, drawH, undefined, "FAST");
-
-      const name = (($("invNo").value||"Rechnung").trim() || "Rechnung") + ".pdf";
-      pdf.save(name);
-    }
-
-    function wire(){
-      [
-        "objekt","zeitraum","leistung","po",
-        "invDate","payTerm","dueDate","invNo",
-        "status","vatMode",
-        "rate","pctNight","pctSun","pctHol",
-        "ma","totalHours","hNight","hSun","hHol",
-        "custName","custEmail","custData","customerSelect"
-      ].forEach(id=>{
-        $(id).addEventListener("input", recalc);
-        $(id).addEventListener("change", ()=>{
-          if(id==="customerSelect") loadCustomerToFields();
-          recalc();
-        });
-      });
-
-      $("btnCustomerSave").addEventListener("click", upsertCustomer);
-      $("btnCustomerDelete").addEventListener("click", deleteCustomer);
-      $("btnCustomerNew").addEventListener("click", ()=>{
-        $("customerSelect").value="";
-        $("custName").value="";
-        $("custEmail").value="";
-        $("custData").value="";
-        recalc();
-      });
-
-      $("btnNeu").addEventListener("click", ()=>{
-        const keepLogo = ls.get(LOGO_KEY, null);
-        ls.set(STORE_KEY, defaultData());
-        if(keepLogo) ls.set(LOGO_KEY, keepLogo);
-        apply(state());
-      });
-
-      $("btnReset").addEventListener("click", ()=>{
-        if(!confirm("Alles zurücksetzen (Formular)?")) return;
-        ls.set(STORE_KEY, defaultData());
-        apply(state());
-      });
-
-      $("btnSaveInvoice").addEventListener("click", saveCurrentInvoice);
-
-      $("btnListInvoices").addEventListener("click", ()=>{
-        renderInvoiceList();
-        openModal();
-      });
-
-      $("closeInvoices").addEventListener("click", closeModal);
-      $("mInvoices").addEventListener("click", (e)=>{
-        if(e.target === $("mInvoices")) closeModal();
-      });
-
-      $("btnPDF").addEventListener("click", exportPDF);
-
-      $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
-      $("logoFile").addEventListener("change", async ()=>{
-        const f = $("logoFile").files?.[0];
-        if(!f) return;
-        await setLogoFromFile(f);
-        alert("Logo gespeichert (auch im PDF).");
-      });
-    }
-
-    async function init(){
-      await loadLogo();
-      renderCustomerSelect("");
-
-      // load state
-      const d = state();
-      apply(d);
-
-      // defaults
-      if(!$("invDate").value) $("invDate").value = todayISO();
-      if(!$("dueDate").value) $("dueDate").value = addDays($("invDate").value, Number($("payTerm").value||14));
-
-      // if invNo empty, generate
-      if(!($("invNo").value||"").trim()) ensureInvoiceNo();
-
-      wire();
-      recalc();
-    }
-    init();
-  </script>
+  loadLogo();
+  refreshCustomerSelect();
+  initDates();
+  syncStatus();
+  recalc();
+})();
+</script>
 </body>
 </html>
