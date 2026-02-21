@@ -1,771 +1,276 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung</title>
-  <meta name="theme-color" content="#0b3a78"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masculine Security – Rechnung</title>
 
-  <style>
-    :root{
-      --blue:#0b3a78;
-      --blue2:#165bb5;
-      --bg:#f2f6ff;
-      --card:#ffffff;
-      --ink:#0b1220;
-      --muted:#566884;
-      --line:#dbe6fb;
-      --shadow:0 10px 30px rgba(10,40,90,.12);
-      --r:16px;
-      --font: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:var(--font);color:var(--ink);background:linear-gradient(180deg,var(--bg),#fff)}
-    a{color:inherit}
-    .topbar{
-      position:sticky; top:0; z-index:60;
-      background:linear-gradient(90deg,var(--blue),var(--blue2));
-      color:#fff; box-shadow:var(--shadow);
-    }
-    .topbar .inner{
-      max-width:1160px;margin:0 auto;padding:12px 16px;
-      display:flex;gap:12px;align-items:center;justify-content:space-between;
-    }
-    .brand{display:flex;gap:12px;align-items:center;min-width:0}
-    .logoBox{
-      width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.18);
-      overflow:hidden;display:grid;place-items:center;flex:0 0 auto;
-    }
-    .logoBox img{width:100%;height:100%;object-fit:cover;display:block}
-    .brand h1{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .brand small{display:block;margin-top:2px;font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+<style>
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#f3f6fa;
+margin:0;
+padding:20px;
+}
 
-    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .btn{
-      border:1px solid rgba(255,255,255,.25);
-      background:rgba(255,255,255,.10);
-      color:#fff;padding:8px 10px;border-radius:12px;
-      cursor:pointer;font-weight:700;font-size:13px;
-    }
-    .btn.primary{background:#fff;color:var(--blue);border-color:#fff}
-    .btn.light{background:#fff;color:var(--blue);border-color:#e7efff}
-    .btn.danger{background:#fff;color:#a11;border-color:#f0d0d0}
-    .btn:active{transform:translateY(1px)}
-    input[type="file"]{display:none}
+.container{
+max-width:900px;
+margin:auto;
+background:#fff;
+padding:30px;
+border-radius:10px;
+box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
 
-    .wrap{max-width:1160px;margin:18px auto;padding:0 16px}
-    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
-    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+border-bottom:2px solid #0b5ed7;
+padding-bottom:15px;
+margin-bottom:20px;
+}
 
-    .card{
-      background:var(--card);border:1px solid var(--line);
-      border-radius:var(--r);box-shadow:var(--shadow);
-      padding:16px;position:relative;overflow:visible;
-    }
-    /* CLICK FIX: nothing overlays inputs */
-    .card, .card *{pointer-events:auto}
-    .card::before,.card::after{pointer-events:none;content:""}
+.logo{
+height:60px;
+}
 
-    .card h2{
-      margin:0 0 10px 0;
-      font-size:12px;letter-spacing:.10em;text-transform:uppercase;
-      color:var(--muted);
-    }
+h1{
+color:#0b5ed7;
+margin:0;
+font-size:22px;
+}
 
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media (max-width:600px){ .row{grid-template-columns:1fr} }
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
 
-    .field{display:flex;flex-direction:column;gap:6px}
-    label{font-size:12px;color:var(--muted);font-weight:800}
-    .control{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
-      color:var(--ink);
-      position:relative; z-index:2; /* keeps clickable */
-    }
-    .control:focus{border-color:rgba(22,91,181,.55);box-shadow:0 0 0 4px rgba(22,91,181,.15)}
-    textarea.control{min-height:90px;resize:vertical}
-    select.control{appearance:auto}
-    .hint{font-size:12px;color:var(--muted);line-height:1.4}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid var(--line);background:#fff;
-      font-size:12px;color:var(--muted);font-weight:800;
-    }
+input,select{
+width:100%;
+padding:8px;
+margin-top:5px;
+border:1px solid #ccc;
+border-radius:5px;
+}
 
-    .subcard{box-shadow:none;border:1px solid var(--line);padding:12px}
-    .splitTop{
-      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap
-    }
-    .companyBlock{min-width:260px}
-    .companyBlock b{font-size:15px}
-    .companyBlock .hint{line-height:1.4}
+.section{
+margin-top:20px;
+}
 
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
-    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-    td.num{text-align:right}
-    .totals{margin-top:14px;display:grid;gap:10px}
-    .totals .box{
-      border:1px solid var(--line);border-radius:14px;padding:12px;
-      background:linear-gradient(180deg,#fff,#f7fbff);
-    }
-    .totals .line{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:6px 0}
-    .totals .line strong{font-size:14px}
-    .divider{height:1px;background:var(--line);margin:10px 0}
+.table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
 
-    /* Modal */
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:90}
-    .modal .box{
-      max-width:980px;margin:38px auto;background:#fff;border-radius:18px;
-      border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden
-    }
-    .modalHead{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      padding:12px 14px;background:linear-gradient(90deg,#f5f8ff,#fff)
-    }
-    .listItem{
-      border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px
-    }
+.table th,.table td{
+border:1px solid #ddd;
+padding:10px;
+text-align:left;
+}
 
-    /* Print */
-    @media print{
-      body{background:#fff}
-      .noPrint{display:none!important}
-      .wrap{max-width:none;margin:0;padding:0}
-      .card{box-shadow:none;border-color:#d6dbe6}
-      a{color:#000;text-decoration:none}
-    }
-  </style>
+.table th{
+background:#0b5ed7;
+color:white;
+}
+
+.total{
+text-align:right;
+margin-top:20px;
+font-size:18px;
+}
+
+.btns{
+margin-top:20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+button{
+padding:10px 15px;
+border:none;
+background:#0b5ed7;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+@media print {
+body{background:white;}
+button{display:none;}
+.logo{
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact;
+}
+}
+</style>
 </head>
 
 <body>
-  <div class="topbar noPrint">
-    <div class="inner">
-      <div class="brand">
-        <div class="logoBox">
-          <img id="logoImg" alt="Logo" style="display:none"/>
-          <div id="logoFallback" style="font-weight:900;letter-spacing:.08em">MS</div>
-        </div>
-        <div style="min-width:0">
-          <h1>Masculine Security — Rechnung</h1>
-          <small>1:1 Firmen-System · Auto Datum · Auto Rechnungsnummer · Kundenliste · Zuschläge · USt · PDF</small>
-        </div>
-      </div>
-
-      <div class="actions">
-        <label class="btn" for="logoInput">Logo ändern</label>
-        <input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp"/>
-        <button class="btn" id="btnNew" type="button">Neu</button>
-        <button class="btn" id="btnSave" type="button">Rechnung speichern</button>
-        <button class="btn" id="btnList" type="button">Rechnungen</button>
-        <button class="btn" id="btnReset" type="button">Reset</button>
-        <button class="btn primary" id="btnPdf" type="button">PDF speichern</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h2>Rechnungssteller & Kunde</h2>
-
-        <div class="splitTop">
-          <div class="companyBlock">
-            <b>Masculine Security</b>
-            <div class="hint">Werschenregerstraße 6 · 28237 Bremen</div>
-            <div class="hint">Tel: <a href="tel:+4915778697052">015778697052</a></div>
-            <div class="hint">E-Mail: <a href="mailto:Kontakt.mass.bremen@hotmail.com">Kontakt.mass.bremen@hotmail.com</a></div>
-            <div class="hint">Steuernummer: (in Bearbeitung)</div>
-            <div style="margin-top:10px"><span class="pill" id="statusPill">Status: Entwurf</span></div>
-          </div>
-
-          <div class="card subcard" style="min-width:320px;flex:1">
-            <h2 style="margin-bottom:8px">Kunde</h2>
-
-            <div class="field">
-              <label for="kundenSelect">Kunde auswählen</label>
-              <select id="kundenSelect" class="control"></select>
-            </div>
-
-            <div class="row" style="margin-top:10px">
-              <button class="btn light" id="btnKundeNeu" type="button">Neu</button>
-              <button class="btn danger" id="btnKundeLoesch" type="button">Kunde löschen</button>
-            </div>
-
-            <div class="field" style="margin-top:10px">
-              <label for="kundenName">Kundenname (zum Speichern)</label>
-              <input id="kundenName" class="control" placeholder="Firma / Name"/>
-            </div>
-            <div class="field">
-              <label for="kundenEmail">E-Mail (optional)</label>
-              <input id="kundenEmail" class="control" placeholder="kunde@email.de"/>
-            </div>
-            <div class="field">
-              <label for="kundenAdr">Kundendaten</label>
-              <textarea id="kundenAdr" class="control" placeholder="Straße Hausnr.&#10;PLZ Ort"></textarea>
-            </div>
-
-            <div class="row" style="margin-top:10px">
-              <button class="btn light" id="btnKundeSave" type="button">Kunde speichern</button>
-              <span class="hint" id="kundeMsg" style="align-self:center"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row">
-          <div class="field">
-            <label for="einsatzort">Einsatzort / Objekt</label>
-            <input id="einsatzort" class="control" placeholder="z. B. Hotel / Baustelle / Adresse" value="Bremen"/>
-          </div>
-          <div class="field">
-            <label for="leistungszeitraum">Leistungszeitraum</label>
-            <input id="leistungszeitraum" class="control" placeholder="z. B. 01.02.2026 – 15.02.2026"/>
-          </div>
-        </div>
-
-        <div class="field" style="margin-top:12px">
-          <label for="leistung">Leistungsbeschreibung</label>
-          <textarea id="leistung" class="control">Security Dienstleistung</textarea>
-        </div>
-
-        <div class="field" style="margin-top:12px">
-          <label for="referenz">Referenz / PO (optional)</label>
-          <input id="referenz" class="control" placeholder="z. B. Auftrag-Nr. / Ansprechpartner"/>
-        </div>
-      </div>
-
-      <!-- RIGHT -->
-      <div class="card" id="rechnungsdatenCard">
-        <h2>Rechnungsdaten & Berechnung</h2>
-
-        <div class="row">
-          <div class="field">
-            <label for="rechnungsdatum">Rechnungsdatum (Auto)</label>
-            <input id="rechnungsdatum" type="date" class="control"/>
-            <div class="hint">Auto today. Du kannst trotzdem ändern.</div>
-          </div>
-          <div class="field">
-            <label for="zahlungsziel">Zahlungsziel</label>
-            <select id="zahlungsziel" class="control">
-              <option value="7">7 Tage</option>
-              <option value="14" selected>14 Tage</option>
-              <option value="30">30 Tage</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <div class="field">
-            <label for="faellig">Fällig am (Auto)</label>
-            <input id="faellig" type="date" class="control"/>
-          </div>
-          <div class="field">
-            <label for="rechnungsnr">Rechnungsnummer (Auto, laufend)</label>
-            <input id="rechnungsnr" class="control" readonly/>
-            <div class="hint">Format: MS-YYYYMMDD-0001 (laufend pro Jahr)</div>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <div class="field">
-            <label for="status">Status wählen</label>
-            <select id="status" class="control">
-              <option>Entwurf</option>
-              <option>Offen</option>
-              <option>Bezahlt</option>
-              <option>Storniert</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="ust">USt-Status</label>
-            <select id="ust" class="control">
-              <option value="0">0% (Kleinunternehmer §19)</option>
-              <option value="19" selected>19% (Regelbesteuerung)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <div class="field">
-            <label for="satz">Stundensatz (€/h)</label>
-            <input id="satz" type="number" min="0" step="0.01" class="control" value="23"/>
-          </div>
-          <div class="field">
-            <label>Zuschläge editierbar</label>
-            <div class="row">
-              <input id="pNacht" type="number" min="0" step="0.1" class="control" value="5" title="Nacht %"/>
-              <input id="pSonntag" type="number" min="0" step="0.1" class="control" value="50" title="Sonntag %"/>
-              <input id="pFeiertag" type="number" min="0" step="0.1" class="control" value="100" title="Feiertag %"/>
-            </div>
-            <div class="hint">Kein Doppelzählen: Feiertag > Sonntag > Nacht</div>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <div class="field">
-            <label for="ma">Anzahl Mitarbeiter</label>
-            <input id="ma" type="number" min="1" step="1" class="control" value="1"/>
-          </div>
-          <div class="field">
-            <label for="stdgesamt">Stunden gesamt</label>
-            <input id="stdgesamt" type="number" min="0" step="0.01" class="control" value="0"/>
-            <div class="hint">Gib nur Gesamtstunden → Grundlohn wird automatisch berechnet.</div>
-          </div>
-        </div>
-
-        <div class="card subcard" style="margin-top:12px">
-          <h2>Auto-Positionen</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th style="width:140px">Stunden</th>
-                <th style="width:120px">Zuschlag %</th>
-                <th class="num" style="width:160px">Betrag</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>Grundlohn</b><div class="hint">Arbeitszeit (normal)</div></td>
-                <td><input id="hGrund" class="control" type="number" min="0" step="0.01" value="0"/></td>
-                <td class="hint">—</td>
-                <td class="num" id="bGrund">0,00 €</td>
-              </tr>
-              <tr>
-                <td><b>Nachtschicht</b><div class="hint">Zuschlag</div></td>
-                <td><input id="hNacht" class="control" type="number" min="0" step="0.01" value="0"/></td>
-                <td><span id="txtNacht">5</span>%</td>
-                <td class="num" id="bNacht">0,00 €</td>
-              </tr>
-              <tr>
-                <td><b>Sonntag</b><div class="hint">Zuschlag</div></td>
-                <td><input id="hSonntag" class="control" type="number" min="0" step="0.01" value="0"/></td>
-                <td><span id="txtSonntag">50</span>%</td>
-                <td class="num" id="bSonntag">0,00 €</td>
-              </tr>
-              <tr>
-                <td><b>Feiertag</b><div class="hint">Zuschlag</div></td>
-                <td><input id="hFeiertag" class="control" type="number" min="0" step="0.01" value="0"/></td>
-                <td><span id="txtFeiertag">100</span>%</td>
-                <td class="num" id="bFeiertag">0,00 €</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="totals">
-            <div class="box">
-              <div class="line"><span>Zwischensumme (Netto)</span><strong id="netto">0,00 €</strong></div>
-              <div class="line"><span>Umsatzsteuer</span><strong id="tax">0,00 €</strong></div>
-              <div class="line" style="border-top:1px solid var(--line);padding-top:10px">
-                <span><b>Gesamt</b></span><strong id="gesamt">0,00 €</strong>
-              </div>
-              <div class="hint" id="ustHint" style="margin-top:8px"></div>
-              <div class="hint" style="margin-top:8px">
-                Bank: MUSTAFA MURSAL ABDI · IBAN: DE98 1001 1001 2333 0146 96 · BIC: NTSBDEB1XXX
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- MODAL: Rechnungen -->
-    <div id="modal" class="modal noPrint">
-      <div class="box">
-        <div class="modalHead">
-          <b>Gespeicherte Rechnungen</b>
-          <button class="btn light" id="btnClose" type="button">Schließen</button>
-        </div>
-        <div style="padding:14px" id="listBox"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // =======================
-    // 1:1 SYSTEM CORE (AUTO)
-    // =======================
-    const $ = (id)=>document.getElementById(id);
-    const fmtEUR = (n)=> (isFinite(n)? n:0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
-    const todayISO = ()=> new Date().toISOString().slice(0,10);
-    const addDaysISO = (iso,days)=>{
-      const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+days);
-      return d.toISOString().slice(0,10);
-    };
-    const pad4 = (n)=> String(n).padStart(4,'0');
-
-    const key = {
-      customers:'ms_customers_v2',
-      invoices:'ms_invoices_v2',
-      state:'ms_state_v2',
-      logo:'ms_logo_v2',
-      seq:'ms_invoice_seq_v2'
-    };
-
-    // NEW: Prefix change here (default MS)
-    const INVOICE_PREFIX = "MS";
-
-    function nextInvoiceNo(dateISO){
-      const stamp = (dateISO||todayISO()).replaceAll('-',''); // YYYYMMDD
-      const year = stamp.slice(0,4);
-
-      let seq = {};
-      try{ seq = JSON.parse(localStorage.getItem(key.seq)||'{}'); }catch(e){ seq = {}; }
-      if(!seq[year]) seq[year] = 0;
-      seq[year] += 1;
-
-      localStorage.setItem(key.seq, JSON.stringify(seq));
-      return `${INVOICE_PREFIX}-${stamp}-${pad4(seq[year])}`;
-    }
-
-    function ensureAutoDateAndNo(forceNewNo=false){
-      if(!$('rechnungsdatum').value) $('rechnungsdatum').value = todayISO();
-
-      const z = parseInt($('zahlungsziel').value||'14',10);
-      $('faellig').value = addDaysISO($('rechnungsdatum').value, z);
-
-      if(forceNewNo || !$('rechnungsnr').value){
-        $('rechnungsnr').value = nextInvoiceNo($('rechnungsdatum').value);
-      }
-    }
-
-    // CLICK FIX
-    function enforceClickable(){
-      const card = $('rechnungsdatenCard');
-      card.style.position='relative';
-      card.style.zIndex='1';
-      [...card.querySelectorAll('input,select,textarea,button')].forEach(el=>{
-        el.style.position='relative';
-        el.style.zIndex='2';
-        el.style.pointerEvents='auto';
-      });
-    }
-
-    // CUSTOMERS
-    function loadCustomers(){ try{ return JSON.parse(localStorage.getItem(key.customers)||'[]')||[]; }catch(e){ return []; } }
-    function saveCustomers(list){ localStorage.setItem(key.customers, JSON.stringify(list||[])); }
-    function refreshCustomerSelect(selVal){
-      const list = loadCustomers();
-      const s = $('kundenSelect');
-      s.innerHTML='';
-      const o0=document.createElement('option');
-      o0.value=''; o0.textContent='— Kunde wählen —';
-      s.appendChild(o0);
-      list.forEach((c,i)=>{
-        const o=document.createElement('option');
-        o.value=String(i);
-        o.textContent=(c.name||('Kunde '+(i+1)));
-        s.appendChild(o);
-      });
-      if(selVal!==undefined) s.value=selVal;
-    }
-    function applyCustomer(){
-      const list=loadCustomers();
-      const idx=parseInt($('kundenSelect').value,10);
-      if(!isFinite(idx) || !list[idx]) return;
-      $('kundenName').value=list[idx].name||'';
-      $('kundenEmail').value=list[idx].email||'';
-      $('kundenAdr').value=list[idx].addr||'';
-      autoSave();
-    }
-
-    // LOGO
-    function setLogo(dataUrl){
-      localStorage.setItem(key.logo, dataUrl||'');
-      const img=$('logoImg'), fb=$('logoFallback');
-      if(dataUrl){
-        img.src=dataUrl; img.style.display='block'; fb.style.display='none';
-      }else{
-        img.style.display='none'; fb.style.display='grid';
-      }
-    }
-
-    // STATE
-    function getState(){
-      return {
-        rechnungsdatum:$('rechnungsdatum').value,
-        zahlungsziel:$('zahlungsziel').value,
-        faellig:$('faellig').value,
-        rechnungsnr:$('rechnungsnr').value,
-        status:$('status').value,
-        ust:$('ust').value,
-        satz:$('satz').value,
-        pNacht:$('pNacht').value, pSonntag:$('pSonntag').value, pFeiertag:$('pFeiertag').value,
-        ma:$('ma').value, stdgesamt:$('stdgesamt').value,
-        hGrund:$('hGrund').value, hNacht:$('hNacht').value, hSonntag:$('hSonntag').value, hFeiertag:$('hFeiertag').value,
-        einsatzort:$('einsatzort').value, leistungszeitraum:$('leistungszeitraum').value,
-        leistung:$('leistung').value, referenz:$('referenz').value,
-        kundeSelected:$('kundenSelect').value,
-        kundenName:$('kundenName').value, kundenEmail:$('kundenEmail').value, kundenAdr:$('kundenAdr').value,
-        logo: localStorage.getItem(key.logo)||''
-      };
-    }
-    function setState(st){
-      if(!st) return;
-      if(st.logo) setLogo(st.logo);
-      $('rechnungsdatum').value = st.rechnungsdatum || todayISO();
-      $('zahlungsziel').value = st.zahlungsziel || '14';
-      $('faellig').value = st.faellig || addDaysISO($('rechnungsdatum').value, parseInt($('zahlungsziel').value,10));
-      $('rechnungsnr').value = st.rechnungsnr || '';
-      $('status').value = st.status || 'Entwurf';
-      $('ust').value = st.ust ?? '19';
-      $('satz').value = st.satz ?? '23';
-      $('pNacht').value = st.pNacht ?? '5';
-      $('pSonntag').value = st.pSonntag ?? '50';
-      $('pFeiertag').value = st.pFeiertag ?? '100';
-      $('ma').value = st.ma ?? '1';
-      $('stdgesamt').value = st.stdgesamt ?? '0';
-      $('hGrund').value = st.hGrund ?? '0';
-      $('hNacht').value = st.hNacht ?? '0';
-      $('hSonntag').value = st.hSonntag ?? '0';
-      $('hFeiertag').value = st.hFeiertag ?? '0';
-      $('einsatzort').value = st.einsatzort ?? 'Bremen';
-      $('leistungszeitraum').value = st.leistungszeitraum ?? '';
-      $('leistung').value = st.leistung ?? 'Security Dienstleistung';
-      $('referenz').value = st.referenz ?? '';
-      refreshCustomerSelect(st.kundeSelected ?? '');
-      $('kundenSelect').value = st.kundeSelected ?? '';
-      $('kundenName').value = st.kundenName ?? '';
-      $('kundenEmail').value = st.kundenEmail ?? '';
-      $('kundenAdr').value = st.kundenAdr ?? '';
-      ensureAutoDateAndNo(false);
-      recalc();
-    }
-    function autoSave(){ localStorage.setItem(key.state, JSON.stringify(getState())); }
-    function loadSavedState(){ try{ return JSON.parse(localStorage.getItem(key.state)||'null'); }catch(e){ return null; } }
-
-    // CALC
-    function recalc(){
-      $('txtNacht').textContent = $('pNacht').value || '0';
-      $('txtSonntag').textContent = $('pSonntag').value || '0';
-      $('txtFeiertag').textContent = $('pFeiertag').value || '0';
-
-      const total = Math.max(0, parseFloat($('stdgesamt').value||0));
-      const hN = Math.max(0, parseFloat($('hNacht').value||0));
-      const hS = Math.max(0, parseFloat($('hSonntag').value||0));
-      const hF = Math.max(0, parseFloat($('hFeiertag').value||0));
-      const hG = Math.max(0, total - (hN+hS+hF));
-      $('hGrund').value = hG.toFixed(2);
-
-      const satz = Math.max(0, parseFloat($('satz').value||0));
-      const pN = Math.max(0, parseFloat($('pNacht').value||0))/100;
-      const pS = Math.max(0, parseFloat($('pSonntag').value||0))/100;
-      const pF = Math.max(0, parseFloat($('pFeiertag').value||0))/100;
-
-      const bG = hG * satz;
-      const bN = hN * satz * pN;
-      const bS = hS * satz * pS;
-      const bF = hF * satz * pF;
-
-      $('bGrund').textContent = fmtEUR(bG);
-      $('bNacht').textContent = fmtEUR(bN);
-      $('bSonntag').textContent = fmtEUR(bS);
-      $('bFeiertag').textContent = fmtEUR(bF);
-
-      const netto = bG+bN+bS+bF;
-      const ustRate = (parseFloat($('ust').value||0)/100);
-      const tax = netto*ustRate;
-      const ges = netto+tax;
-
-      $('netto').textContent = fmtEUR(netto);
-      $('tax').textContent = fmtEUR(tax);
-      $('gesamt').textContent = fmtEUR(ges);
-
-      $('statusPill').textContent = 'Status: ' + ($('status').value||'Entwurf');
-      $('ustHint').textContent = ustRate===0
-        ? 'Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).'
-        : `Umsatzsteuer wird mit ${parseFloat($('ust').value||0)}% berechnet.`;
-
-      ensureAutoDateAndNo(false);
-      autoSave();
-    }
-
-    // ARCHIVE
-    function loadInvoices(){ try{ return JSON.parse(localStorage.getItem(key.invoices)||'[]')||[]; }catch(e){ return []; } }
-    function saveInvoices(list){ localStorage.setItem(key.invoices, JSON.stringify(list||[])); }
-
-    function openList(){
-      const box=$('listBox');
-      const list=loadInvoices();
-      if(!list.length){
-        box.innerHTML = '<div class="hint">Keine gespeicherten Rechnungen.</div>';
-      }else{
-        box.innerHTML = list.map((inv,i)=>{
-          const st=inv.state||{};
-          const nr=st.rechnungsnr||'';
-          const d=st.rechnungsdatum||'';
-          const k=(st.kundenName||'').trim();
-          return `
-            <div class="listItem">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-                <div>
-                  <b>${nr}</b> <span class="hint">· ${d}</span><br/>
-                  <span class="hint">${k||''}</span>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap">
-                  <button class="btn light" data-load="${i}">Laden</button>
-                  <button class="btn danger" data-del="${i}">Löschen</button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        box.querySelectorAll('[data-load]').forEach(b=>{
-          b.addEventListener('click',()=>{
-            const idx=parseInt(b.getAttribute('data-load'),10);
-            const list=loadInvoices();
-            if(list[idx]){ setState(list[idx].state); $('modal').style.display='none'; }
-          });
-        });
-        box.querySelectorAll('[data-del]').forEach(b=>{
-          b.addEventListener('click',()=>{
-            const idx=parseInt(b.getAttribute('data-del'),10);
-            const list=loadInvoices();
-            list.splice(idx,1); saveInvoices(list);
-            openList();
-          });
-        });
-      }
-      $('modal').style.display='block';
-    }
-
-    // EVENTS
-    function wire(){
-      enforceClickable();
-      ensureAutoDateAndNo(false);
-
-      $('rechnungsdatum').addEventListener('change',()=>{ ensureAutoDateAndNo(false); recalc(); });
-      $('zahlungsziel').addEventListener('change',()=>{ ensureAutoDateAndNo(false); recalc(); });
-
-      ['status','ust','satz','pNacht','pSonntag','pFeiertag','ma','stdgesamt','hNacht','hSonntag','hFeiertag',
-       'einsatzort','leistungszeitraum','leistung','referenz','kundenName','kundenEmail','kundenAdr'
-      ].forEach(id=> $(id).addEventListener('input',recalc));
-
-      $('kundenSelect').addEventListener('change',()=>{ applyCustomer(); recalc(); });
-
-      $('btnKundeNeu').addEventListener('click',()=>{
-        $('kundenSelect').value='';
-        $('kundenName').value=''; $('kundenEmail').value=''; $('kundenAdr').value='';
-        $('kundeMsg').textContent='Neu';
-        autoSave();
-      });
-
-      $('btnKundeSave').addEventListener('click',()=>{
-        const name=($('kundenName').value||'').trim();
-        if(!name){ $('kundeMsg').textContent='Bitte Kundenname eingeben.'; return; }
-        const list=loadCustomers();
-        const obj={name, email:$('kundenEmail').value||'', addr:$('kundenAdr').value||''};
-        const sel=$('kundenSelect').value;
-
-        if(sel===''){
-          list.push(obj); saveCustomers(list);
-          refreshCustomerSelect(String(list.length-1));
-          $('kundenSelect').value=String(list.length-1);
-          $('kundeMsg').textContent='Gespeichert.';
-        }else{
-          const idx=parseInt(sel,10);
-          if(isFinite(idx) && list[idx]){
-            list[idx]=obj; saveCustomers(list);
-            refreshCustomerSelect(String(idx));
-            $('kundeMsg').textContent='Aktualisiert.';
-          }
-        }
-        autoSave();
-      });
-
-      $('btnKundeLoesch').addEventListener('click',()=>{
-        const sel=$('kundenSelect').value;
-        if(sel===''){ $('kundeMsg').textContent='Kein Kunde gewählt.'; return; }
-        const idx=parseInt(sel,10);
-        const list=loadCustomers();
-        if(isFinite(idx) && list[idx]){
-          list.splice(idx,1); saveCustomers(list);
-          refreshCustomerSelect('');
-          $('kundenSelect').value='';
-          $('kundeMsg').textContent='Gelöscht.';
-          autoSave();
-        }
-      });
-
-      $('logoInput').addEventListener('change',(e)=>{
-        const f=e.target.files?.[0]; if(!f) return;
-        const r=new FileReader();
-        r.onload=()=>{ setLogo(String(r.result||'')); autoSave(); };
-        r.readAsDataURL(f);
-      });
-
-      $('btnPdf').addEventListener('click',()=>window.print());
-
-      $('btnNew').addEventListener('click',()=>{
-        $('rechnungsdatum').value = todayISO();
-        $('rechnungsnr').value = "";       // clear so it forces new number
-        ensureAutoDateAndNo(true);          // new sequential number
-        $('status').value='Entwurf';
-        $('stdgesamt').value='0';
-        $('hNacht').value='0'; $('hSonntag').value='0'; $('hFeiertag').value='0';
-        recalc();
-      });
-
-      $('btnSave').addEventListener('click',()=>{
-        ensureAutoDateAndNo(false);
-        const list=loadInvoices();
-        list.unshift({ savedAt:new Date().toISOString(), state:getState() });
-        saveInvoices(list.slice(0,300));
-        alert('Rechnung gespeichert.');
-      });
-
-      $('btnList').addEventListener('click',openList);
-      $('btnClose').addEventListener('click',()=> $('modal').style.display='none');
-      $('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') $('modal').style.display='none'; });
-
-      $('btnReset').addEventListener('click',()=>{
-        localStorage.removeItem(key.state);
-        $('einsatzort').value='Bremen';
-        $('leistungszeitraum').value='';
-        $('leistung').value='Security Dienstleistung';
-        $('referenz').value='';
-        $('ma').value='1';
-        $('stdgesamt').value='0';
-        $('hNacht').value='0'; $('hSonntag').value='0'; $('hFeiertag').value='0';
-        $('satz').value='23';
-        $('pNacht').value='5'; $('pSonntag').value='50'; $('pFeiertag').value='100';
-        $('status').value='Entwurf';
-        $('ust').value='19';
-        $('rechnungsdatum').value=todayISO();
-        $('rechnungsnr').value="";
-        ensureAutoDateAndNo(true);
-        recalc();
-      });
-    }
-
-    // BOOT
-    (function(){
-      // restore logo
-      setLogo(localStorage.getItem(key.logo)||'');
-      refreshCustomerSelect('');
-      $('rechnungsdatum').value = todayISO(); // AUTO date set
-      $('rechnungsnr').value = "";           // force new number on first open
-      ensureAutoDateAndNo(true);
-
-      const st = loadSavedState();
-      if(st){ setState(st); } else { recalc(); }
-
-      wire();
-      enforceClickable();
-    })();
-  </script>
+
+<div class="container" id="invoice">
+
+<div class="header">
+<img src="./logo.png" class="logo">
+<h1>Masculine Security – Rechnung</h1>
+</div>
+
+<div class="grid">
+
+<div>
+<b>Rechnungssteller</b><br>
+Masculine Security<br>
+Werschenregerstraße 6<br>
+28237 Bremen<br>
+Tel: 015778697052<br>
+E-Mail: Kontakt.mass.bremen@hotmail.com
+</div>
+
+<div>
+<b>Rechnungsdaten</b><br>
+Rechnungsnummer:<br>
+<input id="nr"><br>
+
+Rechnungsdatum:<br>
+<input id="date" type="date"><br>
+
+Fällig in 14 Tage:<br>
+<input id="due" type="date"><br>
+</div>
+
+</div>
+
+<div class="section">
+<b>Kunde</b>
+<input id="kunde" placeholder="Kundenname">
+</div>
+
+<div class="section">
+<b>Leistung</b>
+<input id="leistung" value="Security Dienstleistung">
+</div>
+
+<div class="section grid">
+<div>
+<b>Mitarbeiter</b>
+<input id="ma" type="number" value="10">
+</div>
+
+<div>
+<b>Stunden gesamt</b>
+<input id="stunden" type="number" value="2160">
+</div>
+</div>
+
+<div class="section grid">
+<div>
+<b>Stundensatz (€)</b>
+<input id="satz" type="number" value="26">
+</div>
+
+<div>
+<b>Nacht %</b>
+<input id="nacht" type="number" value="5">
+</div>
+
+<div>
+<b>Sonntag %</b>
+<input id="sonntag" type="number" value="50">
+</div>
+
+<div>
+<b>Feiertag %</b>
+<input id="feiertag" type="number" value="100">
+</div>
+</div>
+
+<table class="table">
+<tr>
+<th>Position</th>
+<th>Betrag</th>
+</tr>
+
+<tr>
+<td>Grundlohn</td>
+<td id="grund"></td>
+</tr>
+
+<tr>
+<td>Nacht</td>
+<td id="nachtb"></td>
+</tr>
+
+<tr>
+<td>Sonntag</td>
+<td id="sonntagb"></td>
+</tr>
+
+<tr>
+<td>Feiertag</td>
+<td id="feiertagb"></td>
+</tr>
+
+</table>
+
+<div class="total">
+Netto: <span id="netto"></span> €
+</div>
+
+</div>
+
+<div class="btns">
+<button onclick="calc()">Berechnen</button>
+<button onclick="save()">Rechnung speichern</button>
+<button onclick="window.print()">PDF speichern</button>
+</div>
+
+<script>
+function autoNr(){
+let n = localStorage.getItem("nr") || 1;
+document.getElementById("nr").value="MS-"+new Date().getFullYear()+"-"+String(n).padStart(4,'0');
+localStorage.setItem("nr",parseInt(n)+1);
+}
+
+function autoDate(){
+let d=new Date();
+let today=d.toISOString().split('T')[0];
+document.getElementById("date").value=today;
+
+d.setDate(d.getDate()+14);
+document.getElementById("due").value=d.toISOString().split('T')[0];
+}
+
+function calc(){
+let h=+stunden.value;
+let s=+satz.value;
+
+let grund=h*s;
+let nachtB=grund*(nacht.value/100);
+let sonntagB=grund*(sonntag.value/100);
+let feiertagB=grund*(feiertag.value/100);
+
+grund.innerText=grund.toFixed(2);
+nachtb.innerText=nachtB.toFixed(2);
+sonntagb.innerText=sonntagB.toFixed(2);
+feiertagb.innerText=feiertagB.toFixed(2);
+
+netto.innerText=(grund+nachtB+sonntagB+feiertagB).toFixed(2);
+}
+
+function save(){
+localStorage.setItem("kunde",kunde.value);
+alert("Rechnung gespeichert");
+}
+
+window.onload=function(){
+autoNr();
+autoDate();
+calc();
+}
+</script>
+
 </body>
 </html>
