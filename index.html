@@ -119,7 +119,8 @@
       background:#fff;
     }
     .pTitle{font-size:18pt;font-weight:800;margin:0}
-    .pSub{font-size:9.5pt;color:#445; margin:2mm 0 0}
+    /* removed marketing line under title */
+    .pSub{display:none}
     .pMeta{font-size:9.5pt;color:#223}
     .pBox{border:1px solid #e3e7ee;border-radius:4mm;padding:6mm;margin-top:6mm}
     .pGrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
@@ -154,7 +155,8 @@
         <div class="mark" id="mark">MS</div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <div class="sub">1:1 Firmen-Workflow • Auto Datum • Auto Rechnungsnummer • Kunden • Zuschläge • PDF • Save</div>
+          <!-- removed: Professional / automatisch / Zuschläge -->
+          <div class="sub">Rechnung • Kunden • PDF • Speichern</div>
         </div>
       </div>
 
@@ -274,7 +276,7 @@
           <input id="refpo" placeholder="z. B. Auftrag-Nr. / Ansprechpartner" value=""/>
 
           <div class="footerNote">
-            <div class="smallnote">Tipp: Klicke bei Rechnungsdatum/Rechnungsnummer → du kannst manuell ändern.</div>
+            <div class="smallnote">Tipp: Rechnungsdatum/Rechnungsnummer sind editierbar.</div>
             <div class="smallnote">Auto-Save: Änderungen werden automatisch gespeichert.</div>
           </div>
         </div>
@@ -312,7 +314,7 @@
             <div>
               <label>Rechnungsnummer (Auto, klickbar)</label>
               <input id="invNo"/>
-              <div class="smallnote">Auto-Format: MS-YYYYMMDD-0001 (pro Tag laufend)</div>
+              <div class="smallnote">Format: MS-YYYYMMDD-0001 (pro Tag laufend)</div>
             </div>
           </div>
 
@@ -483,7 +485,6 @@
     const KEY_SHIFT="MS_INV_SHIFT_V1";
 
     // ---------- default logo fallback (local file in repo) ----------
-    // If you have logo.png in repo root, it will use it when no uploaded logo yet.
     const DEFAULT_LOGO_PATH = "logo.png";
 
     // ---------- state ----------
@@ -494,7 +495,6 @@
 
     // ---------- init UI ----------
     function init(){
-      // dates auto
       const today = new Date();
       $("invDate").value = state.invDate || ymd(today);
       $("payTerm").value = state.payTerm || "14";
@@ -502,7 +502,6 @@
 
       $("invNo").value = state.invNo || makeAutoInvNo($("invDate").value);
 
-      // firm
       $("firmName").value = state.firmName || "Masculine Security";
       $("firmAddr").value = state.firmAddr || "Werschenregerstraße 6 • 28237 Bremen";
       $("firmTel").value  = state.firmTel  || "015778697052";
@@ -511,13 +510,11 @@
       $("firmIban").value = state.firmIban || "DE98 1001 1001 2333 0146 96";
       $("firmBic").value  = state.firmBic  || "NTSBDEB1XXX";
 
-      // job
       $("place").value = state.place || "Bremen";
       $("period").value = state.period || "";
       $("desc").value = state.desc || "Security Dienstleistung";
       $("refpo").value = state.refpo || "";
 
-      // calc inputs
       $("rate").value = ndef(state.rate,23);
       $("nightPct").value = ndef(state.nightPct,5);
       $("sunPct").value = ndef(state.sunPct,50);
@@ -528,25 +525,20 @@
       $("hNight").value = ndef(state.hNight,0);
       $("hSun").value = ndef(state.hSun,0);
       $("hHol").value = ndef(state.hHol,0);
-      $("hBase").value = ndef(state.hBase,0); // will be auto in many cases
+      $("hBase").value = ndef(state.hBase,0);
 
       $("vatMode").value = state.vatMode || "Klein";
 
       $("statusSel").value = state.status || "Entwurf";
       syncStatusPill();
 
-      // shift mode
       const shiftSaved = localStorage.getItem(KEY_SHIFT);
       $("shiftMode").checked = (shiftSaved ? (shiftSaved==="1") : !!state.shiftMode);
       syncShiftUI();
 
-      // customers list
       renderCustomerSelect();
-
-      // events
       wireEvents();
 
-      // first calc
       recalcAll();
       autoSave();
 
@@ -575,7 +567,6 @@
       }
       sel.value = state.customerId || "";
     }
-
     function currentCustomer(){
       const id=$("customerSelect").value || "";
       return customers.find(x=>x.id===id) || null;
@@ -606,7 +597,6 @@
       localStorage.setItem(KEY_INVSEQ, JSON.stringify(seq));
     }
     function makeAutoInvNo(dateStr){
-      // daily running numbers: MS-YYYYMMDD-0001
       const key = ymdCompact(dateStr || ymd(new Date()));
       const seq = loadSeq();
       if(!seq[key]) seq[key]=1;
@@ -616,7 +606,6 @@
     function bumpSeqIfNeeded(dateStr, invNo){
       const key = ymdCompact(dateStr);
       const seq=loadSeq();
-      // if invNo matches MS-YYYYMMDD-XXXX, keep max+1
       const m = String(invNo||"").match(/^MS-(\d{8})-(\d{4})$/);
       if(m && m[1]===key){
         const used = parseInt(m[2],10);
@@ -646,26 +635,19 @@
       $("pctSun").textContent   = `${sunPct}%`;
       $("pctHol").textContent   = `${holPct}%`;
 
-      // shift mode affects base hours rule
       const shiftOn = $("shiftMode").checked;
 
       let hNight = Math.max(0, num($("hNight").value));
       let hSun   = Math.max(0, num($("hSun").value));
       let hHol   = Math.max(0, num($("hHol").value));
 
-      // No double counting rule: Feiertag > Sonntag > Nacht
-      // We assume user inputs already separated hours. We do NOT stack percentages.
-      // Base hours = total - (night+sun+hol)  [never below 0]
       let hBaseAuto = Math.max(0, total - (hNight + hSun + hHol));
 
-      // If shift mode ON: user enters only total + individual Zuschlag hours (same as rule above)
-      // If shift mode OFF: user can manually set base hours too (but still we keep consistency)
       if(shiftOn){
         $("hBase").value = round2(hBaseAuto);
         $("hBase").disabled = true;
       }else{
         $("hBase").disabled = false;
-        // if user left base at 0 while total>0, we auto set
         const manualBase = Math.max(0, num($("hBase").value));
         if(total>0 && manualBase===0){
           $("hBase").value = round2(hBaseAuto);
@@ -674,51 +656,37 @@
 
       const hBase = Math.max(0, num($("hBase").value));
 
-      // amounts
-      const amtBase = hBase * rate;
+      const amtBase  = hBase * rate;
       const amtNight = hNight * rate * (nightPct/100);
       const amtSun   = hSun   * rate * (sunPct/100);
       const amtHol   = hHol   * rate * (holPct/100);
 
-      $("amtBase").textContent = fmtEUR(amtBase);
+      $("amtBase").textContent  = fmtEUR(amtBase);
       $("amtNight").textContent = fmtEUR(amtNight);
-      $("amtSun").textContent = fmtEUR(amtSun);
-      $("amtHol").textContent = fmtEUR(amtHol);
+      $("amtSun").textContent   = fmtEUR(amtSun);
+      $("amtHol").textContent   = fmtEUR(amtHol);
 
       const net = amtBase + amtNight + amtSun + amtHol;
 
-      // VAT
       const vatMode = $("vatMode").value;
       let vat = 0;
-      let vatRate = 0;
       if(vatMode==="Regel"){
-        vatRate = 0.19;
-        vat = net * vatRate;
+        vat = net * 0.19;
         $("vatNote").textContent = "Umsatzsteuer wird mit 19% berechnet.";
       }else{
         $("vatNote").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
       }
 
-      $("net").textContent = fmtEUR(net);
-      $("vat").textContent = fmtEUR(vat);
+      $("net").textContent   = fmtEUR(net);
+      $("vat").textContent   = fmtEUR(vat);
       $("gross").textContent = fmtEUR(net+vat);
 
-      // hours per MA
       $("perMA").textContent = fmtN(total/ma);
-      $("sumH").textContent = fmtN(total);
+      $("sumH").textContent  = fmtN(total);
       $("autoRule").textContent = shiftOn
         ? "Schicht-Modus AN: Grundlohn-Stunden = Gesamt − (Nacht+Sonntag+Feiertag)."
         : "Schicht-Modus AUS: Du kannst Grundlohn manuell ändern (Auto hilft).";
 
-      // auto dates/number
-      if(!$("invDate").dataset.touched){
-        // keep current
-      }
-      if(!$("invNo").dataset.touched){
-        // keep current
-      }
-
-      // sync due date if not touched
       if(!$("dueDate").dataset.touched){
         $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
       }
@@ -746,7 +714,6 @@
       const s = $("statusSel").value;
       $("statusPill").textContent = "Status: " + s;
       if(s==="Bezahlt"){ $("statusPill").className="pill ok"; }
-      else if(s==="Offen"){ $("statusPill").className="pill"; }
       else if(s==="Storniert"){ $("statusPill").className="pill off"; }
       else { $("statusPill").className="pill"; }
       autoSave();
@@ -764,7 +731,6 @@
         firmBic:$("firmBic").value.trim(),
 
         customerId:$("customerSelect").value || "",
-
         custName:$("custName").value.trim(),
         custMail:$("custMail").value.trim(),
         custData:$("custData").value,
@@ -803,12 +769,9 @@
       };
     }
 
-    // ---------- PDF (100% not blank + logo visible) ----------
+    // ---------- PDF helpers ----------
     async function ensureLogoDataUrl(){
-      // 1) if uploaded already -> use it
       if(logoDataUrl && logoDataUrl.startsWith("data:image/")) return logoDataUrl;
-
-      // 2) Try load repo logo.png and convert to dataURL to avoid CORS/blank problems in html2canvas
       try{
         const url = DEFAULT_LOGO_PATH + "?v=" + Date.now();
         const res = await fetch(url, {cache:"no-store"});
@@ -819,11 +782,9 @@
         localStorage.setItem(KEY_LOGO, dataUrl);
         return dataUrl;
       }catch{
-        // fallback: simple mark
         return "";
       }
     }
-
     function blobToDataURL(blob){
       return new Promise((resolve,reject)=>{
         const r=new FileReader();
@@ -832,7 +793,6 @@
         r.readAsDataURL(blob);
       });
     }
-
     async function waitImages(container){
       const imgs = Array.from(container.querySelectorAll("img"));
       await Promise.all(imgs.map(img=>{
@@ -844,6 +804,7 @@
       }));
     }
 
+    // ---------- PRINT HTML (Removed: Professional / automatisch / Zuschläge) ----------
     function buildPrintHTML(d){
       const logo = d.logo || "";
       const vatMode = d.vatMode==="Regel" ? "19% (Regelbesteuerung)" : "0% (Kleinunternehmer §19)";
@@ -858,7 +819,7 @@
               ${logo ? `<img class="pLogo" src="${logo}" alt="Logo"/>` : `<div class="pLogo" style="display:grid;place-items:center;font-weight:900;color:#0b5fa8">MS</div>`}
               <div>
                 <p class="pTitle">${escapeHtml(d.firmName)} — Rechnung</p>
-                <p class="pSub">Professionell • automatisch • Zuschläge • PDF • gespeichert</p>
+                <!-- removed marketing line -->
               </div>
             </div>
             <div class="pMeta">
@@ -987,30 +948,24 @@
 
     async function savePDF(){
       const d = collectDraft();
-
-      // make sure invoice number sequence advances (so next invoice unique)
       bumpSeqIfNeeded(d.invDate, d.invNo);
 
-      // ensure logo as dataURL (prevents blank + CORS issues)
       d.logo = await ensureLogoDataUrl();
 
       const printArea = $("printArea");
       printArea.innerHTML = buildPrintHTML(d);
 
-      // show temporarily (NOT hidden) so html2canvas can capture
       printArea.style.display="block";
       printArea.style.position="fixed";
       printArea.style.left="-9999px";
       printArea.style.top="0";
       printArea.style.zIndex="-1";
 
-      // wait images (logo) + layout
       await waitImages(printArea);
       await new Promise(r=>setTimeout(r,120));
 
       const sheet = printArea.querySelector(".printSheet");
 
-      // capture
       const canvas = await html2canvas(sheet,{
         scale: 2,
         useCORS: true,
@@ -1031,7 +986,6 @@
       if(imgH <= pageH){
         pdf.addImage(imgData,"JPEG",0,0,imgW,imgH);
       }else{
-        // multi-page
         let y = 0;
         let remaining = imgH;
         while(remaining > 0){
@@ -1045,24 +999,19 @@
       const fname = safe(d.invNo || "Rechnung") + ".pdf";
       pdf.save(fname);
 
-      // hide again
       printArea.style.display="none";
       toast("PDF gespeichert ✅");
     }
 
     // ---------- UI actions ----------
     function wireEvents(){
-
-      // general autosave on input
       const inputs = document.querySelectorAll("input,select,textarea");
       inputs.forEach(el=>{
         el.addEventListener("input", ()=>{
-          // mark touched for manual fields
           if(el.id==="invDate" || el.id==="invNo" || el.id==="dueDate"){
             el.dataset.touched="1";
           }
           if(el.id==="invDate"){
-            // if invDate changed and invNo not manually touched -> regenerate
             if(!$("invNo").dataset.touched){
               $("invNo").value = makeAutoInvNo($("invDate").value);
             }
@@ -1081,7 +1030,6 @@
 
       $("statusSel").addEventListener("change", syncStatusPill);
       $("vatMode").addEventListener("change", recalcAll);
-
       $("shiftMode").addEventListener("change", syncShiftUI);
 
       $("customerSelect").addEventListener("change", ()=>{
@@ -1144,7 +1092,6 @@
 
       $("btnSaveInv").addEventListener("click", ()=>{
         const d=collectDraft();
-        // require invoice number
         if(!d.invNo){ toast("Rechnungsnummer fehlt"); return; }
         const id = d.invNo;
         const idx=invoices.findIndex(x=>x.id===id);
@@ -1174,14 +1121,12 @@
         $("statusSel").value="Entwurf";
         syncStatusPill();
 
-        // clear customer fields but keep customers list
         $("customerSelect").value="";
         $("custName").value="";
         $("custMail").value="";
         $("custData").value="";
         state.customerId="";
 
-        // clear hours
         $("totalHours").value="0";
         $("hNight").value="0";
         $("hSun").value="0";
@@ -1203,7 +1148,6 @@
         location.reload();
       });
 
-      // Logo upload
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change", async (e)=>{
         const f = e.target.files && e.target.files[0];
@@ -1216,7 +1160,6 @@
     }
 
     function loadDraft(d){
-      // set fields from saved draft
       $("firmName").value=d.firmName||"";
       $("firmAddr").value=d.firmAddr||"";
       $("firmTel").value=d.firmTel||"";
@@ -1253,7 +1196,6 @@
       $("hHol").value=ndef(d.hHol,0);
       $("hBase").value=ndef(d.hBase,0);
 
-      // customer
       $("customerSelect").value=d.customerId||"";
       if(d.customerId){
         const c=customers.find(x=>x.id===d.customerId);
@@ -1268,7 +1210,6 @@
         $("custData").value=d.custData||"";
       }
 
-      // shift
       $("shiftMode").checked=!!d.shiftMode;
       localStorage.setItem(KEY_SHIFT, $("shiftMode").checked ? "1":"0");
       syncShiftUI();
