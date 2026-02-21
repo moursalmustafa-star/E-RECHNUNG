@@ -6,123 +6,226 @@
 <title>Masculine Security — Rechnung</title>
 
 <style>
-body{
-  font-family:Arial, Helvetica, sans-serif;
-  background:#f5f6f8;
-  margin:0;
-  padding:20px;
+:root{
+  --blue:#0b5ed7;
+  --bg:#eef3f9;
+  --line:#cfe0ff;
+  --soft:#f3f7ff;
+  --soft2:#f8fbff;
+  --ink:#0f172a;
+  --muted:#475569;
 }
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--ink)}
+.paper{max-width:920px;margin:auto;background:#fff;padding:22px;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.10);border-top:6px solid var(--blue)}
+.header{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:2px solid #e3ecff;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logoWrap{width:52px;height:52px;border-radius:12px;overflow:hidden;border:1px solid #dbeafe;background:#fff;display:grid;place-items:center}
+.logoWrap img{width:100%;height:100%;object-fit:cover}
+.title{font-size:20px;font-weight:800;color:var(--blue)}
+.actions{display:flex;gap:10px}
+.btn{border:1px solid #bcd3ff;background:#fff;border-radius:12px;padding:10px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff;border:none}
 
-.paper{
-  max-width:820px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
+.grid{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--soft);border:1px solid #dbeafe;border-radius:12px;padding:12px}
+.card h3{margin:0 0 10px;font-size:12px;color:var(--muted);text-transform:uppercase}
 
-.logo{
-  height:50px;
-}
+label{display:block;font-weight:800;color:var(--blue);margin-top:14px;font-size:13px}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px}
+textarea{min-height:70px}
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+.tableWrap{margin-top:14px;border:1px solid #dbeafe;border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:#f1f7ff;padding:12px;border-bottom:1px solid #dbeafe}
+td{padding:10px;border-bottom:1px solid #eef2ff}
+.right{text-align:right}
 
-h1{
-  margin:0;
-  font-size:20px;
-}
+.totals{margin-top:14px;display:grid;grid-template-columns:1fr 340px;gap:14px}
+.sumBox{background:var(--soft2);border:1px solid #dbeafe;border-radius:12px;padding:12px}
+.sumRow{display:flex;justify-content:space-between;padding:7px 0}
+.sumRow.total{border-top:1px dashed #bcd3ff;margin-top:8px;padding-top:12px;font-size:16px;font-weight:900}
 
-.meta{
-  margin-top:20px;
-}
+.footer{margin-top:18px;border-top:2px solid #e3ecff;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.footCard{border:1px solid #dbeafe;border-radius:12px;padding:12px;background:#fff;font-size:13px}
 
-.footer{
-  margin-top:20px;
-}
-
-textarea{
-  width:100%;
-  min-height:60px;
-}
-
-/* PRINT FIX */
-@page{
-  size:A4;
-  margin:8mm;
-}
-
+@page{size:A4;margin:8mm}
 @media print{
-
-  body{
-    zoom:0.92;
-    background:#fff;
-  }
-
-  .paper{
-    box-shadow:none;
-    border:none;
-    padding:12px;
-  }
-
-  textarea{
-    min-height:0 !important;
-    height:auto !important;
-  }
-
-  input,textarea{
-    border:none !important;
-    padding:0 !important;
-    background:transparent !important;
-  }
-
+  body{background:#fff;zoom:0.90}
+  .paper{box-shadow:none;border:none;border-top:4px solid var(--blue);border-radius:0}
+  .actions{display:none}
+  input,textarea,select{border:none;background:transparent}
 }
 </style>
 </head>
 
 <body>
-
 <div class="paper">
 
 <div class="header">
-  <img src="logo.png" class="logo"/>
-  <h1>Masculine Security — Rechnung</h1>
+  <div class="brand">
+    <div class="logoWrap">
+      <img id="logoImg" src="logo.png">
+    </div>
+    <div class="title">Masculine Security — Rechnung</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" onclick="newInvoice()">Neu</button>
+    <button class="btn primary" onclick="window.print()">PDF</button>
+  </div>
 </div>
 
-<div class="meta">
+<div class="grid">
+<div class="card">
+<h3>Rechnungssteller</h3>
 <b>Masculine Security</b><br>
 Werschenregerstraße 6<br>
 28237 Bremen<br>
 Tel: 015778697052<br>
 E-Mail: Kontakt.mass.bremen@hotmail.com
+
+<label>Kunde</label>
+<textarea id="kunde"></textarea>
+
+<label>Einsatzort</label>
+<input id="objekt">
+
+<label>Leistungszeitraum</label>
+<input id="zeitraum">
 </div>
 
-<br>
+<div class="card">
+<h3>Rechnungsdaten</h3>
 
-<b>Kunde:</b><br>
-<input style="width:100%" placeholder="Kunde eingeben">
+<label>Rechnungsnummer</label>
+<input id="invNo" readonly>
 
-<br><br>
+<label>Angebotsnummer</label>
+<input id="angebot">
 
-<b>Leistungsbeschreibung</b>
-<textarea>Security Dienstleistung</textarea>
+<label>Rechnungsdatum</label>
+<input id="invDate" type="date">
 
-<br><br>
+<label>Fällig am</label>
+<input id="dueDate" type="date">
 
-<b>Betrag (€)</b><br>
-<input type="number" style="width:100%" placeholder="0.00">
+<label>Status</label>
+<select id="status">
+<option>Entwurf</option>
+<option selected>Offen</option>
+<option>Bezahlt</option>
+</select>
+</div>
+</div>
 
-<br><br>
+<div class="tableWrap">
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Std</th>
+<th>Satz</th>
+<th>Zuschlag %</th>
+<th class="right">Betrag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grundlohn</td>
+<td><input id="h_base"></td>
+<td><input id="rate" value="25"></td>
+<td>-</td>
+<td class="right" id="sum_base"></td>
+</tr>
+
+<tr>
+<td>Nachtschicht</td>
+<td><input id="h_night"></td>
+<td>-</td>
+<td><input id="p_night" value="5"></td>
+<td class="right" id="sum_night"></td>
+</tr>
+
+<tr>
+<td>Sonntag</td>
+<td><input id="h_sun"></td>
+<td>-</td>
+<td><input id="p_sun" value="50"></td>
+<td class="right" id="sum_sun"></td>
+</tr>
+
+<tr>
+<td>Feiertag</td>
+<td><input id="h_hol"></td>
+<td>-</td>
+<td><input id="p_hol" value="100"></td>
+<td class="right" id="sum_hol"></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="totals">
+<div class="footCard">
+<b>Zahlungsbedingungen</b><br>
+14 Tage netto
+</div>
+
+<div class="sumBox">
+<div class="sumRow"><span>Netto</span><b id="netto"></b></div>
+<div class="sumRow"><span>USt</span><b id="vat"></b></div>
+<div class="sumRow total"><span>Gesamt</span><b id="total"></b></div>
+</div>
+</div>
 
 <div class="footer">
-Fällig in 14 Tagen
+<div class="footCard">
+<b>Bank</b><br>
+MUSTAFA MURSAL ABDI<br>
+IBAN: DE98 1001 1001 2333 0146 96<br>
+BIC: NTSBDEB1XXX
+</div>
+
+<div class="footCard">
+<b>Hinweis</b><br>
+Gemäß §19 UStG wird keine Umsatzsteuer berechnet.
+</div>
 </div>
 
 </div>
+
+<script>
+function newInvoice(){
+ let today=new Date().toISOString().slice(0,10)
+ document.getElementById("invDate").value=today
+ document.getElementById("dueDate").value=today
+ document.getElementById("invNo").value="MS-"+today.replaceAll("-","")
+ calc()
+}
+
+function calc(){
+ let r=parseFloat(rate.value)||0
+ let base=(h_base.value||0)*r
+ let night=(h_night.value||0)*r*(p_night.value||0)/100
+ let sun=(h_sun.value||0)*r*(p_sun.value||0)/100
+ let hol=(h_hol.value||0)*r*(p_hol.value||0)/100
+
+ sum_base.innerText=base.toFixed(2)+" €"
+ sum_night.innerText=night.toFixed(2)+" €"
+ sum_sun.innerText=sun.toFixed(2)+" €"
+ sum_hol.innerText=hol.toFixed(2)+" €"
+
+ let netto=base+night+sun+hol
+ nettoEl=netto.toFixed(2)+" €"
+ document.getElementById("netto").innerText=nettoEl
+ document.getElementById("vat").innerText="0.00 €"
+ document.getElementById("total").innerText=nettoEl
+}
+
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",calc))
+newInvoice()
+</script>
 
 </body>
 </html>
