@@ -4,1635 +4,1283 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Masculine Security — Rechnung</title>
-  <meta name="theme-color" content="#0b3a78"/>
 
-  <!-- PDF libs (download as real PDF file) -->
+  <!-- libs (CDN) -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{
-      --blue1:#0b3a78;
-      --blue2:#0a4b97;
-      --blue3:#1a6fd6;
-      --bg:#f4f6fb;
+      --blue:#0b5fa8;
+      --blue2:#0a4d86;
+      --bg:#f2f5f9;
       --card:#ffffff;
-      --ink:#0f172a;
-      --muted:#5b667a;
-      --line:#e6e9f2;
-      --soft:#f7f9ff;
-      --ok:#16a34a;
-      --warn:#f59e0b;
-      --bad:#ef4444;
+      --ink:#0b1220;
+      --muted:#6b7a90;
+      --line:#d7e0ea;
+      --ok:#21d19f;
+      --warn:#ffce54;
+      --bad:#ff4d6d;
       --r:16px;
-      --shadow:0 14px 36px rgba(15,23,42,.08);
+      --shadow:0 12px 34px rgba(0,0,0,.10);
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-    a{color:inherit}
-    .wrap{max-width:1220px;margin:22px auto;padding:0 14px}
     .topbar{
-      background:linear-gradient(90deg,var(--blue1),var(--blue2));
-      color:#fff;border-radius:18px;box-shadow:var(--shadow);
-      padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-      position:sticky;top:10px;z-index:10;
+      position:sticky;top:0;z-index:50;
+      background:linear-gradient(90deg,var(--blue2),var(--blue));
+      color:#fff;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.18);
     }
-    .brand{display:flex;align-items:center;gap:12px;min-width:260px}
-    .brandLogo{
-      width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.14);
-      display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.18)
+    .topbar .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;min-width:260px}
+    .brand .mark{
+      width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.14);
+      display:grid;place-items:center;font-weight:800;
+      border:1px solid rgba(255,255,255,.18)
     }
-    .brandLogo img{width:100%;height:100%;object-fit:cover}
-    .brandTitle{line-height:1.2}
-    .brandTitle b{display:block;font-size:14.5px}
-    .brandTitle small{display:block;font-size:11.5px;opacity:.9}
-    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
-    .btn{
-      border:0;border-radius:999px;padding:9px 12px;font-weight:700;font-size:12px;
-      background:rgba(255,255,255,.14);color:#fff;cursor:pointer;
+    .brand .title{font-weight:800;letter-spacing:.2px}
+    .brand .sub{font-size:12px;opacity:.9}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+    button{
+      appearance:none;border:0;cursor:pointer;
+      padding:9px 12px;border-radius:999px;
+      background:rgba(255,255,255,.16);color:#fff;
       border:1px solid rgba(255,255,255,.18);
+      font-weight:700;font-size:13px;
     }
-    .btn:hover{background:rgba(255,255,255,.18)}
-    .btnPrimary{background:#fff;color:var(--blue1);border:1px solid rgba(255,255,255,.55)}
-    .btnDanger{background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.35)}
-    .chip{
-      display:inline-flex;align-items:center;gap:8px;
-      background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:999px;padding:7px 10px;font-weight:800;font-size:12px;white-space:nowrap;
-    }
-    .dot{width:8px;height:8px;border-radius:99px;background:#e5e7eb}
-    .dot.ok{background:#22c55e}
-    .dot.warn{background:#f59e0b}
-    .dot.bad{background:#ef4444}
-
-    .grid{display:grid;grid-template-columns:1.05fr 1fr 1.25fr;gap:14px;margin-top:14px}
-    @media(max-width:1050px){.grid{grid-template-columns:1fr}}
+    button:hover{background:rgba(255,255,255,.22)}
+    button.primary{background:#fff;color:var(--blue2);border-color:#fff}
+    button.danger{background:rgba(255,80,110,.20);border-color:rgba(255,80,110,.28)}
+    .wrap{max-width:1180px;margin:14px auto;padding:0 14px 26px}
+    .grid{display:grid;grid-template-columns: 1.05fr .95fr;gap:14px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
     .card{
-      background:var(--card);border:1px solid var(--line);border-radius:18px;
-      box-shadow:0 10px 28px rgba(15,23,42,.06);overflow:hidden;
+      background:var(--card);border:1px solid var(--line);
+      border-radius:var(--r);box-shadow:var(--shadow);
+      overflow:hidden;
     }
-    .cardHead{
-      padding:12px 14px;border-bottom:1px solid var(--line);
-      display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--soft)
+    .card h3{
+      margin:0;padding:12px 14px;background:#fbfcfe;
+      border-bottom:1px solid var(--line);
+      font-size:14px;letter-spacing:.2px;
+      display:flex;align-items:center;justify-content:space-between;
     }
-    .cardHead h3{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-    .badge{font-size:12px;font-weight:900;color:#0b3a78;background:#eaf2ff;border:1px solid #d7e6ff;border-radius:999px;padding:6px 10px}
-    .cardBody{padding:14px}
-
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .full{grid-column:1/-1}
+    .pill{
+      padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;
+      border:1px solid var(--line);background:#fff;color:var(--muted);
+    }
+    .pill.ok{border-color:rgba(33,209,159,.4);background:rgba(33,209,159,.10);color:#0b6b52}
+    .pill.off{border-color:rgba(255,206,84,.45);background:rgba(255,206,84,.16);color:#7a5a00}
+    .content{padding:14px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:540px){.two{grid-template-columns:1fr}}
     label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
     input,select,textarea{
-      width:100%;padding:10px 11px;border-radius:12px;border:1px solid var(--line);
-      background:#fff;font-size:13px;outline:none;
+      width:100%;padding:10px 11px;border-radius:12px;
+      border:1px solid var(--line);background:#fff;color:var(--ink);
+      outline:none;
     }
-    input:focus,select:focus,textarea:focus{border-color:#b8d3ff;box-shadow:0 0 0 4px rgba(26,111,214,.12)}
-    textarea{min-height:86px;resize:vertical}
-    .help{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
-    .miniBtn{
-      border:1px solid var(--line);background:#fff;border-radius:999px;
-      padding:8px 10px;font-weight:900;font-size:12px;cursor:pointer
+    input:focus,select:focus,textarea:focus{border-color:#9cc4ea;box-shadow:0 0 0 3px rgba(11,95,168,.12)}
+    textarea{min-height:84px;resize:vertical}
+    .rowline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .smallnote{font-size:12px;color:var(--muted);line-height:1.35}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    th,td{padding:10px 10px;border-bottom:1px solid var(--line);font-size:13px}
+    th{font-size:12px;color:var(--muted);text-align:left;background:#fbfcfe}
+    tr:last-child td{border-bottom:0}
+    td.right{text-align:right}
+    .sumgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+    @media (max-width:720px){.sumgrid{grid-template-columns:1fr}}
+    .sumcard{
+      border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff
     }
-    .miniBtn:hover{background:var(--soft)}
-    .miniBtnDanger{border-color:#fecaca;background:#fff5f5;color:#991b1b}
-
-    .totals{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px
-    }
-    .totalBox{
-      border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;
-      display:flex;align-items:flex-end;justify-content:space-between;gap:10px
-    }
-    .totalBox b{font-size:12px;color:var(--muted)}
-    .totalBox span{font-size:18px;font-weight:1000}
-    .totalBox.green{background:#f0fdf4;border-color:#bbf7d0}
-    .totalBox.blue{background:#eff6ff;border-color:#bfdbfe}
-    .totalBox.gray{background:#f8fafc;border-color:#e2e8f0}
-
-    .table{
-      width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;
-      border:1px solid var(--line);border-radius:16px;overflow:hidden
-    }
-    .table th{
-      background:#0b3a7812;color:#0b3a78;font-size:12px;text-transform:uppercase;letter-spacing:.06em;
-      padding:10px;border-bottom:1px solid var(--line);text-align:left
-    }
-    .table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
-    .table tr:last-child td{border-bottom:0}
-    .mono{font-variant-numeric:tabular-nums}
-    .right{text-align:right}
-    .small{font-size:12px;color:var(--muted)}
-    .noteLine{border-top:1px dashed var(--line);margin:12px 0}
-    .footerLine{
-      margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
-      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px
+    .sumcard .big{font-size:18px;font-weight:900}
+    .footerNote{
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      font-size:12px;color:var(--muted);padding-top:10px
     }
 
-    /* Modal */
-    .modalBack{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
-    .modal{width:min(980px,100%);background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
-    .modalHead{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--soft)}
-    .modalHead h3{margin:0;font-size:13px}
-    .modalBody{padding:14px;max-height:72vh;overflow:auto}
-    .modalClose{border:0;background:transparent;font-size:22px;cursor:pointer}
-    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900}
-
-    /* PRINT */
-    @media print{
-      body{background:#fff}
-      .noPrint{display:none!important}
-      .wrap{max-width:none;margin:0;padding:0}
-      .printPage{display:block!important}
-      @page{size:A4;margin:12mm}
+    /* PRINT AREA (for PDF capture) */
+    #printArea{
+      display:none;
+      position:fixed;left:-9999px;top:0;
+      width:210mm;background:#fff;color:#000;
     }
-    .printPage{display:none}
     .printSheet{
-      width:210mm;min-height:297mm;background:#fff;color:#111;
-      padding:12mm 12mm 12mm 12mm;
-      font-size:11.2px;line-height:1.35;
+      width:210mm;min-height:297mm;
+      padding:14mm 14mm 12mm 14mm;
+      font-family:Arial,Helvetica,sans-serif;
     }
-    .printHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-    .printBrand{display:flex;gap:10px;align-items:center}
-    .printBrand img{width:28mm;height:28mm;object-fit:cover;border-radius:6mm;border:1px solid #e5e7eb}
-    .printTitle{font-size:16px;font-weight:1000;margin:0 0 4px}
-    .printMeta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .printBox{border:1px solid #e5e7eb;border-radius:10px;padding:10px}
-    .printBox h4{margin:0 0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#334155}
-    .printTable{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
-    .printTable th{background:#eff6ff;color:#0b3a78;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:8px;border-bottom:1px solid #e5e7eb;text-align:left}
-    .printTable td{padding:8px;border-bottom:1px solid #e5e7eb}
-    .printTable tr:last-child td{border-bottom:0}
-    .printTotals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .printTotals .printBox{page-break-inside:avoid}
-    .avoidBreak{page-break-inside:avoid}
+    .pHeader{display:flex;gap:10mm;align-items:flex-start;justify-content:space-between}
+    .pBrand{display:flex;gap:8mm;align-items:center}
+    .pLogo{
+      width:20mm;height:20mm;border-radius:6mm;object-fit:cover;border:1px solid #e3e7ee;
+      background:#fff;
+    }
+    .pTitle{font-size:18pt;font-weight:800;margin:0}
+    .pSub{font-size:9.5pt;color:#445; margin:2mm 0 0}
+    .pMeta{font-size:9.5pt;color:#223}
+    .pBox{border:1px solid #e3e7ee;border-radius:4mm;padding:6mm;margin-top:6mm}
+    .pGrid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+    .pH{font-size:9pt;color:#556;font-weight:800;margin:0 0 2mm}
+    .pT{font-size:10pt;color:#111;margin:0}
+    .pTable{margin-top:6mm;border:1px solid #e3e7ee;border-radius:4mm;overflow:hidden}
+    .pTable table{width:100%;border-collapse:collapse}
+    .pTable th,.pTable td{border-bottom:1px solid #e3e7ee;padding:3.5mm 3.5mm;font-size:9.8pt}
+    .pTable th{background:#f6f8fb;color:#445;font-size:9pt}
+    .pTable tr:last-child td{border-bottom:0}
+    .pSum{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:6mm}
+    .pSum .pBox{margin-top:0}
+    .pFine{font-size:9pt;color:#445;line-height:1.35;margin-top:4mm}
+    .pFoot{margin-top:6mm;border-top:1px solid #e3e7ee;padding-top:3mm;font-size:8.8pt;color:#667;display:flex;justify-content:space-between;gap:6mm}
+    .muted{color:#667}
+
+    /* toast */
+    .toast{
+      position:fixed;right:14px;bottom:14px;z-index:99;
+      background:#0b1220;color:#fff;border-radius:14px;
+      padding:10px 12px;box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.10);
+      display:none;max-width:360px;font-size:13px
+    }
+    .toast.show{display:block}
   </style>
 </head>
-
 <body>
-  <div class="wrap noPrint">
-    <div class="topbar">
+  <div class="topbar">
+    <div class="row">
       <div class="brand">
-        <div class="brandLogo" title="Logo">
-          <img id="topLogo" alt="Logo"/>
-        </div>
-        <div class="brandTitle">
-          <b>Masculine Security — Rechnung</b>
-          <small>1:1 Firmen-Workflow · Auto Datum · Auto Rechnungsnummer · Kundenliste · Zuschläge · PDF · Save</small>
+        <div class="mark" id="mark">MS</div>
+        <div>
+          <div class="title">Masculine Security — Rechnung</div>
+          <div class="sub">1:1 Firmen-Workflow • Auto Datum • Auto Rechnungsnummer • Kunden • Zuschläge • PDF • Save</div>
         </div>
       </div>
 
       <div class="actions">
-        <span class="chip" id="statusChip"><span class="dot warn"></span><span id="chipText">Status: Entwurf</span></span>
-        <button class="btn" id="btnLogo">Logo ändern</button>
-        <button class="btn" id="btnNeu">Neu</button>
-        <button class="btn btnPrimary" id="btnSaveInvoice">Rechnung speichern</button>
-        <button class="btn" id="btnOpenInvoices">Rechnungen</button>
-        <button class="btn btnDanger" id="btnReset">Reset</button>
-        <button class="btn btnPrimary" id="btnPdf">PDF speichern</button>
-        <input id="logoFile" type="file" accept="image/*" hidden/>
+        <button id="btnLogo">Logo ändern</button>
+        <button id="btnNew">Neu</button>
+        <button class="primary" id="btnSaveInv">Rechnung speichern</button>
+        <button id="btnList">Rechnungen</button>
+        <button class="danger" id="btnReset">Reset</button>
+        <button class="primary" id="btnPdf">PDF speichern</button>
       </div>
     </div>
+  </div>
 
+  <div class="wrap">
     <div class="grid">
-      <!-- LEFT: Rechnungssteller -->
+      <!-- LEFT -->
       <div class="card">
-        <div class="cardHead">
-          <h3>Rechnungssteller</h3>
-          <span class="badge" id="autoBadge">Auto aktiv</span>
-        </div>
-        <div class="cardBody">
-          <div class="row">
+        <h3>
+          <span>RECHNUNGSSTELLER & KUNDE</span>
+          <span class="pill" id="statusPill">Status: Entwurf</span>
+        </h3>
+        <div class="content">
+          <div class="two">
             <div>
               <label>Firma</label>
-              <input id="sellerCompany" value="Masculine Security"/>
+              <input id="firmName" value="Masculine Security"/>
             </div>
             <div>
-              <label>Status (Auto)</label>
-              <select id="statusSelect">
+              <label>Status wählen</label>
+              <select id="statusSel">
                 <option value="Entwurf">Entwurf</option>
                 <option value="Offen">Offen</option>
                 <option value="Bezahlt">Bezahlt</option>
                 <option value="Storniert">Storniert</option>
               </select>
             </div>
+          </div>
 
-            <div class="full">
+          <div class="two" style="margin-top:10px">
+            <div>
               <label>Adresse</label>
-              <input id="sellerAddress" value="Werschenregerstraße 6 · 28237 Bremen"/>
+              <input id="firmAddr" value="Werschenregerstraße 6 • 28237 Bremen"/>
             </div>
-
             <div>
               <label>Telefon</label>
-              <input id="sellerPhone" value="015778697052"/>
+              <input id="firmTel" value="015778697052"/>
             </div>
+          </div>
+
+          <div class="two" style="margin-top:10px">
             <div>
               <label>E-Mail</label>
-              <input id="sellerEmail" value="Kontakt.mass.bremen@hotmail.com"/>
+              <input id="firmMail" value="Kontakt.mass.bremen@hotmail.com"/>
             </div>
-
             <div>
               <label>Steuernummer</label>
-              <input id="sellerTax" value="in Bearbeitung"/>
+              <input id="firmTax" value="in Bearbeitung"/>
             </div>
+          </div>
+
+          <div class="two" style="margin-top:10px">
             <div>
               <label>IBAN</label>
-              <input id="sellerIban" value="DE98 1001 1001 2333 0146 96"/>
+              <input id="firmIban" value="DE98 1001 1001 2333 0146 96"/>
             </div>
-
             <div>
               <label>BIC</label>
-              <input id="sellerBic" value="NTSBDEB1XXX"/>
+              <input id="firmBic" value="NTSBDEB1XXX"/>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="two">
+            <div>
+              <label>Kunde auswählen</label>
+              <select id="customerSelect"></select>
+              <div class="rowline" style="margin-top:8px">
+                <button id="btnCustNew" style="padding:7px 10px">Neu</button>
+                <button id="btnCustDelete" class="danger" style="padding:7px 10px">Kunde löschen</button>
+              </div>
             </div>
             <div>
-              <label>Hinweis (Zahlung)</label>
-              <input id="payNote" value="Bitte überweisen Sie den Rechnungsbetrag innerhalb der Zahlungsfrist auf das unten angegebene Konto."/>
-            </div>
-          </div>
-
-          <div class="help">
-            Tipp: Kontakt-Daten kannst du später ändern – PDF übernimmt alles automatisch.
-          </div>
-        </div>
-      </div>
-
-      <!-- MIDDLE: Kunde -->
-      <div class="card">
-        <div class="cardHead">
-          <h3>Kunde</h3>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="miniBtn" id="btnKundeNeu">Neu</button>
-            <button class="miniBtn miniBtnDanger" id="btnKundeDelete">Kunde löschen</button>
-          </div>
-        </div>
-        <div class="cardBody">
-          <div class="row">
-            <div class="full">
-              <label>Kunde auswählen</label>
-              <select id="customerSelect">
-                <option value="">— Kunde wählen —</option>
-              </select>
-            </div>
-
-            <div class="full">
               <label>Kundenname (zum Speichern)</label>
               <input id="custName" placeholder="Firma / Name"/>
+              <label style="margin-top:10px">E-Mail (optional)</label>
+              <input id="custMail" placeholder="kunde@email.de"/>
             </div>
+          </div>
 
-            <div class="full">
-              <label>E-Mail (optional)</label>
-              <input id="custEmail" placeholder="kunde@email.de"/>
-            </div>
+          <label style="margin-top:10px">Kundendaten (Adresse / Ansprechpartner)</label>
+          <textarea id="custData" placeholder="Straße • PLZ Ort&#10;Ansprechpartner"></textarea>
 
-            <div class="full">
-              <label>Kundendaten (Adresse / Ansprechpartner)</label>
-              <textarea id="custData" placeholder="Straße · PLZ Ort&#10;Ansprechpartner"></textarea>
-            </div>
+          <div class="rowline" style="margin-top:10px">
+            <button id="btnCustSave" class="primary" style="background:var(--blue2);color:#fff;border-color:var(--blue2)">Kunde speichern</button>
+            <span class="smallnote">Kunden werden im Browser gespeichert (localStorage).</span>
+          </div>
 
-            <div class="full" style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="miniBtn" id="btnCustSave">Kunde speichern</button>
-              <span class="pill" title="Kunden werden nur im Browser gespeichert.">Browser-Speicher</span>
-            </div>
+          <div class="hr"></div>
 
-            <div class="full noteLine"></div>
-
+          <div class="two">
             <div>
               <label>Einsatzort / Objekt</label>
-              <input id="einsatzOrt" placeholder="z.B. Hotel / Baustelle / Adresse"/>
+              <input id="place" placeholder="z. B. Hotel / Baustelle / Adresse" value="Bremen"/>
             </div>
             <div>
               <label>Leistungszeitraum</label>
-              <input id="leistZeitraum" placeholder="z.B. 01.02.2026 – 15.02.2026"/>
+              <input id="period" placeholder="z. B. 01.02.2026 – 15.02.2026" value=""/>
             </div>
+          </div>
 
-            <div class="full">
-              <label>Leistungsbeschreibung</label>
-              <textarea id="leistDesc">Security Dienstleistung</textarea>
-            </div>
+          <label style="margin-top:10px">Leistungsbeschreibung</label>
+          <textarea id="desc">Security Dienstleistung</textarea>
 
-            <div class="full">
-              <label>Referenz / PO (optional)</label>
-              <input id="refPo" placeholder="z.B. Auftrag-Nr. / Ansprechpartner"/>
-            </div>
+          <label style="margin-top:10px">Referenz / PO (optional)</label>
+          <input id="refpo" placeholder="z. B. Auftrag-Nr. / Ansprechpartner" value=""/>
+
+          <div class="footerNote">
+            <div class="smallnote">Tipp: Klicke bei Rechnungsdatum/Rechnungsnummer → du kannst manuell ändern.</div>
+            <div class="smallnote">Auto-Save: Änderungen werden automatisch gespeichert.</div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: Rechnungsdaten & Berechnung -->
+      <!-- RIGHT -->
       <div class="card">
-        <div class="cardHead">
-          <h3>Rechnungsdaten & Berechnung</h3>
-          <span class="badge" id="autoLabel">Auto aktiv</span>
-        </div>
-        <div class="cardBody">
-          <div class="row">
+        <h3>
+          <span>RECHNUNGSDATEN & BERECHNUNG</span>
+          <span class="pill ok" id="autoPill">Auto aktiv</span>
+        </h3>
+        <div class="content">
+          <div class="two">
             <div>
               <label>Rechnungsdatum (Auto, klickbar)</label>
               <input id="invDate" type="date"/>
-              <div class="help">Standard = heute (du kannst ändern).</div>
+              <div class="smallnote">Standard = heute (du kannst ändern).</div>
             </div>
-
             <div>
               <label>Zahlungsziel</label>
-              <select id="payDays">
+              <select id="payTerm">
                 <option value="7">7 Tage</option>
                 <option value="14" selected>14 Tage</option>
                 <option value="30">30 Tage</option>
               </select>
             </div>
+          </div>
 
+          <div class="two" style="margin-top:10px">
             <div>
               <label>Fällig am (Auto, klickbar)</label>
               <input id="dueDate" type="date"/>
-              <div class="help">Auto berechnet – du kannst auch manuell ändern.</div>
+              <div class="smallnote">Auto berechnet – du kannst auch manuell ändern.</div>
             </div>
-
             <div>
               <label>Rechnungsnummer (Auto, klickbar)</label>
-              <input id="invNumber" class="mono"/>
-              <div class="help">Auto-Format: <span class="mono">MS-YYYYMMDD-0001</span> (pro Tag laufend)</div>
+              <input id="invNo"/>
+              <div class="smallnote">Auto-Format: MS-YYYYMMDD-0001 (pro Tag laufend)</div>
             </div>
+          </div>
 
+          <div class="two" style="margin-top:10px">
             <div>
               <label>USt-Status</label>
               <select id="vatMode">
-                <option value="0">0% (Kleinunternehmer §19)</option>
-                <option value="19">19% (Regelbesteuerung)</option>
+                <option value="Klein">0% (Kleinunternehmer §19)</option>
+                <option value="Regel">19% (Regelbesteuerung)</option>
               </select>
-              <div class="help" id="vatHint">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
+              <div class="smallnote" id="vatNote">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
             </div>
-
             <div>
               <label>Schicht-Modus (Auto)</label>
-              <select id="shiftMode">
-                <option value="off">AUS (nur Gesamtstunden + Zuschlagsstunden)</option>
-                <option value="on">EIN (Schichten → Auto Nacht/Sonntag/Feiertag)</option>
-              </select>
-              <div class="help" id="shiftHint">Wenn EIN: du gibst Start/Ende + Mitarbeiter → System berechnet Stunden automatisch (Bremen Feiertage).</div>
+              <div class="rowline">
+                <input id="shiftMode" type="checkbox" style="width:auto;transform:scale(1.2)"/>
+                <span class="smallnote" id="shiftText">AUS — du gibst nur Gesamtstunden + Zuschlagsstunden ein.</span>
+              </div>
             </div>
           </div>
 
-          <div class="row3" style="margin-top:10px">
+          <div class="two" style="margin-top:10px">
             <div>
               <label>Stundensatz (€/h)</label>
-              <input id="rate" type="number" step="0.01" value="23"/>
+              <input id="rate" type="number" min="0" step="0.01" value="23"/>
             </div>
             <div>
-              <label>Nacht %</label>
-              <input id="pctNight" type="number" step="0.01" value="5"/>
+              <label>Nachtschicht %</label>
+              <input id="nightPct" type="number" min="0" step="1" value="5"/>
             </div>
+          </div>
+
+          <div class="two" style="margin-top:10px">
             <div>
               <label>Sonntag %</label>
-              <input id="pctSun" type="number" step="0.01" value="50"/>
+              <input id="sunPct" type="number" min="0" step="1" value="50"/>
             </div>
             <div>
               <label>Feiertag %</label>
-              <input id="pctHol" type="number" step="0.01" value="100"/>
-              <div class="help">Keine Doppelzählung: Feiertag &gt; Sonntag &gt; Nacht</div>
+              <input id="holPct" type="number" min="0" step="1" value="100"/>
             </div>
+          </div>
+
+          <div class="two" style="margin-top:10px">
             <div>
               <label>Anzahl Mitarbeiter</label>
-              <input id="maCount" type="number" min="1" step="1" value="10"/>
+              <input id="ma" type="number" min="1" step="1" value="10"/>
             </div>
             <div>
               <label>Stunden gesamt</label>
-              <input id="hoursTotal" type="number" step="0.01" value="0"/>
-              <div class="help">AUS-Modus: Gib nur Gesamtstunden ein → Grundlohn wird automatisch berechnet.</div>
+              <input id="totalHours" type="number" min="0" step="0.01" value="0"/>
             </div>
           </div>
 
-          <!-- SHIFT MODE UI -->
-          <div id="shiftBox" style="display:none;margin-top:12px">
-            <div class="card" style="border-radius:16px;box-shadow:none;border:1px solid var(--line)">
-              <div class="cardHead" style="border-radius:16px 16px 0 0">
-                <h3>Schichten (Auto-Berechnung)</h3>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                  <button class="miniBtn" id="btnAddShift">+ Schicht hinzufügen</button>
-                  <button class="miniBtn" id="btnDemo">Demo füllen</button>
-                  <span class="pill" title="Feiertage automatisch für Bremen">Feiertage: Bremen</span>
-                </div>
-              </div>
-              <div class="cardBody" style="padding:12px">
-                <div class="help" style="margin-top:0">
-                  Tipp: Einsatz über Mitternacht → Ende am nächsten Tag wählen.
-                </div>
-                <table class="table" id="shiftTable" aria-label="Schichten">
-                  <thead>
-                    <tr>
-                      <th style="width:28%">Start (Datum+Zeit)</th>
-                      <th style="width:28%">Ende (Datum+Zeit)</th>
-                      <th style="width:18%">Mitarbeiter</th>
-                      <th style="width:14%">Stunden</th>
-                      <th style="width:12%">Aktion</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-
-                <div class="help">
-                  System berechnet automatisch: Grundlohn-Stunden, Nacht (22–06), Sonntag, Feiertag (Bremen).
-                </div>
-              </div>
-            </div>
+          <div class="smallnote" style="margin-top:8px">
+            Keine Doppelzählung: Feiertag &gt; Sonntag &gt; Nacht (Zuschläge werden nur für ihre Stunden gerechnet).
           </div>
 
-          <!-- NON SHIFT MODE: manual surcharge hours -->
-          <div id="manualSurcharges" style="margin-top:12px">
-            <table class="table" aria-label="Auto-Positionen">
+          <div class="hr"></div>
+
+          <div class="pTable" style="border:1px solid var(--line);border-radius:14px;overflow:hidden">
+            <table>
               <thead>
                 <tr>
-                  <th>Position</th>
-                  <th class="right">Stunden</th>
-                  <th class="right">Zuschlag %</th>
-                  <th class="right">Betrag</th>
+                  <th style="width:44%">Position</th>
+                  <th style="width:18%">Stunden</th>
+                  <th style="width:18%">Zuschlag %</th>
+                  <th class="right" style="width:20%">Betrag</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><b>Grundlohn</b><div class="small">Arbeitszeit (normal)</div></td>
-                  <td class="right mono" id="hBase">0.00</td>
-                  <td class="right">—</td>
-                  <td class="right mono" id="aBase">0.00 €</td>
+                  <td><b>Grundlohn</b><div class="smallnote">Arbeitszeit (normal)</div></td>
+                  <td><input id="hBase" type="number" step="0.01" min="0" value="0"></td>
+                  <td class="muted">—</td>
+                  <td class="right" id="amtBase">0,00 €</td>
                 </tr>
                 <tr>
-                  <td><b>Nachtschicht</b><div class="small">Zuschlag</div></td>
-                  <td class="right"><input id="hNight" type="number" step="0.01" value="0" /></td>
-                  <td class="right mono" id="pNight">5%</td>
-                  <td class="right mono" id="aNight">0.00 €</td>
+                  <td><b>Nachtschicht</b><div class="smallnote">Zuschlag</div></td>
+                  <td><input id="hNight" type="number" step="0.01" min="0" value="0"></td>
+                  <td id="pctNight">5%</td>
+                  <td class="right" id="amtNight">0,00 €</td>
                 </tr>
                 <tr>
-                  <td><b>Sonntag</b><div class="small">Zuschlag</div></td>
-                  <td class="right"><input id="hSun" type="number" step="0.01" value="0" /></td>
-                  <td class="right mono" id="pSun">50%</td>
-                  <td class="right mono" id="aSun">0.00 €</td>
+                  <td><b>Sonntag</b><div class="smallnote">Zuschlag</div></td>
+                  <td><input id="hSun" type="number" step="0.01" min="0" value="0"></td>
+                  <td id="pctSun">50%</td>
+                  <td class="right" id="amtSun">0,00 €</td>
                 </tr>
                 <tr>
-                  <td><b>Feiertag</b><div class="small">Zuschlag</div></td>
-                  <td class="right"><input id="hHol" type="number" step="0.01" value="0" /></td>
-                  <td class="right mono" id="pHol">100%</td>
-                  <td class="right mono" id="aHol">0.00 €</td>
+                  <td><b>Feiertag</b><div class="smallnote">Zuschlag</div></td>
+                  <td><input id="hHol" type="number" step="0.01" min="0" value="0"></td>
+                  <td id="pctHol">100%</td>
+                  <td class="right" id="amtHol">0,00 €</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div class="totals">
-            <div class="totalBox blue">
-              <b>Stunden/MA (Auto)</b>
-              <span class="mono" id="hoursPerMa">0.00</span>
+          <div class="sumgrid" style="margin-top:12px">
+            <div class="sumcard">
+              <div class="smallnote"><b>Stunden/MA (Auto)</b></div>
+              <div class="big" id="perMA">0,00</div>
+              <div class="smallnote">= Stunden gesamt ÷ Mitarbeiter</div>
             </div>
-            <div class="totalBox green">
-              <b>Stunden gesamt</b>
-              <span class="mono" id="hoursTotalView">0.00</span>
-            </div>
-            <div class="totalBox gray">
-              <b>Zwischensumme (Netto)</b>
-              <span class="mono" id="netSum">0.00 €</span>
-            </div>
-            <div class="totalBox gray">
-              <b>Umsatzsteuer</b>
-              <span class="mono" id="vatSum">0.00 €</span>
-            </div>
-            <div class="totalBox green full" style="grid-column:1/-1">
-              <b>Gesamt</b>
-              <span class="mono" id="grossSum">0.00 €</span>
+            <div class="sumcard">
+              <div class="smallnote"><b>Stunden gesamt</b></div>
+              <div class="big" id="sumH">0,00</div>
+              <div class="smallnote" id="autoRule">Grundlohn-Stunden werden automatisch berechnet.</div>
             </div>
           </div>
 
-          <div class="help" style="margin-top:10px">
-            ✅ Auto-Regeln:
-            <ol style="margin:6px 0 0 18px;padding:0;color:var(--muted)">
-              <li>Wenn Mitarbeiter + Std/MA da sind → Stunden gesamt = MA × Std/MA</li>
-              <li>Wenn Schicht-Modus EIN → Stunden gesamt + Zuschlagsstunden werden aus Schichten berechnet</li>
-              <li>Grundlohn-Stunden = Stunden gesamt − (Nacht + Sonntag + Feiertag)</li>
-            </ol>
+          <div class="sumgrid" style="margin-top:12px">
+            <div class="sumcard">
+              <div class="smallnote"><b>Zwischensumme (Netto)</b></div>
+              <div class="big" id="net">0,00 €</div>
+            </div>
+            <div class="sumcard">
+              <div class="smallnote"><b>Umsatzsteuer</b></div>
+              <div class="big" id="vat">0,00 €</div>
+            </div>
           </div>
 
-          <div class="footerLine">
-            <span><b>Masculine Security</b> · Werschenregerstraße 6 · 28237 Bremen</span>
-            <span class="mono">Erstellt: <span id="createdStamp">—</span></span>
+          <div class="sumcard" style="margin-top:12px">
+            <div class="smallnote"><b>Gesamt</b></div>
+            <div class="big" id="gross">0,00 €</div>
+            <div class="smallnote">Hinweis: Zahlung bitte innerhalb der Zahlungsfrist auf das unten angegebene Konto.</div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 
-  <!-- INVOICES MODAL -->
-  <div class="modalBack noPrint" id="modalBack">
-    <div class="modal">
-      <div class="modalHead">
-        <h3>Gespeicherte Rechnungen</h3>
-        <button class="modalClose" id="modalClose" aria-label="close">×</button>
-      </div>
-      <div class="modalBody">
-        <div class="help" style="margin-top:0">
-          Hier sind alle Rechnungen im Browser gespeichert. Du kannst PDF herunterladen oder löschen.
-        </div>
-        <table class="table" id="invoiceListTable">
-          <thead>
-            <tr>
-              <th>Rechnungsnr.</th>
-              <th>Datum</th>
-              <th>Kunde</th>
-              <th class="right">Gesamt</th>
-              <th class="right">Aktion</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div class="help">Hinweis: Speicherung ist nur im Browser (localStorage). Für Backup: PDF herunterladen.</div>
-      </div>
-    </div>
-  </div>
+  <!-- PRINT AREA for PDF -->
+  <div id="printArea"></div>
 
-  <!-- PRINT AREA (hidden on screen) -->
-  <div class="printPage" id="printArea"></div>
+  <div class="toast" id="toast"></div>
 
-<script>
-(function(){
-  // ---------- Helpers ----------
-  const $ = (id)=>document.getElementById(id);
-  const fmt2 = (n)=> (isFinite(n)? Number(n).toFixed(2) : "0.00");
-  const euro = (n)=> `${fmt2(n)} €`;
-  const pad4 = (n)=> String(n).padStart(4,"0");
-  const ymd = (d)=>{
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,"0");
-    const da=String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${da}`;
-  };
-  const yyyymmdd = (d)=>{
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,"0");
-    const da=String(d.getDate()).padStart(2,"0");
-    return `${y}${m}${da}`;
-  };
-  const clamp = (v,min,max)=> Math.min(max, Math.max(min,v));
-  const parseNum = (v)=> {
-    const x = Number(String(v).replace(",","."));
-    return isFinite(x)? x : 0;
-  };
+  <input id="logoFile" type="file" accept="image/*" style="display:none"/>
 
-  // ---------- Bremen holidays (basic German set + Reformationstag for Bremen) ----------
-  // Computes a set of YYYY-MM-DD strings.
-  function easterSunday(year){
-    // Anonymous Gregorian algorithm
-    const a = year % 19;
-    const b = Math.floor(year/100);
-    const c = year % 100;
-    const d = Math.floor(b/4);
-    const e = b % 4;
-    const f = Math.floor((b+8)/25);
-    const g = Math.floor((b-f+1)/3);
-    const h = (19*a + b - d - g + 15) % 30;
-    const i = Math.floor(c/4);
-    const k = c % 4;
-    const l = (32 + 2*e + 2*i - h - k) % 7;
-    const m = Math.floor((a + 11*h + 22*l)/451);
-    const month = Math.floor((h + l - 7*m + 114)/31); // 3=March,4=April
-    const day = ((h + l - 7*m + 114) % 31) + 1;
-    return new Date(year, month-1, day);
-  }
-  function addDays(date,days){
-    const d = new Date(date);
-    d.setDate(d.getDate()+days);
-    return d;
-  }
-  function bremenHolidays(year){
-    const es = easterSunday(year);
-    const set = new Set();
-    const fixed = [
-      `${year}-01-01`, // Neujahr
-      `${year}-05-01`, // Tag der Arbeit
-      `${year}-10-03`, // Tag der Deutschen Einheit
-      `${year}-10-31`, // Reformationstag (Bremen)
-      `${year}-12-25`, // 1. Weihnachtstag
-      `${year}-12-26`, // 2. Weihnachtstag
-    ];
-    fixed.forEach(x=>set.add(x));
-    set.add(ymd(addDays(es,-2))); // Karfreitag
-    set.add(ymd(addDays(es,1)));  // Ostermontag
-    set.add(ymd(addDays(es,39))); // Christi Himmelfahrt
-    set.add(ymd(addDays(es,50))); // Pfingstmontag
-    return set;
-  }
-  function isHoliday(date){
-    const y = date.getFullYear();
-    const set = bremenHolidays(y);
-    return set.has(ymd(date));
-  }
-  function isSunday(date){
-    return date.getDay() === 0;
-  }
-  function isNight(date){
-    const h = date.getHours();
-    return (h >= 22 || h < 6); // 22:00 - 05:59
-  }
+  <script>
+  ;(()=>{
 
-  // ---------- State ----------
-  const LS = {
-    logo: "ms_logo_dataurl",
-    customers: "ms_customers_v1",
-    invoices: "ms_invoices_v1",
-    counters: "ms_invoice_counters_v1",
-    draft: "ms_draft_v1"
-  };
-
-  function loadJSON(key, fallback){
-    try{
-      const raw = localStorage.getItem(key);
-      if(!raw) return fallback;
-      return JSON.parse(raw);
-    }catch(e){ return fallback; }
-  }
-  function saveJSON(key, val){
-    localStorage.setItem(key, JSON.stringify(val));
-  }
-
-  function defaultLogoFallback(){
-    // Try logo.png in repo (same origin for GitHub Pages). If it fails, show placeholder initials.
-    const img = new Image();
-    img.onload = ()=> {
-      $("topLogo").src = "logo.png";
+    // ---------- helpers ----------
+    const $ = (id)=>document.getElementById(id);
+    const fmtEUR = (n)=> (Number(n||0)).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
+    const fmtN = (n)=> (Number(n||0)).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const ymd = (d)=> {
+      const yyyy=d.getFullYear();
+      const mm=String(d.getMonth()+1).padStart(2,"0");
+      const dd=String(d.getDate()).padStart(2,"0");
+      return `${yyyy}-${mm}-${dd}`;
     };
-    img.onerror = ()=>{
-      // tiny inline placeholder
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect rx="16" width="100%" height="100%" fill="#0b3a78"/><text x="50%" y="56%" text-anchor="middle" font-size="34" font-family="Arial" fill="white" font-weight="800">MS</text></svg>`;
-      $("topLogo").src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+    const ymdCompact = (dateStr)=> dateStr.replaceAll("-","");
+    const toast = (msg)=>{
+      const t=$("toast"); t.textContent=msg; t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2200);
     };
-    img.src = "logo.png";
-  }
+    const safe = (s)=> String(s||"").replace(/[^\w\-\.]+/g,"_");
 
-  function setTopLogo(src){
-    $("topLogo").src = src;
-  }
+    // ---------- storage keys ----------
+    const KEY_APP="MS_INV_APP_V1";
+    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V1";
+    const KEY_INVS="MS_INV_LIST_V1";
+    const KEY_LOGO="MS_INV_LOGO_DATAURL_V1";
+    const KEY_INVSEQ="MS_INV_SEQ_V1"; // per day running numbers
+    const KEY_SHIFT="MS_INV_SHIFT_V1";
 
-  function loadLogo(){
-    const d = localStorage.getItem(LS.logo);
-    if(d && d.startsWith("data:image")){
-      setTopLogo(d);
-      return;
+    // ---------- default logo fallback (local file in repo) ----------
+    // If you have logo.png in repo root, it will use it when no uploaded logo yet.
+    const DEFAULT_LOGO_PATH = "logo.png";
+
+    // ---------- state ----------
+    let state = loadState();
+    let customers = loadCustomers();
+    let invoices = loadInvoices();
+    let logoDataUrl = localStorage.getItem(KEY_LOGO) || "";
+
+    // ---------- init UI ----------
+    function init(){
+      // dates auto
+      const today = new Date();
+      $("invDate").value = state.invDate || ymd(today);
+      $("payTerm").value = state.payTerm || "14";
+      $("dueDate").value = state.dueDate || calcDue($("invDate").value, $("payTerm").value);
+
+      $("invNo").value = state.invNo || makeAutoInvNo($("invDate").value);
+
+      // firm
+      $("firmName").value = state.firmName || "Masculine Security";
+      $("firmAddr").value = state.firmAddr || "Werschenregerstraße 6 • 28237 Bremen";
+      $("firmTel").value  = state.firmTel  || "015778697052";
+      $("firmMail").value = state.firmMail || "Kontakt.mass.bremen@hotmail.com";
+      $("firmTax").value  = state.firmTax  || "in Bearbeitung";
+      $("firmIban").value = state.firmIban || "DE98 1001 1001 2333 0146 96";
+      $("firmBic").value  = state.firmBic  || "NTSBDEB1XXX";
+
+      // job
+      $("place").value = state.place || "Bremen";
+      $("period").value = state.period || "";
+      $("desc").value = state.desc || "Security Dienstleistung";
+      $("refpo").value = state.refpo || "";
+
+      // calc inputs
+      $("rate").value = ndef(state.rate,23);
+      $("nightPct").value = ndef(state.nightPct,5);
+      $("sunPct").value = ndef(state.sunPct,50);
+      $("holPct").value = ndef(state.holPct,100);
+      $("ma").value = ndef(state.ma,10);
+      $("totalHours").value = ndef(state.totalHours,0);
+
+      $("hNight").value = ndef(state.hNight,0);
+      $("hSun").value = ndef(state.hSun,0);
+      $("hHol").value = ndef(state.hHol,0);
+      $("hBase").value = ndef(state.hBase,0); // will be auto in many cases
+
+      $("vatMode").value = state.vatMode || "Klein";
+
+      $("statusSel").value = state.status || "Entwurf";
+      syncStatusPill();
+
+      // shift mode
+      const shiftSaved = localStorage.getItem(KEY_SHIFT);
+      $("shiftMode").checked = (shiftSaved ? (shiftSaved==="1") : !!state.shiftMode);
+      syncShiftUI();
+
+      // customers list
+      renderCustomerSelect();
+
+      // events
+      wireEvents();
+
+      // first calc
+      recalcAll();
+      autoSave();
+
+      toast("Bereit ✅");
     }
-    defaultLogoFallback();
-  }
 
-  function nextInvoiceNumber(dateObj){
-    const dateKey = yyyymmdd(dateObj);
-    const counters = loadJSON(LS.counters, {});
-    const current = counters[dateKey] || 0;
-    const next = current + 1;
-    counters[dateKey] = next;
-    saveJSON(LS.counters, counters);
-    return `MS-${dateKey}-${pad4(next)}`;
-  }
+    function ndef(v,def){ return (v===0||v) ? v : def; }
 
-  function ensureInvoiceNumber(){
-    const d = new Date($("invDate").value || ymd(new Date()));
-    if(!$("invNumber").value || !/^MS-\d{8}-\d{4}$/.test($("invNumber").value)){
-      $("invNumber").value = nextInvoiceNumber(d);
+    // ---------- customers ----------
+    function loadCustomers(){
+      try{ return JSON.parse(localStorage.getItem(KEY_CUSTOMERS) || "[]"); }catch{ return []; }
     }
-  }
-
-  function setDatesAuto(){
-    const today = new Date();
-    if(!$("invDate").value) $("invDate").value = ymd(today);
-    const pay = parseInt($("payDays").value || "14", 10);
-    const invD = new Date($("invDate").value+"T00:00:00");
-    if(!$("dueDate").value){
-      const due = new Date(invD);
-      due.setDate(due.getDate()+pay);
-      $("dueDate").value = ymd(due);
+    function saveCustomers(){
+      localStorage.setItem(KEY_CUSTOMERS, JSON.stringify(customers));
     }
-  }
+    function renderCustomerSelect(){
+      const sel=$("customerSelect");
+      sel.innerHTML="";
+      const opt0=document.createElement("option");
+      opt0.value=""; opt0.textContent="— Kunde wählen —";
+      sel.appendChild(opt0);
+      for(const c of customers){
+        const o=document.createElement("option");
+        o.value=c.id; o.textContent=c.name || "(ohne Name)";
+        sel.appendChild(o);
+      }
+      sel.value = state.customerId || "";
+    }
 
-  function updateVatHint(){
-    const v = parseInt($("vatMode").value,10);
-    $("vatHint").textContent = v===0
-      ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung)."
-      : "Umsatzsteuer wird mit 19% berechnet (Regelbesteuerung).";
-  }
+    function currentCustomer(){
+      const id=$("customerSelect").value || "";
+      return customers.find(x=>x.id===id) || null;
+    }
 
-  function updateStatusChip(){
-    const s = $("statusSelect").value;
-    $("chipText").textContent = `Status: ${s}`;
-    const dot = $("statusChip").querySelector(".dot");
-    dot.classList.remove("ok","warn","bad");
-    if(s==="Bezahlt") dot.classList.add("ok");
-    else if(s==="Storniert") dot.classList.add("bad");
-    else dot.classList.add("warn");
-  }
+    // ---------- invoices ----------
+    function loadInvoices(){
+      try{ return JSON.parse(localStorage.getItem(KEY_INVS) || "[]"); }catch{ return []; }
+    }
+    function saveInvoices(){
+      localStorage.setItem(KEY_INVS, JSON.stringify(invoices));
+    }
 
-  // ---------- Customers ----------
-  function getCustomers(){
-    return loadJSON(LS.customers, []);
-  }
-  function setCustomers(arr){
-    saveJSON(LS.customers, arr);
-  }
-  function refreshCustomerSelect(){
-    const list = getCustomers();
-    const sel = $("customerSelect");
-    const current = sel.value;
-    sel.innerHTML = `<option value="">— Kunde wählen —</option>` + list.map((c,idx)=>{
-      const label = (c.name||"").trim() || "Kunde";
-      return `<option value="${idx}">${escapeHtml(label)}</option>`;
-    }).join("");
-    if(current!=="" && list[Number(current)]) sel.value = current;
-  }
-  function escapeHtml(s){
-    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-  }
-  function clearCustomerFields(){
-    $("custName").value="";
-    $("custEmail").value="";
-    $("custData").value="";
-  }
-  function loadCustomer(idx){
-    const list = getCustomers();
-    const c = list[idx];
-    if(!c) return;
-    $("custName").value = c.name||"";
-    $("custEmail").value = c.email||"";
-    $("custData").value = c.data||"";
-  }
+    // ---------- state ----------
+    function loadState(){
+      try{ return JSON.parse(localStorage.getItem(KEY_APP) || "{}"); }catch{ return {}; }
+    }
+    function autoSave(){
+      state = collectDraft();
+      localStorage.setItem(KEY_APP, JSON.stringify(state));
+    }
 
-  // ---------- Shift mode calculations ----------
-  function getShiftRows(){
-    const rows = [];
-    const tbody = $("shiftTable").querySelector("tbody");
-    tbody.querySelectorAll("tr").forEach(tr=>{
-      const start = tr.querySelector('[data-k="start"]').value;
-      const end = tr.querySelector('[data-k="end"]').value;
-      const ma = parseInt(tr.querySelector('[data-k="ma"]').value || "1", 10);
-      rows.push({start, end, ma: clamp(isFinite(ma)?ma:1,1,500)});
-    });
-    return rows;
-  }
-
-  function computeFromShifts(){
-    // minute-accurate classification; returns hours {base, night, sun, hol, total}
-    const shifts = getShiftRows();
-    let minBase=0, minNight=0, minSun=0, minHol=0, minTotal=0;
-
-    for(const sh of shifts){
-      if(!sh.start || !sh.end) continue;
-      const s = new Date(sh.start);
-      const e = new Date(sh.end);
-      if(!(s instanceof Date) || !(e instanceof Date) || isNaN(s) || isNaN(e)) continue;
-      if(e <= s) continue;
-
-      // iterate minutes
-      const ma = sh.ma || 1;
-      let cur = new Date(s);
-      while(cur < e){
-        const next = new Date(cur);
-        next.setMinutes(next.getMinutes()+1);
-        const minuteEnd = next > e ? e : next;
-
-        // classify by priority: holiday > sunday > night > base
-        const d = cur;
-        if(isHoliday(d)) minHol += ma;
-        else if(isSunday(d)) minSun += ma;
-        else if(isNight(d)) minNight += ma;
-        else minBase += ma;
-
-        minTotal += ma;
-        cur = minuteEnd;
+    // ---------- auto invoice number ----------
+    function loadSeq(){
+      try{ return JSON.parse(localStorage.getItem(KEY_INVSEQ) || "{}"); }catch{ return {}; }
+    }
+    function saveSeq(seq){
+      localStorage.setItem(KEY_INVSEQ, JSON.stringify(seq));
+    }
+    function makeAutoInvNo(dateStr){
+      // daily running numbers: MS-YYYYMMDD-0001
+      const key = ymdCompact(dateStr || ymd(new Date()));
+      const seq = loadSeq();
+      if(!seq[key]) seq[key]=1;
+      const num = String(seq[key]).padStart(4,"0");
+      return `MS-${key}-${num}`;
+    }
+    function bumpSeqIfNeeded(dateStr, invNo){
+      const key = ymdCompact(dateStr);
+      const seq=loadSeq();
+      // if invNo matches MS-YYYYMMDD-XXXX, keep max+1
+      const m = String(invNo||"").match(/^MS-(\d{8})-(\d{4})$/);
+      if(m && m[1]===key){
+        const used = parseInt(m[2],10);
+        seq[key] = Math.max(seq[key]||1, used+1);
+        saveSeq(seq);
       }
     }
 
-    const hours = {
-      hol: minHol/60,
-      sun: minSun/60,
-      night: minNight/60,
-      base: minBase/60,
-      total: minTotal/60
-    };
+    // ---------- due date ----------
+    function calcDue(dateStr, termDays){
+      const d = new Date(dateStr+"T00:00:00");
+      const add = parseInt(termDays||"14",10);
+      d.setDate(d.getDate()+add);
+      return ymd(d);
+    }
 
-    // update UI (auto)
-    $("hoursTotal").value = fmt2(hours.total);
-    // manual surcharge inputs reflect auto
-    $("hHol").value = fmt2(hours.hol);
-    $("hSun").value = fmt2(hours.sun);
-    $("hNight").value = fmt2(hours.night);
-  }
+    // ---------- calc core ----------
+    function recalcAll(){
+      const rate = num($("rate").value);
+      const nightPct = num($("nightPct").value);
+      const sunPct = num($("sunPct").value);
+      const holPct = num($("holPct").value);
+      const ma = Math.max(1, Math.round(num($("ma").value)));
+      const total = Math.max(0, num($("totalHours").value));
 
-  function addShiftRow(data){
-    const tbody = $("shiftTable").querySelector("tbody");
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><input data-k="start" type="datetime-local" value="${data?.start||""}"></td>
-      <td><input data-k="end" type="datetime-local" value="${data?.end||""}"></td>
-      <td><input data-k="ma" type="number" min="1" step="1" value="${data?.ma||1}"></td>
-      <td class="right mono" data-k="hrs">0.00</td>
-      <td class="right"><button class="miniBtn miniBtnDanger" data-k="del">Löschen</button></td>
-    `;
-    tbody.appendChild(tr);
+      $("pctNight").textContent = `${nightPct}%`;
+      $("pctSun").textContent   = `${sunPct}%`;
+      $("pctHol").textContent   = `${holPct}%`;
 
-    const recalcRow = ()=>{
-      const s = tr.querySelector('[data-k="start"]').value;
-      const e = tr.querySelector('[data-k="end"]').value;
-      const ma = parseInt(tr.querySelector('[data-k="ma"]').value||"1",10);
-      let hrs = 0;
-      if(s && e){
-        const ds = new Date(s);
-        const de = new Date(e);
-        if(de>ds) hrs = ((de-ds)/36e5) * (isFinite(ma)?ma:1);
+      // shift mode affects base hours rule
+      const shiftOn = $("shiftMode").checked;
+
+      let hNight = Math.max(0, num($("hNight").value));
+      let hSun   = Math.max(0, num($("hSun").value));
+      let hHol   = Math.max(0, num($("hHol").value));
+
+      // No double counting rule: Feiertag > Sonntag > Nacht
+      // We assume user inputs already separated hours. We do NOT stack percentages.
+      // Base hours = total - (night+sun+hol)  [never below 0]
+      let hBaseAuto = Math.max(0, total - (hNight + hSun + hHol));
+
+      // If shift mode ON: user enters only total + individual Zuschlag hours (same as rule above)
+      // If shift mode OFF: user can manually set base hours too (but still we keep consistency)
+      if(shiftOn){
+        $("hBase").value = round2(hBaseAuto);
+        $("hBase").disabled = true;
+      }else{
+        $("hBase").disabled = false;
+        // if user left base at 0 while total>0, we auto set
+        const manualBase = Math.max(0, num($("hBase").value));
+        if(total>0 && manualBase===0){
+          $("hBase").value = round2(hBaseAuto);
+        }
       }
-      tr.querySelector('[data-k="hrs"]').textContent = fmt2(hrs);
-      scheduleRecalc();
-    };
 
-    tr.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", recalcRow));
-    tr.querySelector('[data-k="del"]').addEventListener("click", ()=>{
-      tr.remove();
-      scheduleRecalc();
-    });
+      const hBase = Math.max(0, num($("hBase").value));
 
-    recalcRow();
-  }
+      // amounts
+      const amtBase = hBase * rate;
+      const amtNight = hNight * rate * (nightPct/100);
+      const amtSun   = hSun   * rate * (sunPct/100);
+      const amtHol   = hHol   * rate * (holPct/100);
 
-  let recalcTimer=null;
-  function scheduleRecalc(){
-    if(recalcTimer) clearTimeout(recalcTimer);
-    recalcTimer = setTimeout(()=> {
-      if($("shiftMode").value==="on") computeFromShifts();
-      calculateAll();
-      saveDraft();
-    }, 80);
-  }
+      $("amtBase").textContent = fmtEUR(amtBase);
+      $("amtNight").textContent = fmtEUR(amtNight);
+      $("amtSun").textContent = fmtEUR(amtSun);
+      $("amtHol").textContent = fmtEUR(amtHol);
 
-  // ---------- Core calculation ----------
-  function calculateAll(){
-    // Auto hoursPerMA
-    const ma = clamp(parseInt($("maCount").value||"1",10) || 1, 1, 10000);
-    $("maCount").value = ma;
+      const net = amtBase + amtNight + amtSun + amtHol;
 
-    // If user filled Std/MA somewhere? We use hoursPerMa = total/ma
-    const total = parseNum($("hoursTotal").value);
-    const perMa = total / ma;
+      // VAT
+      const vatMode = $("vatMode").value;
+      let vat = 0;
+      let vatRate = 0;
+      if(vatMode==="Regel"){
+        vatRate = 0.19;
+        vat = net * vatRate;
+        $("vatNote").textContent = "Umsatzsteuer wird mit 19% berechnet.";
+      }else{
+        $("vatNote").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
+      }
 
-    $("hoursPerMa").textContent = fmt2(perMa);
-    $("hoursTotalView").textContent = fmt2(total);
+      $("net").textContent = fmtEUR(net);
+      $("vat").textContent = fmtEUR(vat);
+      $("gross").textContent = fmtEUR(net+vat);
 
-    // Percent labels
-    const pctN = parseNum($("pctNight").value);
-    const pctS = parseNum($("pctSun").value);
-    const pctH = parseNum($("pctHol").value);
-    $("pNight").textContent = `${fmt2(pctN).replace(".00","")}%`;
-    $("pSun").textContent = `${fmt2(pctS).replace(".00","")}%`;
-    $("pHol").textContent = `${fmt2(pctH).replace(".00","")}%`;
+      // hours per MA
+      $("perMA").textContent = fmtN(total/ma);
+      $("sumH").textContent = fmtN(total);
+      $("autoRule").textContent = shiftOn
+        ? "Schicht-Modus AN: Grundlohn-Stunden = Gesamt − (Nacht+Sonntag+Feiertag)."
+        : "Schicht-Modus AUS: Du kannst Grundlohn manuell ändern (Auto hilft).";
 
-    const rate = parseNum($("rate").value);
+      // auto dates/number
+      if(!$("invDate").dataset.touched){
+        // keep current
+      }
+      if(!$("invNo").dataset.touched){
+        // keep current
+      }
 
-    // Surcharge hours (manual OR from shifts)
-    let hNight = parseNum($("hNight").value);
-    let hSun   = parseNum($("hSun").value);
-    let hHol   = parseNum($("hHol").value);
+      // sync due date if not touched
+      if(!$("dueDate").dataset.touched){
+        $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
+      }
 
-    // Base hours auto
-    let hBase = total - (hNight + hSun + hHol);
-    if(hBase < 0) hBase = 0;
+      autoSave();
+    }
 
-    // Amounts
-    const aBase = hBase * rate;
-    const aNight = hNight * rate * (pctN/100);
-    const aSun   = hSun   * rate * (pctS/100);
-    const aHol   = hHol   * rate * (pctH/100);
+    function round2(n){ return Math.round((Number(n||0)+Number.EPSILON)*100)/100; }
+    function num(v){ const n=parseFloat(String(v).replace(",", ".")); return isNaN(n)?0:n; }
 
-    const net = aBase + aNight + aSun + aHol;
-    const vatRate = parseInt($("vatMode").value,10);
-    const vat = (vatRate===0) ? 0 : (net * (vatRate/100));
-    const gross = net + vat;
+    // ---------- shift UI ----------
+    function syncShiftUI(){
+      const on = $("shiftMode").checked;
+      localStorage.setItem(KEY_SHIFT, on ? "1":"0");
+      $("autoPill").className = "pill " + (on ? "ok":"off");
+      $("autoPill").textContent = on ? "Auto aktiv" : "Auto teilweise";
+      $("shiftText").textContent = on
+        ? "AN — du gibst Gesamtstunden + Zuschlagsstunden ein (Grundlohn auto)."
+        : "AUS — du kannst auch Grundlohn-Stunden manuell setzen.";
+      recalcAll();
+    }
 
-    // UI update
-    $("hBase").textContent = fmt2(hBase);
-    $("aBase").textContent = euro(aBase);
-    $("aNight").textContent = euro(aNight);
-    $("aSun").textContent = euro(aSun);
-    $("aHol").textContent = euro(aHol);
-    $("netSum").textContent = euro(net);
-    $("vatSum").textContent = euro(vat);
-    $("grossSum").textContent = euro(gross);
+    // ---------- status pill ----------
+    function syncStatusPill(){
+      const s = $("statusSel").value;
+      $("statusPill").textContent = "Status: " + s;
+      if(s==="Bezahlt"){ $("statusPill").className="pill ok"; }
+      else if(s==="Offen"){ $("statusPill").className="pill"; }
+      else if(s==="Storniert"){ $("statusPill").className="pill off"; }
+      else { $("statusPill").className="pill"; }
+      autoSave();
+    }
 
-    // created stamp
-    $("createdStamp").textContent = new Date().toLocaleString("de-DE");
+    // ---------- draft collect ----------
+    function collectDraft(){
+      return {
+        firmName:$("firmName").value.trim(),
+        firmAddr:$("firmAddr").value.trim(),
+        firmTel:$("firmTel").value.trim(),
+        firmMail:$("firmMail").value.trim(),
+        firmTax:$("firmTax").value.trim(),
+        firmIban:$("firmIban").value.trim(),
+        firmBic:$("firmBic").value.trim(),
 
-    // Avoid double counting note visible by design
-  }
+        customerId:$("customerSelect").value || "",
 
-  // ---------- Draft ----------
-  function collectDraft(){
-    return {
-      seller:{
-        company:$("sellerCompany").value,
-        address:$("sellerAddress").value,
-        phone:$("sellerPhone").value,
-        email:$("sellerEmail").value,
-        tax:$("sellerTax").value,
-        iban:$("sellerIban").value,
-        bic:$("sellerBic").value,
-        payNote:$("payNote").value
-      },
-      customer:{
-        selected:$("customerSelect").value,
-        name:$("custName").value,
-        email:$("custEmail").value,
-        data:$("custData").value
-      },
-      service:{
-        ort:$("einsatzOrt").value,
-        zeitraum:$("leistZeitraum").value,
-        desc:$("leistDesc").value,
-        ref:$("refPo").value
-      },
-      invoice:{
-        status:$("statusSelect").value,
+        custName:$("custName").value.trim(),
+        custMail:$("custMail").value.trim(),
+        custData:$("custData").value,
+
+        place:$("place").value.trim(),
+        period:$("period").value.trim(),
+        desc:$("desc").value,
+        refpo:$("refpo").value.trim(),
+
         invDate:$("invDate").value,
+        payTerm:$("payTerm").value,
         dueDate:$("dueDate").value,
-        payDays:$("payDays").value,
-        invNumber:$("invNumber").value,
+        invNo:$("invNo").value.trim(),
+
+        status:$("statusSel").value,
+
         vatMode:$("vatMode").value,
-        shiftMode:$("shiftMode").value,
-        rate:$("rate").value,
-        pctNight:$("pctNight").value,
-        pctSun:$("pctSun").value,
-        pctHol:$("pctHol").value,
-        maCount:$("maCount").value,
-        hoursTotal:$("hoursTotal").value,
-        hNight:$("hNight").value,
-        hSun:$("hSun").value,
-        hHol:$("hHol").value,
-        shifts: getShiftRows()
+        shiftMode:$("shiftMode").checked,
+
+        rate:num($("rate").value),
+        nightPct:num($("nightPct").value),
+        sunPct:num($("sunPct").value),
+        holPct:num($("holPct").value),
+
+        ma:Math.max(1, Math.round(num($("ma").value))),
+        totalHours:num($("totalHours").value),
+
+        hBase:num($("hBase").value),
+        hNight:num($("hNight").value),
+        hSun:num($("hSun").value),
+        hHol:num($("hHol").value),
+
+        netText:$("net").textContent,
+        vatText:$("vat").textContent,
+        grossText:$("gross").textContent,
+      };
+    }
+
+    // ---------- PDF (100% not blank + logo visible) ----------
+    async function ensureLogoDataUrl(){
+      // 1) if uploaded already -> use it
+      if(logoDataUrl && logoDataUrl.startsWith("data:image/")) return logoDataUrl;
+
+      // 2) Try load repo logo.png and convert to dataURL to avoid CORS/blank problems in html2canvas
+      try{
+        const url = DEFAULT_LOGO_PATH + "?v=" + Date.now();
+        const res = await fetch(url, {cache:"no-store"});
+        if(!res.ok) throw new Error("logo fetch failed");
+        const blob = await res.blob();
+        const dataUrl = await blobToDataURL(blob);
+        logoDataUrl = dataUrl;
+        localStorage.setItem(KEY_LOGO, dataUrl);
+        return dataUrl;
+      }catch{
+        // fallback: simple mark
+        return "";
       }
-    };
-  }
-  function applyDraft(d){
-    if(!d) return;
-    if(d.seller){
-      $("sellerCompany").value = d.seller.company ?? $("sellerCompany").value;
-      $("sellerAddress").value = d.seller.address ?? $("sellerAddress").value;
-      $("sellerPhone").value = d.seller.phone ?? $("sellerPhone").value;
-      $("sellerEmail").value = d.seller.email ?? $("sellerEmail").value;
-      $("sellerTax").value = d.seller.tax ?? $("sellerTax").value;
-      $("sellerIban").value = d.seller.iban ?? $("sellerIban").value;
-      $("sellerBic").value = d.seller.bic ?? $("sellerBic").value;
-      $("payNote").value = d.seller.payNote ?? $("payNote").value;
-    }
-    if(d.customer){
-      $("customerSelect").value = d.customer.selected ?? "";
-      $("custName").value = d.customer.name ?? "";
-      $("custEmail").value = d.customer.email ?? "";
-      $("custData").value = d.customer.data ?? "";
-    }
-    if(d.service){
-      $("einsatzOrt").value = d.service.ort ?? "";
-      $("leistZeitraum").value = d.service.zeitraum ?? "";
-      $("leistDesc").value = d.service.desc ?? $("leistDesc").value;
-      $("refPo").value = d.service.ref ?? "";
-    }
-    if(d.invoice){
-      $("statusSelect").value = d.invoice.status ?? "Entwurf";
-      $("invDate").value = d.invoice.invDate ?? "";
-      $("dueDate").value = d.invoice.dueDate ?? "";
-      $("payDays").value = d.invoice.payDays ?? "14";
-      $("invNumber").value = d.invoice.invNumber ?? "";
-      $("vatMode").value = d.invoice.vatMode ?? "0";
-      $("shiftMode").value = d.invoice.shiftMode ?? "off";
-      $("rate").value = d.invoice.rate ?? "23";
-      $("pctNight").value = d.invoice.pctNight ?? "5";
-      $("pctSun").value = d.invoice.pctSun ?? "50";
-      $("pctHol").value = d.invoice.pctHol ?? "100";
-      $("maCount").value = d.invoice.maCount ?? "10";
-      $("hoursTotal").value = d.invoice.hoursTotal ?? "0";
-      $("hNight").value = d.invoice.hNight ?? "0";
-      $("hSun").value = d.invoice.hSun ?? "0";
-      $("hHol").value = d.invoice.hHol ?? "0";
-
-      // shifts
-      $("shiftTable").querySelector("tbody").innerHTML = "";
-      (d.invoice.shifts||[]).forEach(sh=> addShiftRow(sh));
     }
 
-    updateVatHint();
-    updateStatusChip();
-    setShiftModeUI();
-    setDatesAuto();
-    ensureInvoiceNumber();
-    calculateAll();
-  }
-  function saveDraft(){
-    saveJSON(LS.draft, collectDraft());
-  }
-
-  // ---------- Invoice save/list ----------
-  function getInvoices(){
-    return loadJSON(LS.invoices, []);
-  }
-  function setInvoices(arr){
-    saveJSON(LS.invoices, arr);
-  }
-
-  function currentInvoiceTotals(){
-    // recompute quickly from UI (already computed, but safe)
-    const net = parseNum($("netSum").textContent);
-    const vat = parseNum($("vatSum").textContent);
-    const gross = parseNum($("grossSum").textContent);
-    return {net, vat, gross};
-  }
-
-  function saveCurrentInvoice(){
-    setDatesAuto();
-    ensureInvoiceNumber();
-    calculateAll();
-
-    const inv = collectDraft();
-    const totals = currentInvoiceTotals();
-    const record = {
-      id: cryptoRandomId(),
-      invNumber: $("invNumber").value,
-      invDate: $("invDate").value,
-      customerName: $("custName").value || (()=>{
-        const idx = $("customerSelect").value;
-        const list = getCustomers();
-        return (idx!=="" && list[Number(idx)]) ? list[Number(idx)].name : "";
-      })(),
-      gross: totals.gross,
-      data: inv,
-      savedAt: new Date().toISOString()
-    };
-
-    const list = getInvoices();
-    // if same invoice number exists, overwrite (professional behaviour)
-    const existingIndex = list.findIndex(x=>x.invNumber===record.invNumber);
-    if(existingIndex>=0) list[existingIndex]=record;
-    else list.unshift(record);
-
-    setInvoices(list);
-    toast(`Gespeichert: ${record.invNumber}`);
-  }
-
-  function refreshInvoiceList(){
-    const list = getInvoices();
-    const tbody = $("invoiceListTable").querySelector("tbody");
-    tbody.innerHTML = "";
-    if(list.length===0){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td colspan="5" class="small">Keine Rechnungen gespeichert.</td>`;
-      tbody.appendChild(tr);
-      return;
-    }
-    list.forEach((it,idx)=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="mono"><b>${escapeHtml(it.invNumber||"")}</b></td>
-        <td class="mono">${escapeHtml(it.invDate||"")}</td>
-        <td>${escapeHtml(it.customerName||"")}</td>
-        <td class="right mono">${euro(parseNum(it.gross))}</td>
-        <td class="right" style="white-space:nowrap">
-          <button class="miniBtn" data-act="open" data-i="${idx}">Öffnen</button>
-          <button class="miniBtn" data-act="pdf" data-i="${idx}">PDF</button>
-          <button class="miniBtn miniBtnDanger" data-act="del" data-i="${idx}">Löschen</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    tbody.querySelectorAll("button").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const i = Number(btn.getAttribute("data-i"));
-        const act = btn.getAttribute("data-act");
-        const list = getInvoices();
-        const item = list[i];
-        if(!item) return;
-
-        if(act==="open"){
-          applyDraft(item.data);
-          closeModal();
-          toast(`Geladen: ${item.invNumber}`);
-        } else if(act==="del"){
-          if(confirm(`Rechnung löschen?\n${item.invNumber}`)){
-            list.splice(i,1);
-            setInvoices(list);
-            refreshInvoiceList();
-          }
-        } else if(act==="pdf"){
-          await downloadPdfFromDraft(item.data, item.invNumber);
-        }
+    function blobToDataURL(blob){
+      return new Promise((resolve,reject)=>{
+        const r=new FileReader();
+        r.onload=()=>resolve(r.result);
+        r.onerror=reject;
+        r.readAsDataURL(blob);
       });
-    });
-  }
-
-  function cryptoRandomId(){
-    try{
-      const a = new Uint8Array(8);
-      crypto.getRandomValues(a);
-      return Array.from(a).map(x=>x.toString(16).padStart(2,"0")).join("");
-    }catch(e){
-      return String(Date.now())+Math.random().toString(16).slice(2);
     }
-  }
 
-  // ---------- Toast ----------
-  let toastTimer=null;
-  function toast(msg){
-    if(toastTimer) clearTimeout(toastTimer);
-    let el = document.getElementById("toast");
-    if(!el){
-      el = document.createElement("div");
-      el.id="toast";
-      el.style.position="fixed";
-      el.style.bottom="16px";
-      el.style.left="50%";
-      el.style.transform="translateX(-50%)";
-      el.style.background="#0f172a";
-      el.style.color="#fff";
-      el.style.padding="10px 12px";
-      el.style.borderRadius="999px";
-      el.style.fontWeight="900";
-      el.style.fontSize="12px";
-      el.style.boxShadow="0 14px 36px rgba(15,23,42,.25)";
-      el.style.zIndex="100";
-      document.body.appendChild(el);
+    async function waitImages(container){
+      const imgs = Array.from(container.querySelectorAll("img"));
+      await Promise.all(imgs.map(img=>{
+        if(img.complete && img.naturalWidth>0) return Promise.resolve();
+        return new Promise(res=>{
+          img.onload=()=>res();
+          img.onerror=()=>res();
+        });
+      }));
     }
-    el.textContent = msg;
-    el.style.opacity="1";
-    toastTimer = setTimeout(()=>{ el.style.opacity="0"; }, 2200);
-  }
 
-  // ---------- Shift mode UI ----------
-  function setShiftModeUI(){
-    const on = $("shiftMode").value === "on";
-    $("shiftBox").style.display = on ? "block" : "none";
-    // manual surcharge inputs still visible (they also display auto results); in ON mode user doesn't need to edit them
-    $("manualSurcharges").style.opacity = on ? "0.9" : "1";
-    $("manualSurcharges").style.pointerEvents = on ? "none" : "auto";
-    $("autoLabel").textContent = on ? "Auto aktiv (Schichten)" : "Auto aktiv";
-    $("autoBadge").textContent = on ? "Auto aktiv (Schichten)" : "Auto aktiv";
-  }
+    function buildPrintHTML(d){
+      const logo = d.logo || "";
+      const vatMode = d.vatMode==="Regel" ? "19% (Regelbesteuerung)" : "0% (Kleinunternehmer §19)";
+      const vatLine = d.vatMode==="Regel"
+        ? "Umsatzsteuer wird mit 19% berechnet."
+        : "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
 
-  // ---------- PDF Generation ----------
-  function buildPrintHTML(draft){
-    // Logo (use stored dataURL if available; else try repo logo.png)
-    const logo = localStorage.getItem(LS.logo) || "logo.png";
-
-    const s = draft?.seller || collectDraft().seller;
-    const c = draft?.customer || collectDraft().customer;
-    const srv = draft?.service || collectDraft().service;
-    const inv = draft?.invoice || collectDraft().invoice;
-
-    // compute totals based on draft (not current screen)
-    const tmp = JSON.parse(JSON.stringify(draft || collectDraft()));
-    // apply to temp calculation
-    const rate = parseNum(tmp.invoice.rate);
-    const pctN = parseNum(tmp.invoice.pctNight);
-    const pctS = parseNum(tmp.invoice.pctSun);
-    const pctH = parseNum(tmp.invoice.pctHol);
-    const total = parseNum(tmp.invoice.hoursTotal);
-    const hNight = parseNum(tmp.invoice.hNight);
-    const hSun = parseNum(tmp.invoice.hSun);
-    const hHol = parseNum(tmp.invoice.hHol);
-    let hBase = total - (hNight+hSun+hHol); if(hBase<0) hBase=0;
-
-    const aBase = hBase * rate;
-    const aNight = hNight * rate * (pctN/100);
-    const aSun = hSun * rate * (pctS/100);
-    const aHol = hHol * rate * (pctH/100);
-
-    const net = aBase+aNight+aSun+aHol;
-    const vatRate = parseInt(tmp.invoice.vatMode,10);
-    const vat = (vatRate===0)?0: net*(vatRate/100);
-    const gross = net+vat;
-
-    const vatText = (vatRate===0)
-      ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung)."
-      : "Umsatzsteuer wird mit 19% berechnet (Regelbesteuerung).";
-
-    const customerBlock = `
-      <div class="printBox">
-        <h4>Kunde / Rechnungsempfänger</h4>
-        <div><b>${escapeHtml(c.name||"")}</b></div>
-        <div>${escapeHtml(c.email||"")}</div>
-        <div style="white-space:pre-line">${escapeHtml(c.data||"")}</div>
-      </div>
-    `;
-
-    const sellerBlock = `
-      <div class="printBox">
-        <h4>Rechnungssteller</h4>
-        <div><b>${escapeHtml(s.company||"")}</b></div>
-        <div>${escapeHtml(s.address||"")}</div>
-        <div>Tel: ${escapeHtml(s.phone||"")}</div>
-        <div>E-Mail: ${escapeHtml(s.email||"")}</div>
-        <div>Steuernummer: ${escapeHtml(s.tax||"")}</div>
-        <div style="margin-top:6px"><span class="small">Bank:</span> ${escapeHtml("MUSTAFA MURSAL ABDI")} · IBAN: ${escapeHtml(s.iban||"")} · BIC: ${escapeHtml(s.bic||"")}</div>
-      </div>
-    `;
-
-    const invBlock = `
-      <div class="printBox">
-        <h4>Rechnungsdaten</h4>
-        <div><b>Rechnungsnummer:</b> <span class="mono">${escapeHtml(inv.invNumber||"")}</span></div>
-        <div><b>Rechnungsdatum:</b> <span class="mono">${escapeHtml(inv.invDate||"")}</span></div>
-        <div><b>Fällig am:</b> <span class="mono">${escapeHtml(inv.dueDate||"")}</span></div>
-        <div><b>Status:</b> ${escapeHtml(inv.status||"")}</div>
-        <div style="margin-top:6px" class="small">${escapeHtml(vatText)}</div>
-      </div>
-    `;
-
-    const serviceBlock = `
-      <div class="printBox">
-        <h4>Leistung</h4>
-        <div><b>Einsatzort / Objekt:</b> ${escapeHtml(srv.ort||"")}</div>
-        <div><b>Leistungszeitraum:</b> ${escapeHtml(srv.zeitraum||"")}</div>
-        <div><b>Beschreibung:</b> <span style="white-space:pre-line">${escapeHtml(srv.desc||"")}</span></div>
-        <div><b>Referenz / PO:</b> ${escapeHtml(srv.ref||"")}</div>
-      </div>
-    `;
-
-    const table = `
-      <table class="printTable avoidBreak">
-        <thead>
-          <tr>
-            <th>Position</th>
-            <th class="right">Std</th>
-            <th class="right">Satz</th>
-            <th class="right">Zuschlag</th>
-            <th class="right">Betrag</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>Grundlohn</b><div class="small">Arbeitszeit (normal)</div></td>
-            <td class="right mono">${fmt2(hBase)}</td>
-            <td class="right mono">${fmt2(rate)} €</td>
-            <td class="right">—</td>
-            <td class="right mono">${euro(aBase)}</td>
-          </tr>
-          <tr>
-            <td><b>Nachtschicht</b><div class="small">Zuschlag</div></td>
-            <td class="right mono">${fmt2(hNight)}</td>
-            <td class="right mono">wie Grundsatz</td>
-            <td class="right mono">${fmt2(pctN).replace(".00","")}%</td>
-            <td class="right mono">${euro(aNight)}</td>
-          </tr>
-          <tr>
-            <td><b>Sonntag</b><div class="small">Zuschlag</div></td>
-            <td class="right mono">${fmt2(hSun)}</td>
-            <td class="right mono">wie Grundsatz</td>
-            <td class="right mono">${fmt2(pctS).replace(".00","")}%</td>
-            <td class="right mono">${euro(aSun)}</td>
-          </tr>
-          <tr>
-            <td><b>Feiertag</b><div class="small">Zuschlag</div></td>
-            <td class="right mono">${fmt2(hHol)}</td>
-            <td class="right mono">wie Grundsatz</td>
-            <td class="right mono">${fmt2(pctH).replace(".00","")}%</td>
-            <td class="right mono">${euro(aHol)}</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
-
-    const totals = `
-      <div class="printTotals avoidBreak">
-        <div class="printBox">
-          <h4>Zahlungsbedingungen</h4>
-          <div>${escapeHtml(s.payNote||"")}</div>
-          <div style="margin-top:8px" class="small">
-            Bank: MUSTAFA MURSAL ABDI · IBAN: <span class="mono">${escapeHtml(s.iban||"")}</span> · BIC: <span class="mono">${escapeHtml(s.bic||"")}</span>
-          </div>
-        </div>
-        <div class="printBox">
-          <h4>Summe</h4>
-          <div style="display:flex;justify-content:space-between;gap:10px"><span>Zwischensumme (Netto)</span><b class="mono">${euro(net)}</b></div>
-          <div style="display:flex;justify-content:space-between;gap:10px"><span>Umsatzsteuer</span><b class="mono">${euro(vat)}</b></div>
-          <div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:13px"><span><b>Gesamt</b></span><b class="mono">${euro(gross)}</b></div>
-        </div>
-      </div>
-    `;
-
-    return `
-      <div class="printSheet">
-        <div class="printHead">
-          <div class="printBrand">
-            <img src="${logo}" alt="Logo"/>
-            <div>
-              <p class="printTitle">${escapeHtml(s.company||"Masculine Security")} — Rechnung</p>
-              <div class="small">${escapeHtml(s.address||"")}</div>
-              <div class="small">Tel: ${escapeHtml(s.phone||"")} · E-Mail: ${escapeHtml(s.email||"")}</div>
+      return `
+        <div class="printSheet">
+          <div class="pHeader">
+            <div class="pBrand">
+              ${logo ? `<img class="pLogo" src="${logo}" alt="Logo"/>` : `<div class="pLogo" style="display:grid;place-items:center;font-weight:900;color:#0b5fa8">MS</div>`}
+              <div>
+                <p class="pTitle">${escapeHtml(d.firmName)} — Rechnung</p>
+                <p class="pSub">Professionell • automatisch • Zuschläge • PDF • gespeichert</p>
+              </div>
+            </div>
+            <div class="pMeta">
+              <div><b>Status:</b> ${escapeHtml(d.status||"Entwurf")}</div>
+              <div><b>Rechnungsnummer:</b> ${escapeHtml(d.invNo)}</div>
+              <div><b>Rechnungsdatum:</b> ${fmtDateDE(d.invDate)}</div>
+              <div><b>Fällig am:</b> ${fmtDateDE(d.dueDate)}</div>
+              <div><b>Zahlungsziel:</b> ${escapeHtml(d.payTerm)} Tage</div>
             </div>
           </div>
-          <div style="text-align:right">
-            <div class="small"><b>Status:</b> ${escapeHtml(inv.status||"")}</div>
-            <div class="small"><b>Rechnungsnr.:</b> <span class="mono">${escapeHtml(inv.invNumber||"")}</span></div>
-            <div class="small"><b>Datum:</b> <span class="mono">${escapeHtml(inv.invDate||"")}</span></div>
+
+          <div class="pGrid" style="margin-top:6mm">
+            <div class="pBox">
+              <p class="pH">RECHNUNGSSTELLER</p>
+              <p class="pT"><b>${escapeHtml(d.firmName)}</b></p>
+              <p class="pT">${escapeHtml(d.firmAddr)}</p>
+              <p class="pT">Tel: ${escapeHtml(d.firmTel)}</p>
+              <p class="pT">E-Mail: ${escapeHtml(d.firmMail)}</p>
+              <p class="pT">Steuernummer: ${escapeHtml(d.firmTax)}</p>
+            </div>
+            <div class="pBox">
+              <p class="pH">KUNDE / RECHNUNGSEMPFÄNGER</p>
+              <p class="pT"><b>${escapeHtml(d.custName||"-")}</b></p>
+              <p class="pT">${escapeHtml(d.custMail||"-")}</p>
+              <p class="pT" style="white-space:pre-line">${escapeHtml(d.custData||"-")}</p>
+            </div>
+          </div>
+
+          <div class="pGrid" style="margin-top:6mm">
+            <div class="pBox">
+              <p class="pH">LEISTUNG</p>
+              <p class="pT"><b>Einsatzort / Objekt:</b> ${escapeHtml(d.place||"-")}</p>
+              <p class="pT"><b>Leistungszeitraum:</b> ${escapeHtml(d.period||"-")}</p>
+              <p class="pT"><b>Beschreibung:</b> <span style="white-space:pre-line">${escapeHtml(d.desc||"-")}</span></p>
+              <p class="pT"><b>Referenz / PO:</b> ${escapeHtml(d.refpo||"-")}</p>
+            </div>
+            <div class="pBox">
+              <p class="pH">STEUER / BANK</p>
+              <p class="pT"><b>USt-Status:</b> ${vatMode}</p>
+              <p class="pT">${vatLine}</p>
+              <p class="pT" style="margin-top:2mm"><b>Bank:</b> ${escapeHtml(d.firmIban)} • BIC ${escapeHtml(d.firmBic)}</p>
+            </div>
+          </div>
+
+          <div class="pTable">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:38%">Position</th>
+                  <th style="width:15%">Std</th>
+                  <th style="width:17%">Satz</th>
+                  <th style="width:15%">Zuschlag</th>
+                  <th style="width:15%;text-align:right">Betrag</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>Grundlohn</b><br/><span class="muted">Arbeitszeit (normal)</span></td>
+                  <td>${fmtN(d.hBase)}</td>
+                  <td>${fmtEUR(d.rate)}</td>
+                  <td>—</td>
+                  <td style="text-align:right">${fmtEUR(d.hBase*d.rate)}</td>
+                </tr>
+                <tr>
+                  <td><b>Nachtschicht</b><br/><span class="muted">Zuschlag</span></td>
+                  <td>${fmtN(d.hNight)}</td>
+                  <td>wie Grundsatz</td>
+                  <td>${fmtN(d.nightPct)}%</td>
+                  <td style="text-align:right">${fmtEUR(d.hNight*d.rate*(d.nightPct/100))}</td>
+                </tr>
+                <tr>
+                  <td><b>Sonntag</b><br/><span class="muted">Zuschlag</span></td>
+                  <td>${fmtN(d.hSun)}</td>
+                  <td>wie Grundsatz</td>
+                  <td>${fmtN(d.sunPct)}%</td>
+                  <td style="text-align:right">${fmtEUR(d.hSun*d.rate*(d.sunPct/100))}</td>
+                </tr>
+                <tr>
+                  <td><b>Feiertag</b><br/><span class="muted">Zuschlag</span></td>
+                  <td>${fmtN(d.hHol)}</td>
+                  <td>wie Grundsatz</td>
+                  <td>${fmtN(d.holPct)}%</td>
+                  <td style="text-align:right">${fmtEUR(d.hHol*d.rate*(d.holPct/100))}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pSum">
+            <div class="pBox">
+              <p class="pH">STUNDEN</p>
+              <p class="pT"><b>Mitarbeiter:</b> ${escapeHtml(d.ma)}</p>
+              <p class="pT"><b>Std gesamt:</b> ${fmtN(d.totalHours)}</p>
+              <p class="pT"><b>Std/MA:</b> ${fmtN(d.totalHours/d.ma)}</p>
+            </div>
+            <div class="pBox">
+              <p class="pH">SUMME</p>
+              <p class="pT"><b>Zwischensumme (Netto):</b> ${escapeHtml(d.netText)}</p>
+              <p class="pT"><b>Umsatzsteuer:</b> ${escapeHtml(d.vatText)}</p>
+              <p class="pT" style="font-size:12pt;margin-top:2mm"><b>Gesamt:</b> ${escapeHtml(d.grossText)}</p>
+            </div>
+          </div>
+
+          <div class="pFine">
+            Bitte überweisen Sie den Rechnungsbetrag innerhalb der Zahlungsfrist auf das oben angegebene Konto.
+          </div>
+
+          <div class="pFoot">
+            <div>${escapeHtml(d.firmName)} • ${escapeHtml(d.firmAddr)}</div>
+            <div>Erstellt: ${fmtDateDE(ymd(new Date()))}</div>
           </div>
         </div>
-
-        <div class="printMeta">
-          ${sellerBlock}
-          ${customerBlock}
-          ${serviceBlock}
-          ${invBlock}
-        </div>
-
-        ${table}
-        ${totals}
-
-        <div class="small" style="margin-top:10px;border-top:1px dashed #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <span>${escapeHtml(s.company||"Masculine Security")} · ${escapeHtml(s.address||"")}</span>
-          <span class="mono">Erstellt: ${escapeHtml(new Date().toLocaleString("de-DE"))}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  async function downloadPdfFromDraft(draft, filenameBase){
-    // Build print DOM inside hidden printArea, then html2canvas -> jsPDF -> download
-    const area = $("printArea");
-    area.innerHTML = buildPrintHTML(draft);
-
-    // Ensure logo image is loaded (important for logo in PDF)
-    await waitForImages(area);
-
-    const sheet = area.querySelector(".printSheet");
-    const canvas = await html2canvas(sheet, {scale: 2, useCORS: true, backgroundColor: "#ffffff"});
-    const imgData = canvas.toDataURL("image/jpeg", 0.98);
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({orientation:"p", unit:"mm", format:"a4"});
-    const pageW = 210;
-    const pageH = 297;
-
-    // Fit image to A4
-    const imgW = pageW;
-    const imgH = canvas.height * (imgW / canvas.width);
-
-    if(imgH <= pageH){
-      pdf.addImage(imgData, "JPEG", 0, 0, imgW, imgH);
-    }else{
-      // If somehow taller than one page, split
-      let y = 0;
-      let remaining = imgH;
-      while(remaining > 0){
-        pdf.addImage(imgData, "JPEG", 0, y, imgW, imgH);
-        remaining -= pageH;
-        if(remaining > 0){
-          pdf.addPage();
-          y -= pageH;
-        }
-      }
+      `;
     }
 
-    const safeName = (filenameBase || "Rechnung").replace(/[^\w\-\.]+/g,"_");
-    pdf.save(`${safeName}.pdf`);
-    toast("PDF gespeichert");
-  }
+    function fmtDateDE(dateStr){
+      if(!dateStr) return "-";
+      const [y,m,d]=dateStr.split("-");
+      return `${d}.${m}.${y}`;
+    }
+    function escapeHtml(s){
+      return String(s||"").replace(/[&<>"']/g,(c)=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
 
-  function waitForImages(root){
-    const imgs = Array.from(root.querySelectorAll("img"));
-    const promises = imgs.map(img=>{
-      if(img.complete && img.naturalWidth>0) return Promise.resolve();
-      return new Promise(res=>{
-        img.addEventListener("load", res, {once:true});
-        img.addEventListener("error", res, {once:true});
+    async function savePDF(){
+      const d = collectDraft();
+
+      // make sure invoice number sequence advances (so next invoice unique)
+      bumpSeqIfNeeded(d.invDate, d.invNo);
+
+      // ensure logo as dataURL (prevents blank + CORS issues)
+      d.logo = await ensureLogoDataUrl();
+
+      const printArea = $("printArea");
+      printArea.innerHTML = buildPrintHTML(d);
+
+      // show temporarily (NOT hidden) so html2canvas can capture
+      printArea.style.display="block";
+      printArea.style.position="fixed";
+      printArea.style.left="-9999px";
+      printArea.style.top="0";
+      printArea.style.zIndex="-1";
+
+      // wait images (logo) + layout
+      await waitImages(printArea);
+      await new Promise(r=>setTimeout(r,120));
+
+      const sheet = printArea.querySelector(".printSheet");
+
+      // capture
+      const canvas = await html2canvas(sheet,{
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor:"#ffffff",
+        logging:false
       });
-    });
-    return Promise.all(promises);
-  }
 
-  // ---------- Modal ----------
-  function openModal(){
-    $("modalBack").style.display="flex";
-    refreshInvoiceList();
-  }
-  function closeModal(){
-    $("modalBack").style.display="none";
-  }
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
-  // ---------- Reset / New ----------
-  function newInvoice(){
-    // auto dates + new invoice number (new counter)
-    $("invDate").value = ymd(new Date());
-    $("dueDate").value = "";
-    $("invNumber").value = "";
-    setDatesAuto();
-    ensureInvoiceNumber();
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({orientation:"p",unit:"mm",format:"a4"});
+      const pageW=210, pageH=297;
 
-    $("statusSelect").value = "Entwurf";
-    updateStatusChip();
+      const imgW = pageW;
+      const imgH = canvas.height * (imgW / canvas.width);
 
-    $("einsatzOrt").value = "";
-    $("leistZeitraum").value = "";
-    $("leistDesc").value = "Security Dienstleistung";
-    $("refPo").value = "";
-
-    $("hoursTotal").value = "0";
-    $("hNight").value = "0";
-    $("hSun").value = "0";
-    $("hHol").value = "0";
-
-    // shifts clear
-    $("shiftTable").querySelector("tbody").innerHTML = "";
-    calculateAll();
-    saveDraft();
-  }
-
-  function fullReset(){
-    if(!confirm("Alles zurücksetzen (Draft + Kunden + Rechnungen)?")) return;
-    localStorage.removeItem(LS.customers);
-    localStorage.removeItem(LS.invoices);
-    localStorage.removeItem(LS.counters);
-    localStorage.removeItem(LS.draft);
-    // keep logo optional? keep it.
-    refreshCustomerSelect();
-    newInvoice();
-    clearCustomerFields();
-    toast("Reset OK");
-  }
-
-  // ---------- Wiring ----------
-  function bind(){
-    // Logo
-    $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
-    $("logoFile").addEventListener("change", async (e)=>{
-      const f = e.target.files && e.target.files[0];
-      if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ()=> {
-        const dataUrl = reader.result;
-        if(typeof dataUrl === "string" && dataUrl.startsWith("data:image")){
-          localStorage.setItem(LS.logo, dataUrl);
-          setTopLogo(dataUrl);
-          toast("Logo gespeichert");
+      if(imgH <= pageH){
+        pdf.addImage(imgData,"JPEG",0,0,imgW,imgH);
+      }else{
+        // multi-page
+        let y = 0;
+        let remaining = imgH;
+        while(remaining > 0){
+          pdf.addImage(imgData,"JPEG",0,y,imgW,imgH);
+          remaining -= pageH;
+          y -= pageH;
+          if(remaining > 1) pdf.addPage();
         }
-      };
-      reader.readAsDataURL(f);
-    });
-
-    // Dates and invoice number clickable
-    $("invDate").addEventListener("change", ()=>{
-      $("dueDate").value=""; // recompute due when date changes
-      setDatesAuto();
-      // if invoice number matches old date format, allow regenerate
-      $("invNumber").value=""; 
-      ensureInvoiceNumber();
-      calculateAll();
-      saveDraft();
-    });
-    $("payDays").addEventListener("change", ()=>{
-      $("dueDate").value="";
-      setDatesAuto();
-      calculateAll();
-      saveDraft();
-    });
-    $("invNumber").addEventListener("dblclick", ()=>{
-      // regenerate with current date
-      $("invNumber").value = "";
-      ensureInvoiceNumber();
-      saveDraft();
-      toast("Rechnungsnummer neu generiert");
-    });
-
-    $("vatMode").addEventListener("change", ()=>{ updateVatHint(); calculateAll(); saveDraft(); });
-
-    // Status
-    $("statusSelect").addEventListener("change", ()=>{ updateStatusChip(); saveDraft(); });
-
-    // shift mode toggle (fix ON/OFF)
-    $("shiftMode").addEventListener("change", ()=>{
-      setShiftModeUI();
-      if($("shiftMode").value==="on"){
-        // if no shift rows, create one row to start
-        if($("shiftTable").querySelector("tbody").children.length===0) addShiftRow();
-        computeFromShifts();
       }
-      calculateAll();
-      saveDraft();
-    });
 
-    // Calculation triggers
-    [
-      "rate","pctNight","pctSun","pctHol",
-      "maCount","hoursTotal","hNight","hSun","hHol",
-      "sellerCompany","sellerAddress","sellerPhone","sellerEmail","sellerTax","sellerIban","sellerBic","payNote",
-      "custName","custEmail","custData","einsatzOrt","leistZeitraum","leistDesc","refPo","dueDate"
-    ].forEach(id=>{
-      $(id).addEventListener("input", ()=>{ calculateAll(); saveDraft(); });
-    });
+      const fname = safe(d.invNo || "Rechnung") + ".pdf";
+      pdf.save(fname);
 
-    // customer select
-    $("customerSelect").addEventListener("change", ()=>{
-      const v = $("customerSelect").value;
-      if(v===""){ clearCustomerFields(); }
-      else loadCustomer(Number(v));
-      saveDraft();
-    });
+      // hide again
+      printArea.style.display="none";
+      toast("PDF gespeichert ✅");
+    }
 
-    $("btnCustSave").addEventListener("click", ()=>{
-      const name = ($("custName").value||"").trim();
-      if(!name){ alert("Bitte Kundennamen eingeben."); return; }
-      const list = getCustomers();
-      const obj = {name, email:$("custEmail").value.trim(), data:$("custData").value};
-      // if selected existing, overwrite
-      const sel = $("customerSelect").value;
-      if(sel!=="" && list[Number(sel)]) list[Number(sel)] = obj;
-      else list.push(obj);
-      setCustomers(list);
-      refreshCustomerSelect();
-      // set selection to last
-      $("customerSelect").value = String(sel!=="" ? sel : (list.length-1));
-      toast("Kunde gespeichert");
-      saveDraft();
-    });
+    // ---------- UI actions ----------
+    function wireEvents(){
 
-    $("btnKundeNeu").addEventListener("click", ()=>{
-      $("customerSelect").value="";
-      clearCustomerFields();
-      saveDraft();
-    });
+      // general autosave on input
+      const inputs = document.querySelectorAll("input,select,textarea");
+      inputs.forEach(el=>{
+        el.addEventListener("input", ()=>{
+          // mark touched for manual fields
+          if(el.id==="invDate" || el.id==="invNo" || el.id==="dueDate"){
+            el.dataset.touched="1";
+          }
+          if(el.id==="invDate"){
+            // if invDate changed and invNo not manually touched -> regenerate
+            if(!$("invNo").dataset.touched){
+              $("invNo").value = makeAutoInvNo($("invDate").value);
+            }
+            if(!$("dueDate").dataset.touched){
+              $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
+            }
+          }
+          if(el.id==="payTerm"){
+            if(!$("dueDate").dataset.touched){
+              $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
+            }
+          }
+          recalcAll();
+        });
+      });
 
-    $("btnKundeDelete").addEventListener("click", ()=>{
-      const sel = $("customerSelect").value;
-      if(sel===""){ alert("Kein Kunde ausgewählt."); return; }
-      const list = getCustomers();
-      const c = list[Number(sel)];
-      if(!c) return;
-      if(confirm(`Kunde löschen?\n${c.name}`)){
-        list.splice(Number(sel),1);
-        setCustomers(list);
-        refreshCustomerSelect();
+      $("statusSel").addEventListener("change", syncStatusPill);
+      $("vatMode").addEventListener("change", recalcAll);
+
+      $("shiftMode").addEventListener("change", syncShiftUI);
+
+      $("customerSelect").addEventListener("change", ()=>{
+        const c=currentCustomer();
+        if(c){
+          $("custName").value=c.name||"";
+          $("custMail").value=c.mail||"";
+          $("custData").value=c.data||"";
+          state.customerId=c.id;
+        }else{
+          $("custName").value="";
+          $("custMail").value="";
+          $("custData").value="";
+          state.customerId="";
+        }
+        autoSave();
+      });
+
+      $("btnCustNew").addEventListener("click", ()=>{
         $("customerSelect").value="";
-        clearCustomerFields();
+        $("custName").value="";
+        $("custMail").value="";
+        $("custData").value="";
+        state.customerId="";
+        autoSave();
+        toast("Neuer Kunde");
+      });
+
+      $("btnCustSave").addEventListener("click", ()=>{
+        const name=$("custName").value.trim();
+        if(!name){ toast("Bitte Kundenname eingeben"); return; }
+        const id = state.customerId || ("c_"+Date.now());
+        const obj={id,name,mail:$("custMail").value.trim(),data:$("custData").value};
+        const idx=customers.findIndex(x=>x.id===id);
+        if(idx>=0) customers[idx]=obj; else customers.push(obj);
+        saveCustomers();
+        state.customerId=id;
+        renderCustomerSelect();
+        $("customerSelect").value=id;
+        autoSave();
+        toast("Kunde gespeichert ✅");
+      });
+
+      $("btnCustDelete").addEventListener("click", ()=>{
+        const id=$("customerSelect").value;
+        if(!id){ toast("Kein Kunde gewählt"); return; }
+        customers = customers.filter(x=>x.id!==id);
+        saveCustomers();
+        state.customerId="";
+        renderCustomerSelect();
+        $("custName").value=""; $("custMail").value=""; $("custData").value="";
+        autoSave();
         toast("Kunde gelöscht");
-        saveDraft();
+      });
+
+      $("btnPdf").addEventListener("click", async ()=>{
+        try{ await savePDF(); }
+        catch(e){ console.error(e); toast("PDF Fehler ❌"); }
+      });
+
+      $("btnSaveInv").addEventListener("click", ()=>{
+        const d=collectDraft();
+        // require invoice number
+        if(!d.invNo){ toast("Rechnungsnummer fehlt"); return; }
+        const id = d.invNo;
+        const idx=invoices.findIndex(x=>x.id===id);
+        const item={id, when: Date.now(), draft:d};
+        if(idx>=0) invoices[idx]=item; else invoices.unshift(item);
+        saveInvoices();
+        bumpSeqIfNeeded(d.invDate, d.invNo);
+        toast("Rechnung gespeichert ✅");
+      });
+
+      $("btnList").addEventListener("click", ()=>{
+        if(!invoices.length){ toast("Keine gespeicherten Rechnungen"); return; }
+        const last = invoices[0];
+        loadDraft(last.draft);
+        toast("Letzte Rechnung geladen");
+      });
+
+      $("btnNew").addEventListener("click", ()=>{
+        $("invDate").dataset.touched="";
+        $("invNo").dataset.touched="";
+        $("dueDate").dataset.touched="";
+        const today=ymd(new Date());
+        $("invDate").value=today;
+        $("payTerm").value="14";
+        $("dueDate").value=calcDue(today,"14");
+        $("invNo").value=makeAutoInvNo(today);
+        $("statusSel").value="Entwurf";
+        syncStatusPill();
+
+        // clear customer fields but keep customers list
+        $("customerSelect").value="";
+        $("custName").value="";
+        $("custMail").value="";
+        $("custData").value="";
+        state.customerId="";
+
+        // clear hours
+        $("totalHours").value="0";
+        $("hNight").value="0";
+        $("hSun").value="0";
+        $("hHol").value="0";
+        $("hBase").value="0";
+
+        recalcAll();
+        autoSave();
+        toast("Neu ✅");
+      });
+
+      $("btnReset").addEventListener("click", ()=>{
+        if(!confirm("Alles zurücksetzen? (Draft + Logo + Settings)")) return;
+        localStorage.removeItem(KEY_APP);
+        localStorage.removeItem(KEY_LOGO);
+        localStorage.removeItem(KEY_SHIFT);
+        state = {};
+        logoDataUrl="";
+        location.reload();
+      });
+
+      // Logo upload
+      $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
+      $("logoFile").addEventListener("change", async (e)=>{
+        const f = e.target.files && e.target.files[0];
+        if(!f) return;
+        const dataUrl = await blobToDataURL(f);
+        logoDataUrl = dataUrl;
+        localStorage.setItem(KEY_LOGO, dataUrl);
+        toast("Logo gespeichert ✅");
+      });
+    }
+
+    function loadDraft(d){
+      // set fields from saved draft
+      $("firmName").value=d.firmName||"";
+      $("firmAddr").value=d.firmAddr||"";
+      $("firmTel").value=d.firmTel||"";
+      $("firmMail").value=d.firmMail||"";
+      $("firmTax").value=d.firmTax||"";
+      $("firmIban").value=d.firmIban||"";
+      $("firmBic").value=d.firmBic||"";
+
+      $("place").value=d.place||"";
+      $("period").value=d.period||"";
+      $("desc").value=d.desc||"";
+      $("refpo").value=d.refpo||"";
+
+      $("invDate").value=d.invDate||ymd(new Date());
+      $("payTerm").value=d.payTerm||"14";
+      $("dueDate").value=d.dueDate||calcDue($("invDate").value,$("payTerm").value);
+      $("invNo").value=d.invNo||makeAutoInvNo($("invDate").value);
+
+      $("statusSel").value=d.status||"Entwurf";
+      syncStatusPill();
+
+      $("vatMode").value=d.vatMode||"Klein";
+
+      $("rate").value=ndef(d.rate,23);
+      $("nightPct").value=ndef(d.nightPct,5);
+      $("sunPct").value=ndef(d.sunPct,50);
+      $("holPct").value=ndef(d.holPct,100);
+
+      $("ma").value=ndef(d.ma,10);
+      $("totalHours").value=ndef(d.totalHours,0);
+
+      $("hNight").value=ndef(d.hNight,0);
+      $("hSun").value=ndef(d.hSun,0);
+      $("hHol").value=ndef(d.hHol,0);
+      $("hBase").value=ndef(d.hBase,0);
+
+      // customer
+      $("customerSelect").value=d.customerId||"";
+      if(d.customerId){
+        const c=customers.find(x=>x.id===d.customerId);
+        if(c){
+          $("custName").value=c.name||"";
+          $("custMail").value=c.mail||"";
+          $("custData").value=c.data||"";
+        }
+      }else{
+        $("custName").value=d.custName||"";
+        $("custMail").value=d.custMail||"";
+        $("custData").value=d.custData||"";
       }
-    });
 
-    // shifts
-    $("btnAddShift").addEventListener("click", ()=> addShiftRow());
-    $("btnDemo").addEventListener("click", ()=>{
-      $("shiftMode").value="on";
-      setShiftModeUI();
-      $("shiftTable").querySelector("tbody").innerHTML="";
-      const now = new Date();
-      const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-      // Demo: 3 shifts
-      addShiftRow({start: `${ymd(new Date(y,m,d))}T18:00`, end:`${ymd(new Date(y,m,d))}T23:00`, ma: 4});
-      addShiftRow({start: `${ymd(new Date(y,m,d+1))}T22:00`, end:`${ymd(new Date(y,m,d+2))}T06:00`, ma: 2});
-      addShiftRow({start: `${ymd(new Date(y,m,d+2))}T08:00`, end:`${ymd(new Date(y,m,d+2))}T16:00`, ma: 3});
-      computeFromShifts();
-      calculateAll();
-      saveDraft();
-      toast("Demo geladen");
-    });
+      // shift
+      $("shiftMode").checked=!!d.shiftMode;
+      localStorage.setItem(KEY_SHIFT, $("shiftMode").checked ? "1":"0");
+      syncShiftUI();
 
-    // buttons top
-    $("btnNeu").addEventListener("click", ()=> newInvoice());
-    $("btnReset").addEventListener("click", ()=> fullReset());
+      recalcAll();
+      autoSave();
+    }
 
-    $("btnSaveInvoice").addEventListener("click", ()=> saveCurrentInvoice());
-    $("btnOpenInvoices").addEventListener("click", ()=> openModal());
-    $("modalClose").addEventListener("click", ()=> closeModal());
-    $("modalBack").addEventListener("click", (e)=>{ if(e.target === $("modalBack")) closeModal(); });
+    // start
+    init();
 
-    $("btnPdf").addEventListener("click", async ()=>{
-      setDatesAuto();
-      ensureInvoiceNumber();
-      calculateAll();
-      const draft = collectDraft();
-      await downloadPdfFromDraft(draft, $("invNumber").value || "Rechnung");
-    });
-
-    // "Rechnungsdaten not clickable" => already inputs.
-  }
-
-  // ---------- Init ----------
-  function init(){
-    loadLogo();
-    refreshCustomerSelect();
-    setDatesAuto();
-    ensureInvoiceNumber();
-    updateVatHint();
-    updateStatusChip();
-    setShiftModeUI();
-
-    // load draft if exists
-    const d = loadJSON(LS.draft, null);
-    if(d) applyDraft(d);
-    else calculateAll();
-
-    bind();
-    // periodic autosave
-    setInterval(()=> saveDraft(), 2500);
-  }
-
-  // start after libs are ready
-  window.addEventListener("DOMContentLoaded", init);
-
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
