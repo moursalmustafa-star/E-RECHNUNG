@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung (V3.1)</title>
+  <title>Masculine Security — Rechnung (V3.2)</title>
 
   <!-- libs (CDN) -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -101,6 +101,27 @@
     .sumcard{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
     .sumcard .big{font-size:18px;font-weight:900}
     .footerNote{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding-top:10px}
+
+    /* Einsatz table (UI) */
+    .einsatzWrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+    .einsatzHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#fbfcfe;border-bottom:1px solid var(--line)}
+    .einsatzHead .ttl{font-weight:900;font-size:13px}
+    .einsatzTable{width:100%;border-collapse:collapse}
+    .einsatzTable th,.einsatzTable td{border-bottom:1px solid var(--line);padding:8px 8px;font-size:12px;vertical-align:top}
+    .einsatzTable th{background:#fbfcfe;color:var(--muted);font-weight:900}
+    .einsatzTable td input{padding:8px 9px;border-radius:10px}
+    .einsatzBtns{display:flex;gap:8px;flex-wrap:wrap}
+    .miniBtn{
+      padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;
+      background:var(--blue2);color:#fff;border:1px solid var(--blue2);
+    }
+    .miniBtn.secondary{background:#fff;color:var(--blue2);border:1px solid #b9d2ea}
+    .miniBtn.danger{background:#fff;color:#b3002d;border:1px solid rgba(255,77,109,.45)}
+    .delCell{white-space:nowrap}
+    .delBtn{
+      padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;
+      background:#fff;color:#b3002d;border:1px solid rgba(255,77,109,.45);
+    }
 
     /* PRINT AREA */
     #printArea{
@@ -208,7 +229,7 @@
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <div class="sub">V3.1 • Mitarbeiter im PDF • Bankverbindung sauber • PDF/Print A4</div>
+          <div class="sub">V3.2 • Einsatznachweis im PDF • Mitarbeiter sichtbar • Bankverbindung sauber</div>
         </div>
       </div>
 
@@ -351,7 +372,7 @@
           <textarea id="desc">Sicherheitsdienstleistung gemäß Auftrag (Objektschutz / Baustellenbewachung)</textarea>
 
           <div class="footerNote">
-            <div class="smallnote">V3.1: Mitarbeiter im PDF + Bankverbindung (4 Zeilen) + Smart Filename.</div>
+            <div class="smallnote">V3.2: Einsatznachweis Tabelle + im PDF + gespeichert.</div>
             <div class="smallnote">Auto-Save aktiv.</div>
           </div>
         </div>
@@ -443,6 +464,10 @@
             </div>
           </div>
 
+          <div class="smallnote" style="margin-top:8px">
+            Keine Doppelzählung: Feiertag &gt; Sonntag &gt; Nacht (Zuschläge nur für ihre Stunden).
+          </div>
+
           <div class="hr"></div>
 
           <div class="pTable" style="border:1px solid var(--line);border-radius:14px;overflow:hidden">
@@ -514,6 +539,37 @@
             <div class="smallnote" id="payText">Zahlung bitte fristgerecht.</div>
           </div>
 
+          <!-- ✅ Einsatznachweis (UI) -->
+          <div class="hr"></div>
+          <div class="einsatzWrap">
+            <div class="einsatzHead">
+              <div>
+                <div class="ttl">Einsatznachweis (optional)</div>
+                <div class="smallnote">Datum / Von / Bis / Stunden / MA / Objekt — wird im PDF mitgedruckt.</div>
+              </div>
+              <div class="einsatzBtns">
+                <button class="miniBtn secondary" id="btnEinsatzClear" type="button">Leeren</button>
+                <button class="miniBtn" id="btnEinsatzAdd" type="button">+ Einsatz</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table class="einsatzTable" id="einsatzTable">
+                <thead>
+                  <tr>
+                    <th style="min-width:120px">Datum</th>
+                    <th style="min-width:90px">Von</th>
+                    <th style="min-width:90px">Bis</th>
+                    <th style="min-width:110px">Stunden</th>
+                    <th style="min-width:70px">MA</th>
+                    <th style="min-width:180px">Objekt</th>
+                    <th class="delCell" style="min-width:70px"></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -582,11 +638,11 @@
     }
 
     // ---------- storage keys ----------
-    const KEY_APP="MS_INV_APP_V3_1";
-    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3_1";
-    const KEY_INVS="MS_INV_LIST_V3_1";
-    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3_1";
-    const KEY_INVSEQ="MS_INV_SEQ_V3_1"; // per day running numbers
+    const KEY_APP="MS_INV_APP_V3_2";
+    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3_2";
+    const KEY_INVS="MS_INV_LIST_V3_2";
+    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3_2";
+    const KEY_INVSEQ="MS_INV_SEQ_V3_2"; // per day running numbers
 
     // ---------- logo ----------
     // priority: uploaded logo (stored) -> logo.png in same folder (repo) -> fallback MS
@@ -683,6 +739,68 @@
       else if(v==="Storniert") p.classList.add("bad");
       else p.classList.add("warn");
     }
+
+    // ---------- Einsatznachweis ----------
+    function addEinsatzRow(row = {}){
+      const tbody = $("einsatzTable").querySelector("tbody");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input class="e_date" type="date" value="${escapeHTML(row.date||"")}"></td>
+        <td><input class="e_from" type="time" value="${escapeHTML(row.from||"")}"></td>
+        <td><input class="e_to" type="time" value="${escapeHTML(row.to||"")}"></td>
+        <td><input class="e_hours" type="number" step="0.01" min="0" value="${escapeHTML(row.hours||"")}"></td>
+        <td><input class="e_ma" type="number" step="1" min="0" value="${escapeHTML(row.ma||"")}"></td>
+        <td><input class="e_obj" type="text" value="${escapeHTML(row.obj||"")}"></td>
+        <td class="delCell"><button type="button" class="delBtn">X</button></td>
+      `;
+      tr.querySelector(".delBtn").addEventListener("click", ()=>{
+        tr.remove();
+        if(Date.now()-state.lastAutoSaveAt>300) autosave(true);
+      });
+      tr.querySelectorAll("input").forEach(inp=>{
+        inp.addEventListener("input", ()=>{
+          if(Date.now()-state.lastAutoSaveAt>650) autosave(true);
+        });
+      });
+      tbody.appendChild(tr);
+    }
+
+    function getEinsatzData(){
+      const rows = [];
+      $("einsatzTable").querySelectorAll("tbody tr").forEach(tr=>{
+        const r = {
+          date: tr.querySelector(".e_date")?.value || "",
+          from: tr.querySelector(".e_from")?.value || "",
+          to: tr.querySelector(".e_to")?.value || "",
+          hours: tr.querySelector(".e_hours")?.value || "",
+          ma: tr.querySelector(".e_ma")?.value || "",
+          obj: tr.querySelector(".e_obj")?.value || ""
+        };
+        // keep only meaningful rows
+        const hasAny = Object.values(r).some(v=>String(v||"").trim()!=="");
+        if(hasAny) rows.push(r);
+      });
+      return rows;
+    }
+
+    function setEinsatzData(rows){
+      const tbody = $("einsatzTable").querySelector("tbody");
+      tbody.innerHTML = "";
+      (rows||[]).forEach(r=>addEinsatzRow(r));
+    }
+
+    $("btnEinsatzAdd").addEventListener("click", ()=>{
+      addEinsatzRow({ obj: $("place").value || "" , ma: $("ma").value || "" });
+      toast("Einsatz hinzugefügt");
+      autosave(true);
+    });
+
+    $("btnEinsatzClear").addEventListener("click", ()=>{
+      if(!confirm("Einsatznachweis leeren?")) return;
+      setEinsatzData([]);
+      toast("Einsatznachweis geleert");
+      autosave(true);
+    });
 
     // ---------- business-ready validation (strong) ----------
     function validateRequired(){
@@ -873,7 +991,9 @@
           net: $("net").textContent,
           vat: $("vat").textContent,
           gross: $("gross").textContent
-        }
+        },
+
+        einsatz: getEinsatzData()
       };
     }
 
@@ -922,6 +1042,9 @@
       $("hSun").value       = d.calc?.hSun ?? $("hSun").value;
       $("hHol").value       = d.calc?.hHol ?? $("hHol").value;
 
+      // einsatz
+      setEinsatzData(d.einsatz || []);
+
       setStatusPill(d.status || "Entwurf");
       calc();
       autosave(true);
@@ -934,7 +1057,46 @@
       if(!silent) toast("Auto gespeichert");
     }
 
-    // ---------- print sheet (very professional) ----------
+    // ---------- PDF print sheet (very professional) ----------
+    function buildEinsatzPDFBlock(einsatzRows){
+      const rows = (einsatzRows||[]).filter(r=>Object.values(r||{}).some(v=>String(v||"").trim()!==""));
+      if(!rows.length) return "";
+
+      const body = rows.map(r=>`
+        <tr>
+          <td>${escapeHTML(r.date||"")}</td>
+          <td>${escapeHTML(r.from||"")}</td>
+          <td>${escapeHTML(r.to||"")}</td>
+          <td style="text-align:right">${escapeHTML(r.hours||"")}</td>
+          <td style="text-align:right">${escapeHTML(r.ma||"")}</td>
+          <td>${escapeHTML(r.obj||"")}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <div class="pBox" style="margin-top:6mm">
+          <p class="pH">Einsatznachweis</p>
+          <div style="border:1px solid #e3e7ee;border-radius:3mm;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee">Datum</th>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee">Von</th>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee">Bis</th>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee;text-align:right">Std</th>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee;text-align:right">MA</th>
+                  <th style="background:#f6f8fb;color:#445;font-size:9pt;padding:3mm;border-bottom:1px solid #e3e7ee">Objekt</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${body}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
     function buildPrintHTML(){
       const firmName = $("firmName").value.trim();
       const firmAddr = $("firmAddr").value.trim();
@@ -993,6 +1155,7 @@
       ];
 
       const vatIdLine = firmVatId ? `USt-IdNr: ${escapeHTML(firmVatId)}<br>` : "";
+      const einsatzBlock = buildEinsatzPDFBlock(getEinsatzData());
 
       return `
         <div class="printSheet">
@@ -1081,6 +1244,8 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
             </div>
           </div>
 
+          ${einsatzBlock}
+
           <div class="pFoot">
             <div>${escapeHTML(firmName)} · ${escapeHTML(firmAddr)}</div>
             <div class="muted">${escapeHTML(invNo)} · ${escapeHTML(formatDE(invDate))}</div>
@@ -1155,7 +1320,7 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       setTimeout(()=>{ $("printArea").style.display="none"; }, 900);
     }
 
-    // ---------- auto save ----------
+    // ---------- init / buttons ----------
     $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
     $("logoFile").addEventListener("change", (e)=>{
       const f = e.target.files && e.target.files[0];
@@ -1195,6 +1360,7 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       $("hNight").value="0";
       $("hSun").value="0";
       $("hHol").value="0";
+      setEinsatzData([]);
       setStatusPill("Entwurf");
 
       const today = ymd(new Date());
@@ -1364,6 +1530,9 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       $("dueDate").value = addDays(today, Number($("payTerm").value||14));
       $("invNo").value = makeInvNo(today);
       setStatusPill("Entwurf");
+
+      // default one empty row (optional) -> comment out if you want none by default
+      // addEinsatzRow({ obj: "Bremen", ma: $("ma").value });
 
       const saved = localStorage.getItem(KEY_APP);
       if(saved){
