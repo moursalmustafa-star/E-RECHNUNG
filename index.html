@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung (V3.2)</title>
+  <title>Masculine Security — Rechnung (V3.2.1 Objekt)</title>
 
   <!-- libs (CDN) -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -116,7 +116,6 @@
       background:var(--blue2);color:#fff;border:1px solid var(--blue2);
     }
     .miniBtn.secondary{background:#fff;color:var(--blue2);border:1px solid #b9d2ea}
-    .miniBtn.danger{background:#fff;color:#b3002d;border:1px solid rgba(255,77,109,.45)}
     .delCell{white-space:nowrap}
     .delBtn{
       padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;
@@ -229,7 +228,7 @@
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <div class="sub">V3.2 • Einsatznachweis im PDF • Mitarbeiter sichtbar • Bankverbindung sauber</div>
+          <div class="sub">V3.2.1 • Objekt separat • Einsatznachweis im PDF • Mitarbeiter sichtbar • Bankverbindung sauber</div>
         </div>
       </div>
 
@@ -346,33 +345,38 @@
 
           <div class="hr"></div>
 
+          <!-- ✅ UPDATED: Einsatzort + Objekt -->
           <div class="two">
             <div>
-              <label>Einsatzort / Objekt *</label>
-              <input id="place" placeholder="z. B. Hotel / Baustelle / Adresse" value="Bremen"/>
+              <label>Einsatzort / Adresse *</label>
+              <input id="place" placeholder="z. B. Adresse / Stadt" value="Bremen"/>
             </div>
+            <div>
+              <label>Objekt (Name / Objekt-Nr.) *</label>
+              <input id="objekt" placeholder="z. B. Hotel XY / Baustelle A / Objekt-Nr." value=""/>
+            </div>
+          </div>
+
+          <!-- ✅ UPDATED: Zeitraum + Leistungsdatum -->
+          <div class="two" style="margin-top:10px">
             <div>
               <label>Leistungszeitraum *</label>
               <input id="period" placeholder="z. B. 01.02.2026 – 15.02.2026" value=""/>
             </div>
-          </div>
-
-          <div class="two" style="margin-top:10px">
             <div>
               <label>Leistungsdatum (optional)</label>
               <input id="serviceDate" placeholder="z. B. 15.02.2026 oder identisch" value="identisch mit Leistungszeitraum"/>
             </div>
-            <div>
-              <label>Referenz / PO (optional)</label>
-              <input id="refpo" placeholder="z. B. Auftrag-Nr. / Ansprechpartner" value=""/>
-            </div>
           </div>
+
+          <label style="margin-top:10px">Referenz / PO (optional)</label>
+          <input id="refpo" placeholder="z. B. Auftrag-Nr. / Ansprechpartner" value=""/>
 
           <label style="margin-top:10px">Leistungsbeschreibung *</label>
           <textarea id="desc">Sicherheitsdienstleistung gemäß Auftrag (Objektschutz / Baustellenbewachung)</textarea>
 
           <div class="footerNote">
-            <div class="smallnote">V3.2: Einsatznachweis Tabelle + im PDF + gespeichert.</div>
+            <div class="smallnote">V3.2.1: Objekt separat + im PDF + Einsatznachweis bleibt.</div>
             <div class="smallnote">Auto-Save aktiv.</div>
           </div>
         </div>
@@ -638,11 +642,11 @@
     }
 
     // ---------- storage keys ----------
-    const KEY_APP="MS_INV_APP_V3_2";
-    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3_2";
-    const KEY_INVS="MS_INV_LIST_V3_2";
-    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3_2";
-    const KEY_INVSEQ="MS_INV_SEQ_V3_2"; // per day running numbers
+    const KEY_APP="MS_INV_APP_V3_2_1";
+    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3_2_1";
+    const KEY_INVS="MS_INV_LIST_V3_2_1";
+    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3_2_1";
+    const KEY_INVSEQ="MS_INV_SEQ_V3_2_1"; // per day running numbers
 
     // ---------- logo ----------
     // priority: uploaded logo (stored) -> logo.png in same folder (repo) -> fallback MS
@@ -776,7 +780,6 @@
           ma: tr.querySelector(".e_ma")?.value || "",
           obj: tr.querySelector(".e_obj")?.value || ""
         };
-        // keep only meaningful rows
         const hasAny = Object.values(r).some(v=>String(v||"").trim()!=="");
         if(hasAny) rows.push(r);
       });
@@ -790,7 +793,8 @@
     }
 
     $("btnEinsatzAdd").addEventListener("click", ()=>{
-      addEinsatzRow({ obj: $("place").value || "" , ma: $("ma").value || "" });
+      const objDefault = ($("objekt").value || $("place").value || "").trim();
+      addEinsatzRow({ obj: objDefault, ma: $("ma").value || "" });
       toast("Einsatz hinzugefügt");
       autosave(true);
     });
@@ -802,7 +806,7 @@
       autosave(true);
     });
 
-    // ---------- business-ready validation (strong) ----------
+    // ---------- business-ready validation ----------
     function validateRequired(){
       const missing = [];
       const firmName = $("firmName").value.trim();
@@ -817,6 +821,7 @@
       const custData = $("custData").value.trim();
 
       const place    = $("place").value.trim();
+      const objekt   = $("objekt").value.trim();
       const period   = $("period").value.trim();
       const desc     = $("desc").value.trim();
 
@@ -838,7 +843,8 @@
       if(!custName) missing.push("Kundenname");
       if(!custData) missing.push("Kundenadresse");
 
-      if(!place)    missing.push("Einsatzort/Objekt");
+      if(!place)    missing.push("Einsatzort/Adresse");
+      if(!objekt)   missing.push("Objekt");
       if(!period)   missing.push("Leistungszeitraum");
       if(!desc)     missing.push("Leistungsbeschreibung");
 
@@ -914,19 +920,16 @@
       $("perMA").textContent = fmtN(totalHours / ma);
       $("sumH").textContent  = fmtN(totalHours);
 
-      // VAT note
       if(vatMode==="Klein"){
         $("vatNote").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet.";
       }else{
         $("vatNote").textContent = "Umsatzsteuer wird mit 19% berechnet (Regelbesteuerung).";
       }
 
-      // pay text
       const term = Number($("payTerm").value||14);
       $("payText").textContent =
         `Zahlbar innerhalb von ${term} Tagen ohne Abzug (bis ${formatDE($("dueDate").value)}).`;
 
-      // purpose
       const invNo = $("invNo").value.trim() || "—";
       $("purpose").value = `Rechnung: ${invNo}`;
 
@@ -963,6 +966,7 @@
 
         job: {
           place: $("place").value,
+          objekt: $("objekt").value,
           period: $("period").value,
           serviceDate: $("serviceDate").value,
           desc: $("desc").value,
@@ -1019,6 +1023,7 @@
 
       // job
       $("place").value       = d.job?.place ?? "Bremen";
+      $("objekt").value      = d.job?.objekt ?? "";
       $("period").value      = d.job?.period ?? "";
       $("serviceDate").value = d.job?.serviceDate ?? "identisch mit Leistungszeitraum";
       $("desc").value        = d.job?.desc ?? $("desc").value;
@@ -1057,7 +1062,7 @@
       if(!silent) toast("Auto gespeichert");
     }
 
-    // ---------- PDF print sheet (very professional) ----------
+    // ---------- PDF blocks ----------
     function buildEinsatzPDFBlock(einsatzRows){
       const rows = (einsatzRows||[]).filter(r=>Object.values(r||{}).some(v=>String(v||"").trim()!==""));
       if(!rows.length) return "";
@@ -1109,7 +1114,9 @@
       const holder   = $("firmHolder").value.trim();
 
       const custData = $("custData").value.trim();
+
       const place    = $("place").value.trim();
+      const objekt   = $("objekt").value.trim();
       const period   = $("period").value.trim();
       const serviceDate = $("serviceDate").value.trim();
       const desc     = $("desc").value.trim();
@@ -1194,7 +1201,8 @@
             </div>
             <div class="pBox">
               <p class="pH">Leistung</p>
-              <p class="pT"><b>Einsatzort:</b> ${escapeHTML(place)}
+              <p class="pT"><b>Einsatzort/Adresse:</b> ${escapeHTML(place)}
+<b>Objekt:</b> ${escapeHTML(objekt)}
 <b>Leistungszeitraum:</b> ${escapeHTML(period)}
 <b>Leistungsdatum:</b> ${escapeHTML(serviceDate || "identisch mit Leistungszeitraum")}
 <b>Anzahl Mitarbeiter:</b> ${escapeHTML($("ma").value)}
@@ -1297,7 +1305,6 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
         }
       }
 
-      // smart filename: INVNO_Kunde.pdf
       const invNo = $("invNo").value.trim() || "Rechnung";
       const cust = ($("custName").value.trim() || "Kunde");
       const fn = safe(invNo + "_" + cust) + ".pdf";
@@ -1351,6 +1358,7 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       $("custMail").value="";
       $("custData").value="";
       $("place").value="Bremen";
+      $("objekt").value="";
       $("period").value="";
       $("serviceDate").value="identisch mit Leistungszeitraum";
       $("refpo").value="";
@@ -1507,7 +1515,8 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
     // calc inputs (live)
     [
       "firmName","firmAddr","firmTel","firmMail","firmTax","firmVatId","firmIban","firmBic","firmHolder",
-      "custName","custMail","custData","place","period","serviceDate","refpo","desc",
+      "custName","custMail","custData",
+      "place","objekt","period","serviceDate","refpo","desc",
       "invNo","rate","nightPct","sunPct","holPct","ma","totalHours","hNight","hSun","hHol"
     ].forEach(id=>{
       $(id).addEventListener("input", ()=>{
@@ -1530,9 +1539,6 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       $("dueDate").value = addDays(today, Number($("payTerm").value||14));
       $("invNo").value = makeInvNo(today);
       setStatusPill("Entwurf");
-
-      // default one empty row (optional) -> comment out if you want none by default
-      // addEinsatzRow({ obj: "Bremen", ma: $("ma").value });
 
       const saved = localStorage.getItem(KEY_APP);
       if(saved){
