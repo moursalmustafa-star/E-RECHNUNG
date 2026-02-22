@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung (V3)</title>
+  <title>Masculine Security — Rechnung (V3.1)</title>
 
   <!-- libs (CDN) -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -208,7 +208,7 @@
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <div class="sub">V3 • very professional • Pflichtangaben • PDF/Print A4</div>
+          <div class="sub">V3.1 • Mitarbeiter im PDF • Bankverbindung sauber • PDF/Print A4</div>
         </div>
       </div>
 
@@ -351,7 +351,7 @@
           <textarea id="desc">Sicherheitsdienstleistung gemäß Auftrag (Objektschutz / Baustellenbewachung)</textarea>
 
           <div class="footerNote">
-            <div class="smallnote">V3: Pflichtangaben-Check + Smart PDF Filename + Verwendungszweck.</div>
+            <div class="smallnote">V3.1: Mitarbeiter im PDF + Bankverbindung (4 Zeilen) + Smart Filename.</div>
             <div class="smallnote">Auto-Save aktiv.</div>
           </div>
         </div>
@@ -582,11 +582,11 @@
     }
 
     // ---------- storage keys ----------
-    const KEY_APP="MS_INV_APP_V3";
-    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3";
-    const KEY_INVS="MS_INV_LIST_V3";
-    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3";
-    const KEY_INVSEQ="MS_INV_SEQ_V3"; // per day running numbers
+    const KEY_APP="MS_INV_APP_V3_1";
+    const KEY_CUSTOMERS="MS_INV_CUSTOMERS_V3_1";
+    const KEY_INVS="MS_INV_LIST_V3_1";
+    const KEY_LOGO="MS_INV_LOGO_DATAURL_V3_1";
+    const KEY_INVSEQ="MS_INV_SEQ_V3_1"; // per day running numbers
 
     // ---------- logo ----------
     // priority: uploaded logo (stored) -> logo.png in same folder (repo) -> fallback MS
@@ -684,7 +684,7 @@
       else p.classList.add("warn");
     }
 
-    // ---------- business-ready validation (V3 strong) ----------
+    // ---------- business-ready validation (strong) ----------
     function validateRequired(){
       const missing = [];
       const firmName = $("firmName").value.trim();
@@ -1008,7 +1008,10 @@
                   E-Mail: <a href="mailto:${escapeHTML(firmMail)}">${escapeHTML(firmMail)}</a><br>
                   <b>Steuernummer:</b> ${escapeHTML(firmTax || "wird nachgereicht")}<br>
                   ${vatIdLine}
-                  <b>Bank:</b> ${escapeHTML(holder)} · IBAN ${escapeHTML(iban)} · BIC ${escapeHTML(bic)}
+                  <b>Bankverbindung:</b><br>
+                  Kontoinhaber: ${escapeHTML(holder)}<br>
+                  IBAN: ${escapeHTML(iban)}<br>
+                  BIC: ${escapeHTML(bic)}
                 </div>
               </div>
             </div>
@@ -1031,6 +1034,7 @@
               <p class="pT"><b>Einsatzort:</b> ${escapeHTML(place)}
 <b>Leistungszeitraum:</b> ${escapeHTML(period)}
 <b>Leistungsdatum:</b> ${escapeHTML(serviceDate || "identisch mit Leistungszeitraum")}
+<b>Anzahl Mitarbeiter:</b> ${escapeHTML($("ma").value)}
 ${refpo ? `<b>Referenz/PO:</b> ${escapeHTML(refpo)}\n` : ""}<b>Beschreibung:</b> ${escapeHTML(desc)}</p>
             </div>
           </div>
@@ -1151,7 +1155,7 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
       setTimeout(()=>{ $("printArea").style.display="none"; }, 900);
     }
 
-    // ---------- reset/new/save/list ----------
+    // ---------- auto save ----------
     $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
     $("logoFile").addEventListener("change", (e)=>{
       const f = e.target.files && e.target.files[0];
@@ -1210,10 +1214,7 @@ Bitte als Verwendungszweck angeben: Rechnung ${escapeHTML(invNo)}</p>
         return;
       }
       const data = collectData();
-      const list = getInvoices();
-      const i = list.findIndex(x=>x.id===data.id);
-      if(i>=0) list[i]=data; else list.unshift(data);
-      setInvoices(list);
+      upsertInvoice(data);
       state.currentId = data.id;
       autosave(true);
       toast("Rechnung gespeichert");
