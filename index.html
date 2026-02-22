@@ -146,6 +146,19 @@
       display:none;max-width:360px;font-size:13px
     }
     .toast.show{display:block}
+
+    /* PRINT ONLY */
+    @media print{
+      body{background:#fff}
+      .topbar,.wrap,.toast{display:none !important}
+      #printArea{
+        display:block !important;
+        position:static !important;
+        left:auto !important;
+        top:auto !important;
+        width:auto !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -158,7 +171,6 @@
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <!-- removed: "Professionell / automatisch / Zuschläge" -->
           <div class="sub">Rechnung • Kunden • PDF • gespeichert</div>
         </div>
       </div>
@@ -170,6 +182,8 @@
         <button id="btnList">Rechnungen</button>
         <button class="danger" id="btnReset">Reset</button>
         <button class="primary" id="btnPdf">PDF speichern</button>
+        <!-- ✅ ONLY PRINT button added -->
+        <button class="primary" id="btnPrint">Print</button>
       </div>
     </div>
   </div>
@@ -452,7 +466,7 @@
     </div>
   </div>
 
-  <!-- PRINT AREA for PDF -->
+  <!-- PRINT AREA for PDF + Print -->
   <div id="printArea"></div>
 
   <div class="toast" id="toast"></div>
@@ -485,411 +499,461 @@
     const KEY_INVS="MS_INV_LIST_V1";
     const KEY_LOGO="MS_INV_LOGO_DATAURL_V1";
     const KEY_INVSEQ="MS_INV_SEQ_V1"; // per day running numbers
-    const KEY_SHIFT="MS_INV_SHIFT_V1";
 
     // ---------- FEST logo (auto, persistent) ----------
     // Put your logo file in repo root as: logo.png
-    // This script converts it ONCE into dataURL and stores in localStorage => logo becomes FEST (always in PDF)
     const DEFAULT_LOGO_PATH = "logo.png";
 
     // ---------- state ----------
-    let state = loadState();
-    let customers = loadCustomers();
-    let invoices = loadInvoices();
+    const defaultState = ()=>({
+      firmName:"Masculine Security",
+      firmAddr:"Werschenregerstraße 6 • 28237 Bremen",
+      firmTel:"015778697052",
+      firmMail:"Kontakt.mass.bremen@hotmail.com",
+      firmTax:"in Bearbeitung",
+      firmIban:"DE98 1001 1001 2333 0146 96",
+      firmBic:"NTSBDEB1XXX",
+      status:"Entwurf",
+
+      custKey:"",
+      custName:"",
+      custMail:"",
+      custData:"",
+
+      place:"Bremen",
+      period:"",
+      desc:"Security Dienstleistung",
+      refpo:"",
+
+      invDate: ymd(new Date()),
+      dueDate: "",
+      payTerm: "14",
+      invNo: "",
+
+      vatMode:"Klein",
+      rate:23,
+      nightPct:5,
+      sunPct:50,
+      holPct:100,
+
+      ma:10,
+      totalHours:0,
+
+      hNight:0,
+      hSun:0,
+      hHol:0,
+
+      // if user manually edits base hours, we keep it, otherwise auto
+      hBaseManual:false,
+      hBase:0
+    });
+
+    const loadJSON = (k, fallback)=>{
+      try{ const v=localStorage.getItem(k); return v? JSON.parse(v) : fallback; }catch{ return fallback; }
+    };
+    const saveJSON = (k, obj)=>{
+      try{ localStorage.setItem(k, JSON.stringify(obj)); }catch(e){ console.warn(e); }
+    };
+
+    let state = loadJSON(KEY_APP, null) || defaultState();
+    let customers = loadJSON(KEY_CUSTOMERS, {});
+    let invoices = loadJSON(KEY_INVS, []);
+
+    // ---------- Logo handling (FEST) ----------
     let logoDataUrl = localStorage.getItem(KEY_LOGO) || "";
 
-    // ---------- init UI ----------
-    async function init(){
-      // ensure FEST logo (once)
-      await ensureLogoDataUrl();
-      applyTopLogo();
-
-      // dates auto
-      const today = new Date();
-      $("invDate").value = state.invDate || ymd(today);
-      $("payTerm").value = state.payTerm || "14";
-      $("dueDate").value = state.dueDate || calcDue($("invDate").value, $("payTerm").value);
-      $("invNo").value = state.invNo || makeAutoInvNo($("invDate").value);
-
-      // firm
-      $("firmName").value = state.firmName || "Masculine Security";
-      $("firmAddr").value = state.firmAddr || "Werschenregerstraße 6 • 28237 Bremen";
-      $("firmTel").value  = state.firmTel  || "015778697052";
-      $("firmMail").value = state.firmMail || "Kontakt.mass.bremen@hotmail.com";
-      $("firmTax").value  = state.firmTax  || "in Bearbeitung";
-      $("firmIban").value = state.firmIban || "DE98 1001 1001 2333 0146 96";
-      $("firmBic").value  = state.firmBic  || "NTSBDEB1XXX";
-
-      // job
-      $("place").value = state.place || "Bremen";
-      $("period").value = state.period || "";
-      $("desc").value = state.desc || "Security Dienstleistung";
-      $("refpo").value = state.refpo || "";
-
-      // calc inputs
-      $("rate").value = ndef(state.rate,23);
-      $("nightPct").value = ndef(state.nightPct,5);
-      $("sunPct").value = ndef(state.sunPct,50);
-      $("holPct").value = ndef(state.holPct,100);
-      $("ma").value = ndef(state.ma,10);
-      $("totalHours").value = ndef(state.totalHours,0);
-
-      $("hNight").value = ndef(state.hNight,0);
-      $("hSun").value = ndef(state.hSun,0);
-      $("hHol").value = ndef(state.hHol,0);
-      $("hBase").value = ndef(state.hBase,0); // may be auto
-
-      $("vatMode").value = state.vatMode || "Klein";
-
-      $("statusSel").value = state.status || "Entwurf";
-      syncStatusPill();
-
-      // shift mode
-      const shiftSaved = localStorage.getItem(KEY_SHIFT);
-      $("shiftMode").checked = (shiftSaved ? (shiftSaved==="1") : !!state.shiftMode);
-      syncShiftUI(false);
-
-      // customers list
-      renderCustomerSelect();
-
-      // events
-      wireEvents();
-
-      // first calc
-      recalcAll();
-      autoSave();
-
-      toast("Bereit ✅");
-    }
-
-    function ndef(v,def){ return (v===0||v) ? v : def; }
-
-    // ---------- customers ----------
-    function loadCustomers(){
-      try{ return JSON.parse(localStorage.getItem(KEY_CUSTOMERS) || "[]"); }catch{ return []; }
-    }
-    function saveCustomers(){ localStorage.setItem(KEY_CUSTOMERS, JSON.stringify(customers)); }
-    function renderCustomerSelect(){
-      const sel=$("customerSelect");
-      sel.innerHTML="";
-      const opt0=document.createElement("option");
-      opt0.value=""; opt0.textContent="— Kunde wählen —";
-      sel.appendChild(opt0);
-      for(const c of customers){
-        const o=document.createElement("option");
-        o.value=c.id; o.textContent=c.name || "(ohne Name)";
-        sel.appendChild(o);
-      }
-      sel.value = state.customerId || "";
-    }
-    function currentCustomer(){
-      const id=$("customerSelect").value || "";
-      return customers.find(x=>x.id===id) || null;
-    }
-
-    // ---------- invoices ----------
-    function loadInvoices(){
-      try{ return JSON.parse(localStorage.getItem(KEY_INVS) || "[]"); }catch{ return []; }
-    }
-    function saveInvoices(){ localStorage.setItem(KEY_INVS, JSON.stringify(invoices)); }
-
-    // ---------- state ----------
-    function loadState(){
-      try{ return JSON.parse(localStorage.getItem(KEY_APP) || "{}"); }catch{ return {}; }
-    }
-    function autoSave(){
-      state = collectDraft();
-      localStorage.setItem(KEY_APP, JSON.stringify(state));
-    }
-
-    // ---------- auto invoice number ----------
-    function loadSeq(){
-      try{ return JSON.parse(localStorage.getItem(KEY_INVSEQ) || "{}"); }catch{ return {}; }
-    }
-    function saveSeq(seq){ localStorage.setItem(KEY_INVSEQ, JSON.stringify(seq)); }
-
-    function makeAutoInvNo(dateStr){
-      const key = ymdCompact(dateStr || ymd(new Date()));
-      const seq = loadSeq();
-      if(!seq[key]) seq[key]=1;
-      const num = String(seq[key]).padStart(4,"0");
-      return `MS-${key}-${num}`;
-    }
-    function bumpSeqIfNeeded(dateStr, invNo){
-      const key = ymdCompact(dateStr);
-      const seq=loadSeq();
-      const m = String(invNo||"").match(/^MS-(\d{8})-(\d{4})$/);
-      if(m && m[1]===key){
-        const used = parseInt(m[2],10);
-        seq[key] = Math.max(seq[key]||1, used+1);
-        saveSeq(seq);
-      }
-    }
-
-    // ---------- due date ----------
-    function calcDue(dateStr, termDays){
-      const d = new Date(dateStr+"T00:00:00");
-      const add = parseInt(termDays||"14",10);
-      d.setDate(d.getDate()+add);
-      return ymd(d);
-    }
-
-    // ---------- calc core ----------
-    function recalcAll(){
-      const rate = num($("rate").value);
-      const nightPct = num($("nightPct").value);
-      const sunPct = num($("sunPct").value);
-      const holPct = num($("holPct").value);
-      const ma = Math.max(1, Math.round(num($("ma").value)));
-      const total = Math.max(0, num($("totalHours").value));
-
-      $("pctNight").textContent = `${nightPct}%`;
-      $("pctSun").textContent   = `${sunPct}%`;
-      $("pctHol").textContent   = `${holPct}%`;
-
-      const shiftOn = $("shiftMode").checked;
-
-      let hNight = Math.max(0, num($("hNight").value));
-      let hSun   = Math.max(0, num($("hSun").value));
-      let hHol   = Math.max(0, num($("hHol").value));
-
-      let hBaseAuto = Math.max(0, total - (hNight + hSun + hHol));
-
-      if(shiftOn){
-        $("hBase").value = round2(hBaseAuto);
-        $("hBase").disabled = true;
-      }else{
-        $("hBase").disabled = false;
-        const manualBase = Math.max(0, num($("hBase").value));
-        if(total>0 && manualBase===0){
-          $("hBase").value = round2(hBaseAuto);
-        }
-      }
-
-      const hBase = Math.max(0, num($("hBase").value));
-
-      const amtBase = hBase * rate;
-      const amtNight = hNight * rate * (nightPct/100);
-      const amtSun   = hSun   * rate * (sunPct/100);
-      const amtHol   = hHol   * rate * (holPct/100);
-
-      $("amtBase").textContent = fmtEUR(amtBase);
-      $("amtNight").textContent = fmtEUR(amtNight);
-      $("amtSun").textContent = fmtEUR(amtSun);
-      $("amtHol").textContent = fmtEUR(amtHol);
-
-      const net = amtBase + amtNight + amtSun + amtHol;
-
-      const vatMode = $("vatMode").value;
-      let vat = 0;
-      if(vatMode==="Regel"){
-        vat = net * 0.19;
-        $("vatNote").textContent = "Umsatzsteuer wird mit 19% berechnet.";
-      }else{
-        $("vatNote").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
-      }
-
-      $("net").textContent = fmtEUR(net);
-      $("vat").textContent = fmtEUR(vat);
-      $("gross").textContent = fmtEUR(net+vat);
-
-      $("perMA").textContent = fmtN(total/ma);
-      $("sumH").textContent = fmtN(total);
-      $("autoRule").textContent = shiftOn
-        ? "Schicht-Modus AN: Grundlohn-Stunden = Gesamt − (Nacht+Sonntag+Feiertag)."
-        : "Schicht-Modus AUS: Du kannst Grundlohn manuell ändern (Auto hilft).";
-
-      if(!$("dueDate").dataset.touched){
-        $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
-      }
-
-      autoSave();
-    }
-
-    function round2(n){ return Math.round((Number(n||0)+Number.EPSILON)*100)/100; }
-    function num(v){ const n=parseFloat(String(v).replace(",", ".")); return isNaN(n)?0:n; }
-
-    // ---------- shift UI ----------
-    function syncShiftUI(recalc=true){
-      const on = $("shiftMode").checked;
-      localStorage.setItem(KEY_SHIFT, on ? "1":"0");
-      $("autoPill").className = "pill " + (on ? "ok":"off");
-      $("autoPill").textContent = on ? "Auto aktiv" : "Auto teilweise";
-      $("shiftText").textContent = on
-        ? "AN — du gibst Gesamtstunden + Zuschlagsstunden ein (Grundlohn auto)."
-        : "AUS — du kannst auch Grundlohn-Stunden manuell setzen.";
-      if(recalc) recalcAll();
-    }
-
-    // ---------- status pill ----------
-    function syncStatusPill(){
-      const s = $("statusSel").value;
-      $("statusPill").textContent = "Status: " + s;
-      if(s==="Bezahlt"){ $("statusPill").className="pill ok"; }
-      else if(s==="Storniert"){ $("statusPill").className="pill off"; }
-      else { $("statusPill").className="pill"; }
-      autoSave();
-    }
-
-    // ---------- draft collect ----------
-    function collectDraft(){
-      return {
-        firmName:$("firmName").value.trim(),
-        firmAddr:$("firmAddr").value.trim(),
-        firmTel:$("firmTel").value.trim(),
-        firmMail:$("firmMail").value.trim(),
-        firmTax:$("firmTax").value.trim(),
-        firmIban:$("firmIban").value.trim(),
-        firmBic:$("firmBic").value.trim(),
-
-        customerId:$("customerSelect").value || "",
-
-        custName:$("custName").value.trim(),
-        custMail:$("custMail").value.trim(),
-        custData:$("custData").value,
-
-        place:$("place").value.trim(),
-        period:$("period").value.trim(),
-        desc:$("desc").value,
-        refpo:$("refpo").value.trim(),
-
-        invDate:$("invDate").value,
-        payTerm:$("payTerm").value,
-        dueDate:$("dueDate").value,
-        invNo:$("invNo").value.trim(),
-
-        status:$("statusSel").value,
-
-        vatMode:$("vatMode").value,
-        shiftMode:$("shiftMode").checked,
-
-        rate:num($("rate").value),
-        nightPct:num($("nightPct").value),
-        sunPct:num($("sunPct").value),
-        holPct:num($("holPct").value),
-
-        ma:Math.max(1, Math.round(num($("ma").value))),
-        totalHours:num($("totalHours").value),
-
-        hBase:num($("hBase").value),
-        hNight:num($("hNight").value),
-        hSun:num($("hSun").value),
-        hHol:num($("hHol").value),
-
-        netText:$("net").textContent,
-        vatText:$("vat").textContent,
-        grossText:$("gross").textContent,
-      };
-    }
-
-    // ---------- FEST LOGO (always in PDF) ----------
-    async function ensureLogoDataUrl(){
-      // 1) if already stored => FEST
-      if(logoDataUrl && logoDataUrl.startsWith("data:image/")) return logoDataUrl;
-
-      // 2) load logo.png ONCE and store as dataURL
-      try{
-        const res = await fetch(DEFAULT_LOGO_PATH, {cache:"reload"});
-        if(!res.ok) throw new Error("logo fetch failed");
-        const blob = await res.blob();
-        const dataUrl = await blobToDataURL(blob);
-        logoDataUrl = dataUrl;
-        localStorage.setItem(KEY_LOGO, dataUrl);
-        return dataUrl;
-      }catch{
-        logoDataUrl = "";
-        return "";
-      }
-    }
-
-    function applyTopLogo(){
-      const img = $("topLogo");
-      const fb = $("topLogoFallback");
-      if(logoDataUrl && logoDataUrl.startsWith("data:image/")){
-        img.src = logoDataUrl;
+    const setTopLogo = (dataUrl)=>{
+      const img=$("topLogo"), fb=$("topLogoFallback");
+      if(dataUrl){
+        img.src=dataUrl;
         img.style.display="block";
         fb.style.display="none";
       }else{
         img.style.display="none";
         fb.style.display="block";
       }
-    }
+    };
 
-    function blobToDataURL(blob){
-      return new Promise((resolve,reject)=>{
-        const r=new FileReader();
-        r.onload=()=>resolve(r.result);
+    const fetchAsDataURL = async (url)=>{
+      const res = await fetch(url, {cache:"no-store"});
+      if(!res.ok) throw new Error("Logo nicht gefunden: " + url);
+      const blob = await res.blob();
+      return await new Promise((resolve,reject)=>{
+        const r = new FileReader();
+        r.onload=()=>resolve(String(r.result||""));
         r.onerror=reject;
         r.readAsDataURL(blob);
       });
-    }
+    };
 
-    async function waitImages(container){
-      const imgs = Array.from(container.querySelectorAll("img"));
-      await Promise.all(imgs.map(img=>{
-        if(img.complete && img.naturalWidth>0) return Promise.resolve();
-        return new Promise(res=>{
-          img.onload=()=>res();
-          img.onerror=()=>res();
-        });
-      }));
-    }
+    const ensureFestLogo = async ()=>{
+      if(logoDataUrl){
+        setTopLogo(logoDataUrl);
+        return;
+      }
+      // Try auto-load logo.png once
+      try{
+        const d = await fetchAsDataURL(DEFAULT_LOGO_PATH);
+        logoDataUrl = d;
+        localStorage.setItem(KEY_LOGO, logoDataUrl);
+        setTopLogo(logoDataUrl);
+      }catch{
+        // fallback stays MS
+        setTopLogo("");
+      }
+    };
 
-    function buildPrintHTML(d){
-      const logo = logoDataUrl || "";
-      const vatMode = d.vatMode==="Regel" ? "19% (Regelbesteuerung)" : "0% (Kleinunternehmer §19)";
-      const vatLine = d.vatMode==="Regel"
-        ? "Umsatzsteuer wird mit 19% berechnet."
-        : "Gemäß §19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).";
+    // ---------- DOM sync ----------
+    const bindToState = ()=>{
+      $("firmName").value = state.firmName;
+      $("firmAddr").value = state.firmAddr;
+      $("firmTel").value = state.firmTel;
+      $("firmMail").value = state.firmMail;
+      $("firmTax").value = state.firmTax;
+      $("firmIban").value = state.firmIban;
+      $("firmBic").value = state.firmBic;
+
+      $("statusSel").value = state.status;
+
+      $("custName").value = state.custName;
+      $("custMail").value = state.custMail;
+      $("custData").value = state.custData;
+
+      $("place").value = state.place;
+      $("period").value = state.period;
+      $("desc").value = state.desc;
+      $("refpo").value = state.refpo;
+
+      $("invDate").value = state.invDate || ymd(new Date());
+      $("payTerm").value = String(state.payTerm||"14");
+      $("dueDate").value = state.dueDate || "";
+
+      $("invNo").value = state.invNo || "";
+
+      $("vatMode").value = state.vatMode;
+      $("rate").value = Number(state.rate||0);
+      $("nightPct").value = Number(state.nightPct||0);
+      $("sunPct").value = Number(state.sunPct||0);
+      $("holPct").value = Number(state.holPct||0);
+
+      $("ma").value = Number(state.ma||1);
+      $("totalHours").value = Number(state.totalHours||0);
+
+      $("hNight").value = Number(state.hNight||0);
+      $("hSun").value = Number(state.hSun||0);
+      $("hHol").value = Number(state.hHol||0);
+
+      $("hBase").value = Number(state.hBase||0);
+
+      syncVatNote();
+      syncStatusPill();
+      refreshCustomerSelect();
+      ensureInvNo();
+      syncDueDate(true);
+      recalc();
+      autoSave();
+    };
+
+    const autoSave = ()=>{
+      saveJSON(KEY_APP, state);
+    };
+
+    const syncStatusPill = ()=>{
+      const pill = $("statusPill");
+      pill.textContent = "Status: " + (state.status||"Entwurf");
+      pill.classList.remove("ok","off");
+      if(state.status==="Bezahlt") pill.classList.add("ok");
+      if(state.status==="Offen") pill.classList.add("off");
+    };
+
+    const syncVatNote = ()=>{
+      const note = $("vatNote");
+      const mode = $("vatMode").value;
+      if(mode==="Klein"){
+        note.textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet.";
+      }else{
+        note.textContent = "Umsatzsteuer wird mit 19% ausgewiesen (Regelbesteuerung).";
+      }
+    };
+
+    const syncDueDate = (silent)=>{
+      const inv = $("invDate").value;
+      const term = Number($("payTerm").value||14);
+      if(!inv) return;
+      const d = new Date(inv + "T00:00:00");
+      d.setDate(d.getDate() + term);
+      const calc = ymd(d);
+      // only auto-fill if empty OR silent requested
+      if(!state.dueDate || silent){
+        $("dueDate").value = calc;
+        state.dueDate = calc;
+      }
+    };
+
+    const ensureInvNo = ()=>{
+      // If invNo empty => generate per day sequence
+      const dateStr = $("invDate").value || ymd(new Date());
+      if(state.invNo && state.invNo.trim()) return;
+
+      const dayKey = ymdCompact(dateStr);
+      const seqMap = loadJSON(KEY_INVSEQ, {});
+      const next = (Number(seqMap[dayKey]||0) + 1);
+      seqMap[dayKey] = next;
+      saveJSON(KEY_INVSEQ, seqMap);
+
+      const running = String(next).padStart(4,"0");
+      const invNo = `MS-${dayKey}-${running}`;
+      $("invNo").value = invNo;
+      state.invNo = invNo;
+    };
+
+    // ---------- customers ----------
+    const refreshCustomerSelect = ()=>{
+      const sel = $("customerSelect");
+      sel.innerHTML = "";
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "— auswählen —";
+      sel.appendChild(opt0);
+
+      const keys = Object.keys(customers||{}).sort((a,b)=>a.localeCompare(b));
+      for(const k of keys){
+        const c = customers[k];
+        const o = document.createElement("option");
+        o.value = k;
+        o.textContent = c.name || k;
+        sel.appendChild(o);
+      }
+      sel.value = state.custKey || "";
+    };
+
+    const loadCustomerToForm = (key)=>{
+      if(!key || !customers[key]) return;
+      const c = customers[key];
+      state.custKey = key;
+      state.custName = c.name || "";
+      state.custMail = c.mail || "";
+      state.custData = c.data || "";
+      $("custName").value = state.custName;
+      $("custMail").value = state.custMail;
+      $("custData").value = state.custData;
+      autoSave();
+      toast("Kunde geladen");
+    };
+
+    const saveCustomerFromForm = ()=>{
+      const name = $("custName").value.trim();
+      if(!name){ toast("Bitte Kundenname eingeben"); return; }
+      const key = safe(name.toLowerCase());
+      customers[key] = {
+        name,
+        mail: $("custMail").value.trim(),
+        data: $("custData").value.trim()
+      };
+      saveJSON(KEY_CUSTOMERS, customers);
+      state.custKey = key;
+      refreshCustomerSelect();
+      $("customerSelect").value = key;
+      toast("Kunde gespeichert");
+      autoSave();
+    };
+
+    const deleteCustomer = ()=>{
+      const key = $("customerSelect").value;
+      if(!key){ toast("Kein Kunde ausgewählt"); return; }
+      if(!confirm("Kunde wirklich löschen?")) return;
+      delete customers[key];
+      saveJSON(KEY_CUSTOMERS, customers);
+      if(state.custKey===key){
+        state.custKey="";
+        state.custName="";
+        state.custMail="";
+        state.custData="";
+        $("custName").value="";
+        $("custMail").value="";
+        $("custData").value="";
+      }
+      refreshCustomerSelect();
+      toast("Kunde gelöscht");
+      autoSave();
+    };
+
+    // ---------- calculation ----------
+    const clamp0 = (n)=> Math.max(0, Number(n||0));
+    const pct = (n)=> clamp0(n)/100;
+
+    const recalc = ()=>{
+      // read inputs -> state
+      state.status = $("statusSel").value;
+
+      state.firmName = $("firmName").value;
+      state.firmAddr = $("firmAddr").value;
+      state.firmTel = $("firmTel").value;
+      state.firmMail = $("firmMail").value;
+      state.firmTax = $("firmTax").value;
+      state.firmIban = $("firmIban").value;
+      state.firmBic = $("firmBic").value;
+
+      state.invDate = $("invDate").value;
+      state.payTerm = $("payTerm").value;
+      state.dueDate = $("dueDate").value;
+      state.invNo = $("invNo").value;
+
+      state.vatMode = $("vatMode").value;
+      state.rate = clamp0($("rate").value);
+      state.nightPct = clamp0($("nightPct").value);
+      state.sunPct = clamp0($("sunPct").value);
+      state.holPct = clamp0($("holPct").value);
+
+      state.ma = Math.max(1, Math.floor(clamp0($("ma").value)||1));
+      state.totalHours = clamp0($("totalHours").value);
+
+      state.hNight = clamp0($("hNight").value);
+      state.hSun = clamp0($("hSun").value);
+      state.hHol = clamp0($("hHol").value);
+
+      // base hours: auto = total - (night+sun+hol)
+      const z = state.hNight + state.hSun + state.hHol;
+      let baseAuto = Math.max(0, state.totalHours - z);
+
+      // if user edits base directly -> we respect but keep totals view accurate
+      const baseInput = clamp0($("hBase").value);
+      // detect manual edit: if input differs from expected and totalHours is 0, keep it
+      // simple rule: if user changes hBase input -> manual on
+      // (we set manual true only on input event below)
+      const base = state.hBaseManual ? baseInput : baseAuto;
+      state.hBase = base;
+
+      // update UI hours displays
+      $("hBase").value = base.toFixed(2);
+
+      // amounts
+      const rate = state.rate;
+      const amtBase = base * rate;
+
+      const amtNight = state.hNight * rate * pct(state.nightPct);
+      const amtSun   = state.hSun   * rate * pct(state.sunPct);
+      const amtHol   = state.hHol   * rate * pct(state.holPct);
+
+      $("pctNight").textContent = `${state.nightPct}%`;
+      $("pctSun").textContent = `${state.sunPct}%`;
+      $("pctHol").textContent = `${state.holPct}%`;
+
+      $("amtBase").textContent = fmtEUR(amtBase);
+      $("amtNight").textContent = fmtEUR(amtNight);
+      $("amtSun").textContent = fmtEUR(amtSun);
+      $("amtHol").textContent = fmtEUR(amtHol);
+
+      const sumH = base + state.hNight + state.hSun + state.hHol;
+      $("sumH").textContent = fmtN(sumH);
+      const perMA = sumH / Math.max(1, state.ma);
+      $("perMA").textContent = fmtN(perMA);
+
+      const net = amtBase + amtNight + amtSun + amtHol;
+      $("net").textContent = fmtEUR(net);
+
+      let vatAmt = 0;
+      if(state.vatMode==="Regel"){
+        vatAmt = net * 0.19;
+      }
+      $("vat").textContent = fmtEUR(vatAmt);
+
+      const gross = net + vatAmt;
+      $("gross").textContent = fmtEUR(gross);
+
+      syncVatNote();
+      syncStatusPill();
+      autoSave();
+    };
+
+    // ---------- print sheet html ----------
+    const buildPrintHTML = ()=>{
+      const firmName = $("firmName").value.trim();
+      const firmAddr = $("firmAddr").value.trim();
+      const firmTel  = $("firmTel").value.trim();
+      const firmMail = $("firmMail").value.trim();
+      const firmTax  = $("firmTax").value.trim();
+      const iban     = $("firmIban").value.trim();
+      const bic      = $("firmBic").value.trim();
+
+      const custName = $("custName").value.trim();
+      const custMail = $("custMail").value.trim();
+      const custData = $("custData").value.trim();
+
+      const place = $("place").value.trim();
+      const period = $("period").value.trim();
+      const desc = $("desc").value.trim();
+      const refpo = $("refpo").value.trim();
+
+      const invDate = $("invDate").value;
+      const dueDate = $("dueDate").value;
+      const invNo = $("invNo").value.trim();
+      const vatMode = $("vatMode").value;
+
+      const rate = Number($("rate").value||0);
+      const hBase = Number($("hBase").value||0);
+      const hNight = Number($("hNight").value||0);
+      const hSun = Number($("hSun").value||0);
+      const hHol = Number($("hHol").value||0);
+
+      const nightPct = Number($("nightPct").value||0);
+      const sunPct = Number($("sunPct").value||0);
+      const holPct = Number($("holPct").value||0);
+
+      const amtBase = hBase * rate;
+      const amtNight = hNight * rate * (nightPct/100);
+      const amtSun = hSun * rate * (sunPct/100);
+      const amtHol = hHol * rate * (holPct/100);
+
+      const net = amtBase + amtNight + amtSun + amtHol;
+      const vatAmt = vatMode==="Regel" ? net*0.19 : 0;
+      const gross = net + vatAmt;
+
+      const vatLine = vatMode==="Klein"
+        ? `Gemäß §19 UStG wird keine Umsatzsteuer berechnet.`
+        : `Umsatzsteuer 19% (Regelbesteuerung) wird ausgewiesen.`;
+
+      const telLink = firmTel ? `<a href="tel:${firmTel.replace(/\s+/g,"")}" style="color:#223;text-decoration:none">${firmTel}</a>` : "";
+      const mailLink = firmMail ? `<a href="mailto:${firmMail}" style="color:#223;text-decoration:none">${firmMail}</a>` : "";
+
+      const custMailLine = custMail ? `<div class="pMeta">E-Mail: <a href="mailto:${custMail}" style="color:#223;text-decoration:none">${custMail}</a></div>` : "";
+
+      const logoImg = logoDataUrl ? `<img class="pLogo" src="${logoDataUrl}" alt="Logo"/>` : `<div class="pLogo" style="display:grid;place-items:center;font-weight:800;color:#223">MS</div>`;
 
       return `
         <div class="printSheet">
           <div class="pHeader">
             <div class="pBrand">
-              ${logo ? `<img class="pLogo" src="${logo}" alt="Logo"/>` : `<div class="pLogo" style="display:grid;place-items:center;font-weight:900;color:#0b5fa8">MS</div>`}
+              ${logoImg}
               <div>
-                <p class="pTitle">${escapeHtml(d.firmName)} — Rechnung</p>
+                <h1 class="pTitle">Rechnung</h1>
+                <div class="pMeta"><b>${firmName}</b></div>
+                <div class="pMeta">${firmAddr}</div>
+                <div class="pMeta">Tel: ${telLink} • E-Mail: ${mailLink}</div>
+                <div class="pMeta">Steuernummer: ${firmTax}</div>
               </div>
             </div>
-            <div class="pMeta">
-              <div><b>Status:</b> ${escapeHtml(d.status||"Entwurf")}</div>
-              <div><b>Rechnungsnummer:</b> ${escapeHtml(d.invNo)}</div>
-              <div><b>Rechnungsdatum:</b> ${fmtDateDE(d.invDate)}</div>
-              <div><b>Fällig am:</b> ${fmtDateDE(d.dueDate)}</div>
-              <div><b>Zahlungsziel:</b> ${escapeHtml(d.payTerm)} Tage</div>
+            <div style="text-align:right">
+              <div class="pMeta"><b>Rechnungsnr.:</b> ${invNo}</div>
+              <div class="pMeta"><b>Rechnungsdatum:</b> ${invDate}</div>
+              <div class="pMeta"><b>Fällig am:</b> ${dueDate}</div>
+              <div class="pMeta"><b>Status:</b> ${$("statusSel").value}</div>
             </div>
           </div>
 
-          <div class="pGrid" style="margin-top:6mm">
+          <div class="pGrid">
             <div class="pBox">
-              <p class="pH">RECHNUNGSSTELLER</p>
-              <p class="pT"><b>${escapeHtml(d.firmName)}</b></p>
-              <p class="pT">${escapeHtml(d.firmAddr)}</p>
-              <p class="pT">Tel: ${escapeHtml(d.firmTel)}</p>
-              <p class="pT">E-Mail: ${escapeHtml(d.firmMail)}</p>
-              <p class="pT">Steuernummer: ${escapeHtml(d.firmTax)}</p>
+              <div class="pH">Rechnung an</div>
+              <p class="pT"><b>${custName || "—"}</b></p>
+              <p class="pT" style="white-space:pre-line">${custData || ""}</p>
+              ${custMailLine}
             </div>
             <div class="pBox">
-              <p class="pH">KUNDE / RECHNUNGSEMPFÄNGER</p>
-              <p class="pT"><b>${escapeHtml(d.custName||"-")}</b></p>
-              <p class="pT">${escapeHtml(d.custMail||"-")}</p>
-              <p class="pT" style="white-space:pre-line">${escapeHtml(d.custData||"-")}</p>
-            </div>
-          </div>
-
-          <div class="pGrid" style="margin-top:6mm">
-            <div class="pBox">
-              <p class="pH">LEISTUNG</p>
-              <p class="pT"><b>Einsatzort / Objekt:</b> ${escapeHtml(d.place||"-")}</p>
-              <p class="pT"><b>Leistungszeitraum:</b> ${escapeHtml(d.period||"-")}</p>
-              <p class="pT"><b>Beschreibung:</b> <span style="white-space:pre-line">${escapeHtml(d.desc||"-")}</span></p>
-              <p class="pT"><b>Referenz / PO:</b> ${escapeHtml(d.refpo||"-")}</p>
-            </div>
-            <div class="pBox">
-              <p class="pH">STEUER / BANK</p>
-              <p class="pT"><b>USt-Status:</b> ${vatMode}</p>
-              <p class="pT">${vatLine}</p>
-              <p class="pT" style="margin-top:2mm"><b>Bank:</b> ${escapeHtml(d.firmIban)} • BIC ${escapeHtml(d.firmBic)}</p>
+              <div class="pH">Leistung</div>
+              <p class="pT"><b>Einsatzort/Objekt:</b> ${place || "—"}</p>
+              <p class="pT"><b>Zeitraum:</b> ${period || "—"}</p>
+              <p class="pT" style="white-space:pre-line"><b>Beschreibung:</b> ${desc || "—"}</p>
+              <p class="pT"><b>Referenz/PO:</b> ${refpo || "—"}</p>
             </div>
           </div>
 
@@ -897,41 +961,36 @@
             <table>
               <thead>
                 <tr>
-                  <th style="width:38%">Position</th>
-                  <th style="width:15%">Std</th>
-                  <th style="width:17%">Satz</th>
-                  <th style="width:15%">Zuschlag</th>
-                  <th style="width:15%;text-align:right">Betrag</th>
+                  <th>Position</th>
+                  <th style="text-align:right">Stunden</th>
+                  <th style="text-align:right">Satz</th>
+                  <th style="text-align:right">Betrag</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><b>Grundlohn</b><br/><span class="muted">Arbeitszeit (normal)</span></td>
-                  <td>${fmtN(d.hBase)}</td>
-                  <td>${fmtEUR(d.rate)}</td>
-                  <td>—</td>
-                  <td style="text-align:right">${fmtEUR(d.hBase*d.rate)}</td>
+                  <td><b>Grundlohn</b></td>
+                  <td style="text-align:right">${fmtN(hBase)}</td>
+                  <td style="text-align:right">${fmtEUR(rate).replace(" €","")} €/h</td>
+                  <td style="text-align:right">${fmtEUR(amtBase)}</td>
                 </tr>
                 <tr>
-                  <td><b>Nachtschicht</b><br/><span class="muted">Zuschlag</span></td>
-                  <td>${fmtN(d.hNight)}</td>
-                  <td>wie Grundsatz</td>
-                  <td>${fmtN(d.nightPct)}%</td>
-                  <td style="text-align:right">${fmtEUR(d.hNight*d.rate*(d.nightPct/100))}</td>
+                  <td><b>Nachtschicht</b> <span class="muted">(${nightPct}%)</span></td>
+                  <td style="text-align:right">${fmtN(hNight)}</td>
+                  <td style="text-align:right">—</td>
+                  <td style="text-align:right">${fmtEUR(amtNight)}</td>
                 </tr>
                 <tr>
-                  <td><b>Sonntag</b><br/><span class="muted">Zuschlag</span></td>
-                  <td>${fmtN(d.hSun)}</td>
-                  <td>wie Grundsatz</td>
-                  <td>${fmtN(d.sunPct)}%</td>
-                  <td style="text-align:right">${fmtEUR(d.hSun*d.rate*(d.sunPct/100))}</td>
+                  <td><b>Sonntag</b> <span class="muted">(${sunPct}%)</span></td>
+                  <td style="text-align:right">${fmtN(hSun)}</td>
+                  <td style="text-align:right">—</td>
+                  <td style="text-align:right">${fmtEUR(amtSun)}</td>
                 </tr>
                 <tr>
-                  <td><b>Feiertag</b><br/><span class="muted">Zuschlag</span></td>
-                  <td>${fmtN(d.hHol)}</td>
-                  <td>wie Grundsatz</td>
-                  <td>${fmtN(d.holPct)}%</td>
-                  <td style="text-align:right">${fmtEUR(d.hHol*d.rate*(d.holPct/100))}</td>
+                  <td><b>Feiertag</b> <span class="muted">(${holPct}%)</span></td>
+                  <td style="text-align:right">${fmtN(hHol)}</td>
+                  <td style="text-align:right">—</td>
+                  <td style="text-align:right">${fmtEUR(amtHol)}</td>
                 </tr>
               </tbody>
             </table>
@@ -939,323 +998,255 @@
 
           <div class="pSum">
             <div class="pBox">
-              <p class="pH">STUNDEN</p>
-              <p class="pT"><b>Mitarbeiter:</b> ${escapeHtml(d.ma)}</p>
-              <p class="pT"><b>Std gesamt:</b> ${fmtN(d.totalHours)}</p>
-              <p class="pT"><b>Std/MA:</b> ${fmtN(d.totalHours/d.ma)}</p>
+              <div class="pH">Hinweis</div>
+              <div class="pFine">${vatLine}</div>
+              <div class="pFine">Bitte überweisen Sie den Rechnungsbetrag innerhalb der Zahlungsfrist.</div>
             </div>
             <div class="pBox">
-              <p class="pH">SUMME</p>
-              <p class="pT"><b>Zwischensumme (Netto):</b> ${escapeHtml(d.netText)}</p>
-              <p class="pT"><b>Umsatzsteuer:</b> ${escapeHtml(d.vatText)}</p>
-              <p class="pT" style="font-size:12pt;margin-top:2mm"><b>Gesamt:</b> ${escapeHtml(d.grossText)}</p>
+              <div class="pH">Summen</div>
+              <div class="pT" style="display:flex;justify-content:space-between"><span>Zwischensumme (Netto)</span><b>${fmtEUR(net)}</b></div>
+              <div class="pT" style="display:flex;justify-content:space-between"><span>Umsatzsteuer</span><b>${fmtEUR(vatAmt)}</b></div>
+              <div class="pT" style="display:flex;justify-content:space-between;font-size:12pt"><span><b>Gesamt</b></span><b>${fmtEUR(gross)}</b></div>
             </div>
-          </div>
-
-          <div class="pFine">
-            Bitte überweisen Sie den Rechnungsbetrag innerhalb der Zahlungsfrist auf das oben angegebene Konto.
           </div>
 
           <div class="pFoot">
-            <div>${escapeHtml(d.firmName)} • ${escapeHtml(d.firmAddr)}</div>
-            <div>Erstellt: ${fmtDateDE(ymd(new Date()))}</div>
+            <div><b>IBAN:</b> ${iban} • <b>BIC:</b> ${bic}</div>
+            <div class="muted">${firmName}</div>
           </div>
         </div>
       `;
-    }
+    };
 
-    function fmtDateDE(dateStr){
-      if(!dateStr) return "-";
-      const [y,m,d]=dateStr.split("-");
-      return `${d}.${m}.${y}`;
-    }
-    function escapeHtml(s){
-      return String(s||"").replace(/[&<>"']/g,(c)=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[c]));
-    }
+    const renderPrintArea = ()=>{
+      $("printArea").innerHTML = buildPrintHTML();
+    };
 
-    // ---------- PDF (not blank + logo FEST) ----------
-    async function savePDF(){
-      const d = collectDraft();
+    // ---------- PDF ----------
+    const savePDF = async ()=>{
+      renderPrintArea();
+      const node = $("printArea");
+      // temporarily show for capture (off-screen)
+      node.style.display = "block";
 
-      bumpSeqIfNeeded(d.invDate, d.invNo);
-
-      // build print
-      const printArea = $("printArea");
-      printArea.innerHTML = buildPrintHTML(d);
-
-      printArea.style.display="block";
-      printArea.style.position="fixed";
-      printArea.style.left="-9999px";
-      printArea.style.top="0";
-      printArea.style.zIndex="-1";
-
-      await waitImages(printArea);
-      await new Promise(r=>setTimeout(r,120));
-
-      const sheet = printArea.querySelector(".printSheet");
-
-      const canvas = await html2canvas(sheet,{
+      const canvas = await html2canvas(node, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor:"#ffffff",
-        logging:false
+        backgroundColor: "#ffffff"
       });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({orientation:"p",unit:"mm",format:"a4"});
+      const pdf = new jsPDF("p","mm","a4");
 
-      const pageW=210, pageH=297;
-      const imgW = pageW;
-      const imgH = canvas.height * (imgW / canvas.width);
+      const imgData = canvas.toDataURL("image/png");
+      const pageWidth = 210;
+      const pageHeight = 297;
 
-      if(imgH <= pageH){
-        pdf.addImage(imgData,"JPEG",0,0,imgW,imgH);
-      }else{
-        // correct multi-page slicing
-        let position = 0;
-        let remaining = imgH;
-        while(remaining > 0){
-          pdf.addImage(imgData,"JPEG",0,position,imgW,imgH);
-          remaining -= pageH;
-          position -= pageH;
-          if(remaining > 1) pdf.addPage();
-        }
+      // canvas pixels -> mm
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pageWidth;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // if taller than a4 -> scale to fit
+      const finalH = Math.min(pdfHeight, pageHeight);
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, finalH);
+
+      const name = `${safe($("custName").value||"Kunde")}_${safe($("invNo").value||"Rechnung")}.pdf`;
+      pdf.save(name);
+
+      node.style.display = "none";
+      toast("PDF gespeichert");
+    };
+
+    // ---------- Print (ONLY PRINT button) ----------
+    const doPrint = ()=>{
+      renderPrintArea();
+      window.print();
+      toast("Print geöffnet");
+    };
+
+    // ---------- invoices ----------
+    const snapshotInvoice = ()=>{
+      return {
+        ts: Date.now(),
+        invNo: $("invNo").value,
+        invDate: $("invDate").value,
+        dueDate: $("dueDate").value,
+        status: $("statusSel").value,
+        customer: $("custName").value,
+        total: $("gross").textContent,
+        state: JSON.parse(JSON.stringify(state))
+      };
+    };
+
+    const saveInvoiceToList = ()=>{
+      const invNo = $("invNo").value.trim();
+      if(!invNo){ toast("Rechnungsnummer fehlt"); return; }
+      const snap = snapshotInvoice();
+      const idx = invoices.findIndex(x=>x.invNo===invNo);
+      if(idx>=0) invoices[idx]=snap; else invoices.unshift(snap);
+      saveJSON(KEY_INVS, invoices);
+      toast("Rechnung gespeichert");
+    };
+
+    const showInvoiceList = ()=>{
+      if(!invoices.length){ alert("Keine Rechnungen gespeichert."); return; }
+      const lines = invoices.slice(0,30).map((x,i)=>`${i+1}) ${x.invNo} • ${x.customer||"—"} • ${x.total||""} • ${x.status||""}`).join("\n");
+      const pick = prompt("Rechnungen (Tippe Nummer zum Laden):\n\n"+lines+"\n\n0 = Abbrechen");
+      const n = Number(pick||0);
+      if(!n || n<1 || n>invoices.length) return;
+      const inv = invoices[n-1];
+      if(inv && inv.state){
+        state = inv.state;
+        state.hBaseManual = false; // reset auto base unless user changes it again
+        bindToState();
+        toast("Rechnung geladen");
+      }
+    };
+
+    // ---------- reset/new ----------
+    const newInvoice = ()=>{
+      const keepFirm = {
+        firmName: state.firmName,
+        firmAddr: state.firmAddr,
+        firmTel: state.firmTel,
+        firmMail: state.firmMail,
+        firmTax: state.firmTax,
+        firmIban: state.firmIban,
+        firmBic: state.firmBic
+      };
+      state = defaultState();
+      Object.assign(state, keepFirm);
+      state.invDate = ymd(new Date());
+      state.dueDate = "";
+      state.invNo = "";
+      state.hBaseManual = false;
+      bindToState();
+      toast("Neu gestartet");
+    };
+
+    const hardReset = ()=>{
+      if(!confirm("Alles zurücksetzen (inkl. Kunden & Rechnungen)?")) return;
+      localStorage.removeItem(KEY_APP);
+      localStorage.removeItem(KEY_CUSTOMERS);
+      localStorage.removeItem(KEY_INVS);
+      localStorage.removeItem(KEY_INVSEQ);
+      // ✅ keep FEST logo unless you want to remove it:
+      // localStorage.removeItem(KEY_LOGO);
+      customers = {};
+      invoices = [];
+      state = defaultState();
+      bindToState();
+      toast("Reset fertig");
+    };
+
+    // ---------- logo upload ----------
+    const pickLogo = ()=> $("logoFile").click();
+
+    const onLogoPicked = async (file)=>{
+      if(!file) return;
+      const dataUrl = await new Promise((resolve,reject)=>{
+        const r=new FileReader();
+        r.onload=()=>resolve(String(r.result||""));
+        r.onerror=reject;
+        r.readAsDataURL(file);
+      });
+      logoDataUrl = dataUrl;
+      localStorage.setItem(KEY_LOGO, logoDataUrl);
+      setTopLogo(logoDataUrl);
+      toast("Logo gespeichert (FEST)");
+    };
+
+    // ---------- events ----------
+    const wireEvents = ()=>{
+      // recalc on change
+      const ids = [
+        "firmName","firmAddr","firmTel","firmMail","firmTax","firmIban","firmBic",
+        "statusSel",
+        "custName","custMail","custData",
+        "place","period","desc","refpo",
+        "invDate","payTerm","dueDate","invNo",
+        "vatMode","rate","nightPct","sunPct","holPct",
+        "ma","totalHours","hNight","hSun","hHol"
+      ];
+      for(const id of ids){
+        $(id).addEventListener("input", ()=>{
+          if(id==="invDate" || id==="payTerm"){
+            state.invNo = ""; // allow new invNo if date changes and empty
+            syncDueDate(true);
+            ensureInvNo();
+          }
+          recalc();
+        });
+        $(id).addEventListener("change", ()=>{
+          if(id==="invDate" || id==="payTerm"){
+            state.invNo = "";
+            syncDueDate(true);
+            ensureInvNo();
+          }
+          recalc();
+        });
       }
 
-      const fname = safe(d.invNo || "Rechnung") + ".pdf";
-      pdf.save(fname);
-
-      printArea.style.display="none";
-      toast("PDF gespeichert ✅");
-    }
-
-    // ---------- UI actions ----------
-    function wireEvents(){
-
-      // autosave + calc
-      const inputs = document.querySelectorAll("input,select,textarea");
-      inputs.forEach(el=>{
-        el.addEventListener("input", ()=>{
-          if(el.id==="invDate" || el.id==="invNo" || el.id==="dueDate"){
-            el.dataset.touched="1";
-          }
-          if(el.id==="invDate"){
-            if(!$("invNo").dataset.touched){
-              $("invNo").value = makeAutoInvNo($("invDate").value);
-            }
-            if(!$("dueDate").dataset.touched){
-              $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
-            }
-          }
-          if(el.id==="payTerm"){
-            if(!$("dueDate").dataset.touched){
-              $("dueDate").value = calcDue($("invDate").value, $("payTerm").value);
-            }
-          }
-          recalcAll();
-        });
+      // base hours manual detection
+      $("hBase").addEventListener("input", ()=>{
+        state.hBaseManual = true;
+        recalc();
       });
 
-      $("statusSel").addEventListener("change", syncStatusPill);
-      $("vatMode").addEventListener("change", recalcAll);
-
-      // IMPORTANT: shift toggle must listen "change"
-      $("shiftMode").addEventListener("change", ()=>syncShiftUI(true));
-
-      $("customerSelect").addEventListener("change", ()=>{
-        const c=currentCustomer();
-        if(c){
-          $("custName").value=c.name||"";
-          $("custMail").value=c.mail||"";
-          $("custData").value=c.data||"";
-          state.customerId=c.id;
-        }else{
-          $("custName").value="";
-          $("custMail").value="";
-          $("custData").value="";
-          state.customerId="";
-        }
-        autoSave();
-      });
-
+      // customers
+      $("customerSelect").addEventListener("change", (e)=>loadCustomerToForm(e.target.value));
+      $("btnCustSave").addEventListener("click", saveCustomerFromForm);
+      $("btnCustDelete").addEventListener("click", deleteCustomer);
       $("btnCustNew").addEventListener("click", ()=>{
-        $("customerSelect").value="";
-        $("custName").value="";
-        $("custMail").value="";
-        $("custData").value="";
-        state.customerId="";
+        state.custKey=""; $("customerSelect").value="";
+        $("custName").value=""; $("custMail").value=""; $("custData").value="";
+        state.custName=""; state.custMail=""; state.custData="";
         autoSave();
         toast("Neuer Kunde");
       });
 
-      $("btnCustSave").addEventListener("click", ()=>{
-        const name=$("custName").value.trim();
-        if(!name){ toast("Bitte Kundenname eingeben"); return; }
-        const id = state.customerId || ("c_"+Date.now());
-        const obj={id,name,mail:$("custMail").value.trim(),data:$("custData").value};
-        const idx=customers.findIndex(x=>x.id===id);
-        if(idx>=0) customers[idx]=obj; else customers.push(obj);
-        saveCustomers();
-        state.customerId=id;
-        renderCustomerSelect();
-        $("customerSelect").value=id;
-        autoSave();
-        toast("Kunde gespeichert ✅");
-      });
+      // top actions
+      $("btnNew").addEventListener("click", newInvoice);
+      $("btnReset").addEventListener("click", hardReset);
 
-      $("btnCustDelete").addEventListener("click", ()=>{
-        const id=$("customerSelect").value;
-        if(!id){ toast("Kein Kunde gewählt"); return; }
-        customers = customers.filter(x=>x.id!==id);
-        saveCustomers();
-        state.customerId="";
-        renderCustomerSelect();
-        $("custName").value=""; $("custMail").value=""; $("custData").value="";
-        autoSave();
-        toast("Kunde gelöscht");
-      });
+      $("btnSaveInv").addEventListener("click", saveInvoiceToList);
+      $("btnList").addEventListener("click", showInvoiceList);
 
-      $("btnPdf").addEventListener("click", async ()=>{
-        try{ await savePDF(); }
-        catch(e){ console.error(e); toast("PDF Fehler ❌"); }
-      });
+      $("btnPdf").addEventListener("click", savePDF);
 
-      $("btnSaveInv").addEventListener("click", ()=>{
-        const d=collectDraft();
-        if(!d.invNo){ toast("Rechnungsnummer fehlt"); return; }
-        const id = d.invNo;
-        const idx=invoices.findIndex(x=>x.id===id);
-        const item={id, when: Date.now(), draft:d};
-        if(idx>=0) invoices[idx]=item; else invoices.unshift(item);
-        saveInvoices();
-        bumpSeqIfNeeded(d.invDate, d.invNo);
-        toast("Rechnung gespeichert ✅");
-      });
+      // ✅ ONLY PRINT
+      $("btnPrint").addEventListener("click", doPrint);
 
-      $("btnList").addEventListener("click", ()=>{
-        if(!invoices.length){ toast("Keine gespeicherten Rechnungen"); return; }
-        const last = invoices[0];
-        loadDraft(last.draft);
-        toast("Letzte Rechnung geladen");
-      });
+      // logo
+      $("btnLogo").addEventListener("click", pickLogo);
+      $("logoFile").addEventListener("change", (e)=>onLogoPicked(e.target.files && e.target.files[0]));
+    };
 
-      $("btnNew").addEventListener("click", ()=>{
-        $("invDate").dataset.touched="";
-        $("invNo").dataset.touched="";
-        $("dueDate").dataset.touched="";
-        const today=ymd(new Date());
-        $("invDate").value=today;
-        $("payTerm").value="14";
-        $("dueDate").value=calcDue(today,"14");
-        $("invNo").value=makeAutoInvNo(today);
-        $("statusSel").value="Entwurf";
-        syncStatusPill();
+    // ---------- init ----------
+    const init = async ()=>{
+      // default invDate if missing
+      if(!state.invDate) state.invDate = ymd(new Date());
+      // set date inputs now
+      $("invDate").value = state.invDate;
 
-        $("customerSelect").value="";
-        $("custName").value="";
-        $("custMail").value="";
-        $("custData").value="";
-        state.customerId="";
+      await ensureFestLogo();         // ✅ FEST logo (auto from logo.png or stored)
+      wireEvents();
+      bindToState();
 
-        $("totalHours").value="0";
-        $("hNight").value="0";
-        $("hSun").value="0";
-        $("hHol").value="0";
-        $("hBase").value="0";
-
-        recalcAll();
-        autoSave();
-        toast("Neu ✅");
-      });
-
-      $("btnReset").addEventListener("click", ()=>{
-        if(!confirm("Alles zurücksetzen? (Draft + Logo + Settings)")) return;
-        localStorage.removeItem(KEY_APP);
-        localStorage.removeItem(KEY_LOGO);
-        localStorage.removeItem(KEY_SHIFT);
-        state = {};
-        logoDataUrl="";
-        location.reload();
-      });
-
-      // Logo upload (persists => FEST)
-      $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
-      $("logoFile").addEventListener("change", async (e)=>{
-        const f = e.target.files && e.target.files[0];
-        if(!f) return;
-        const dataUrl = await blobToDataURL(f);
-        logoDataUrl = dataUrl;
-        localStorage.setItem(KEY_LOGO, dataUrl);
-        applyTopLogo();
-        toast("Logo gespeichert ✅");
-      });
-    }
-
-    function loadDraft(d){
-      $("firmName").value=d.firmName||"";
-      $("firmAddr").value=d.firmAddr||"";
-      $("firmTel").value=d.firmTel||"";
-      $("firmMail").value=d.firmMail||"";
-      $("firmTax").value=d.firmTax||"";
-      $("firmIban").value=d.firmIban||"";
-      $("firmBic").value=d.firmBic||"";
-
-      $("place").value=d.place||"";
-      $("period").value=d.period||"";
-      $("desc").value=d.desc||"";
-      $("refpo").value=d.refpo||"";
-
-      $("invDate").value=d.invDate||ymd(new Date());
-      $("payTerm").value=d.payTerm||"14";
-      $("dueDate").value=d.dueDate||calcDue($("invDate").value,$("payTerm").value);
-      $("invNo").value=d.invNo||makeAutoInvNo($("invDate").value);
-
-      $("statusSel").value=d.status||"Entwurf";
-      syncStatusPill();
-
-      $("vatMode").value=d.vatMode||"Klein";
-
-      $("rate").value=ndef(d.rate,23);
-      $("nightPct").value=ndef(d.nightPct,5);
-      $("sunPct").value=ndef(d.sunPct,50);
-      $("holPct").value=ndef(d.holPct,100);
-
-      $("ma").value=ndef(d.ma,10);
-      $("totalHours").value=ndef(d.totalHours,0);
-
-      $("hNight").value=ndef(d.hNight,0);
-      $("hSun").value=ndef(d.hSun,0);
-      $("hHol").value=ndef(d.hHol,0);
-      $("hBase").value=ndef(d.hBase,0);
-
-      $("customerSelect").value=d.customerId||"";
-      if(d.customerId){
-        const c=customers.find(x=>x.id===d.customerId);
-        if(c){
-          $("custName").value=c.name||"";
-          $("custMail").value=c.mail||"";
-          $("custData").value=c.data||"";
-        }
-      }else{
-        $("custName").value=d.custName||"";
-        $("custMail").value=d.custMail||"";
-        $("custData").value=d.custData||"";
+      // if dueDate empty -> compute
+      if(!state.dueDate){
+        syncDueDate(true);
+        state.dueDate = $("dueDate").value;
       }
+      ensureInvNo();
+      recalc();
 
-      $("shiftMode").checked=!!d.shiftMode;
-      localStorage.setItem(KEY_SHIFT, $("shiftMode").checked ? "1":"0");
-      syncShiftUI(false);
+      toast("Bereit");
+    };
 
-      recalcAll();
-      autoSave();
-    }
-
-    // start
     init();
 
   })();
