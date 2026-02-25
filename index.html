@@ -110,7 +110,7 @@
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
-          <div class="subtitle">Business Ready • Hybrid Zuschläge (% oder Festpreis) • PDF/Print • Kunden/Rechnungen speichern</div>
+          <div class="subtitle">Business Ready • Hybrid Zuschläge (%/Festpreis) • Auto Tag/Nacht • PDF/Print • Kunden/Rechnungen speichern</div>
         </div>
       </div>
 
@@ -145,7 +145,7 @@
         </h2>
         <div class="body">
 
-          <!-- ✅ NEW: Firmenname/Brand -->
+          <!-- Firmenname/Brand + Adresse -->
           <div class="row2">
             <div>
               <label>Firmenname / Brand *</label>
@@ -172,9 +172,7 @@
             <div>
               <label>Steuernummer / Hinweis *</label>
               <input id="issuerTaxNo" value="wird nachgereicht" />
-              <div class="note" style="margin-top:8px">
-                Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.
-              </div>
+              <div class="note" style="margin-top:8px">Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.</div>
             </div>
             <div>
               <label>USt-IdNr (optional)</label>
@@ -262,9 +260,7 @@
                 <option value="kmu">0% (Kleinunternehmer §19)</option>
                 <option value="vat19">19% USt</option>
               </select>
-              <div class="note" style="margin-top:8px" id="vatHint">
-                Gemäß §19 UStG wird keine Umsatzsteuer berechnet.
-              </div>
+              <div class="note" style="margin-top:8px" id="vatHint">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
             </div>
             <div>
               <label>Leistungsbeschreibung *</label>
@@ -302,9 +298,7 @@
                 <option value="percent">Zuschlag % (auf Tagpreis)</option>
                 <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
               </select>
-              <div class="note" style="margin-top:8px">
-                Empfehlung: Wenn Kunde % vorgibt → Prozent. Wenn feste Stundensätze vereinbart → Festpreis.
-              </div>
+              <div class="note" style="margin-top:8px">Empfehlung: Kunde % → Prozent. Feste Stundensätze → Festpreis.</div>
             </div>
             <div>
               <label>Verwendungszweck (auto)</label>
@@ -315,6 +309,32 @@
 
           <div class="hr"></div>
 
+          <!-- ✅ AUTO TAG/NACHT -->
+          <div class="row3">
+            <div>
+              <label>Schicht Beginn</label>
+              <input id="shiftStart" type="time" value="18:00"/>
+            </div>
+            <div>
+              <label>Schicht Ende</label>
+              <input id="shiftEnd" type="time" value="06:00"/>
+            </div>
+            <div>
+              <label>Nachtzeit Regel</label>
+              <select id="nachtRule">
+                <option value="22-06">22:00 – 06:00 (Standard)</option>
+                <option value="23-06">23:00 – 06:00</option>
+                <option value="20-06">20:00 – 06:00</option>
+              </select>
+            </div>
+          </div>
+          <div class="note" style="margin-top:10px">
+            Auto-Funktion berechnet <b>Tagstunden</b> und <b>Nachtstunden</b> aus Beginn/Ende. Sonntag/Feiertag trägst du weiterhin separat ein.
+          </div>
+
+          <div class="hr"></div>
+
+          <!-- Hours -->
           <div class="row3">
             <div>
               <label>Tagstunden</label>
@@ -334,9 +354,7 @@
             <div>
               <label>Feiertagstunden</label>
               <input id="feiertagH" type="number" min="0" step="0.25" value="0"/>
-              <div class="note" style="margin-top:8px">
-                Keine Doppelzählung: trage die Stunden nur in <b>eine</b> Kategorie ein.
-              </div>
+              <div class="note" style="margin-top:8px">Keine Doppelzählung: Stunden nur in <b>eine</b> Kategorie eintragen.</div>
             </div>
             <div>
               <label>Hinweis / Notiz (optional)</label>
@@ -368,9 +386,7 @@
             <div>
               <label>Rechnung Text (auto)</label>
               <textarea id="rechnungText"></textarea>
-              <div class="note" style="margin-top:8px">
-                Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).
-              </div>
+              <div class="note" style="margin-top:8px">Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).</div>
             </div>
           </div>
 
@@ -461,16 +477,16 @@
   <!-- PRINT/PDF AREA -->
   <div id="printAreaWrap"><div id="printArea"></div></div>
 
-  <!-- logo upload -->
+  <!-- FEST LOGO upload -->
   <input id="logoFile" type="file" accept="image/*" style="display:none"/>
 
   <script>
     // ===== Storage Keys =====
-    const KEY_APP = "ms_rechnung_app_v1";
+    const KEY_APP = "ms_rechnung_app_v2";      // bumped version
     const KEY_CUSTOMERS = "ms_customers_v1";
     const KEY_INVOICES = "ms_invoices_v1";
     const KEY_COUNTERS = "ms_inv_counters_v1";
-    const KEY_LOGO = "ms_logo_v1";
+    const KEY_LOGO = "ms_logo_v1";            // FEST LOGO
 
     // ===== Helpers =====
     const $ = (id)=>document.getElementById(id);
@@ -524,18 +540,7 @@
       }
     }
 
-    // ===== Init defaults =====
-    function initDefaults(){
-      $("invDate").value = $("invDate").value || todayISO();
-      $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
-      $("invNo").value = $("invNo").value || nextInvoiceNo($("invDate").value);
-      $("modeBadge").textContent = "MODE: %";
-      updateVatHint();
-      updatePurpose();
-      renderCustomers();
-      setStatus("Bereit", true);
-    }
-
+    // ===== Invoice number =====
     function nextInvoiceNo(invDateISO){
       const counters = loadJSON(KEY_COUNTERS, {});
       const d = yyyymmdd(invDateISO || todayISO());
@@ -566,7 +571,7 @@
 
     function validateCore(){
       const must = [
-        ["issuerCompany","Firmenname"],   // ✅ REQUIRED
+        ["issuerCompany","Firmenname"],
         ["issuerAddress","Adresse"],
         ["issuerEmail","E-Mail"],
         ["issuerTaxNo","Steuernummer/Hinweis"],
@@ -588,6 +593,48 @@
       }
       setStatus("OK", true);
       return true;
+    }
+
+    // ===== AUTO Tag/Nacht calculation =====
+    function parseTimeToMinutes(t){
+      if(!t) return null;
+      const [h,m] = t.split(":").map(Number);
+      if(!Number.isFinite(h) || !Number.isFinite(m)) return null;
+      return h*60 + m;
+    }
+    function getNightWindow(){
+      const rule = $("nachtRule").value;
+      if(rule==="23-06") return {start: 23*60, end: 30*60}; // 06 next day
+      if(rule==="20-06") return {start: 20*60, end: 30*60};
+      return {start: 22*60, end: 30*60}; // default 22-06
+    }
+    function calculateDayNight(){
+      const start = parseTimeToMinutes($("shiftStart").value);
+      const endRaw = parseTimeToMinutes($("shiftEnd").value);
+      if(start===null || endRaw===null) return;
+
+      let end = endRaw;
+      if(end <= start) end += 1440; // pass midnight
+
+      const totalMin = end - start;
+      if(totalMin < 0) return;
+
+      const {start: nightStart, end: nightEnd} = getNightWindow();
+
+      // count night minutes by iterating minute by minute (simple & reliable)
+      let nightMin = 0;
+      for(let i=start;i<end;i++){
+        const mod = i % 1440;
+        const isNight = (mod >= nightStart) || (mod < (nightEnd % 1440)); // nightEnd%1440 = 360
+        if(isNight) nightMin++;
+      }
+
+      const nightH = nightMin / 60;
+      const dayH = (totalMin/60) - nightH;
+
+      // write hours (keep 2 decimals)
+      $("tagH").value = Math.max(0, dayH).toFixed(2);
+      $("nachtH").value = Math.max(0, nightH).toFixed(2);
     }
 
     function calculate(){
@@ -649,10 +696,13 @@
       $("subTotal").textContent = fmtEUR(subTotal);
       $("grandTotal").textContent = fmtEUR(grandTotal);
 
+      // Rechnung text
       const obj = String($("objekt").value||"").trim();
       const zr = String($("zeitraum").value||"").trim();
       const note = String($("note").value||"").trim();
+      const company = String($("issuerCompany").value||"Masculine Security").trim();
 
+      const nightRuleText = $("nachtRule").value.replace("-", ":00 – ").replace("06", "06:00");
       const modeLine = (mode==="percent")
         ? `Zuschläge gemäß Prozent (auf Tagpreis ${fmtEUR(tagPreis)}).`
         : `Stundensätze laut Vereinbarung (Festpreise).`;
@@ -664,7 +714,7 @@
       const extraA = obj ? `Objekt/Ort: ${obj}` : "";
       const extraB = zr ? `Zeitraum: ${zr}` : "";
 
-      const lines = [
+      $("rechnungText").value = [
         `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
         extraA, extraB,
         "",
@@ -685,11 +735,11 @@
         `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
         "",
         modeLine,
+        `Nachtzeit laut Vereinbarung: ${$("nachtRule").value==="22-06" ? "22:00 – 06:00" : ($("nachtRule").value==="23-06" ? "23:00 – 06:00" : "20:00 – 06:00")}`,
         "Abrechnung gemäß Einsatzzeiten.",
         note ? `Hinweis: ${note}` : ""
-      ];
+      ].filter(Boolean).join("\n");
 
-      $("rechnungText").value = lines.join("\n");
       autoSave();
     }
 
@@ -710,14 +760,10 @@
         sel.appendChild(o);
       }
     }
-
     function saveCustomer(){
       const name = String($("custName").value||"").trim();
       const address = String($("custAddress").value||"").trim();
-      if(!name || !address){
-        setStatus("Kunde: Name/Adresse fehlt", false);
-        return;
-      }
+      if(!name || !address){ setStatus("Kunde: Name/Adresse fehlt", false); return; }
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const id = cryptoRandomId();
       customers.push({
@@ -732,7 +778,6 @@
       $("customerPick").value = id;
       setStatus("Kunde gespeichert", true);
     }
-
     function loadCustomer(id){
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const c = customers.find(x=>x.id===id);
@@ -744,7 +789,6 @@
       setStatus("Kunde geladen", true);
       calculate();
     }
-
     function deleteCustomer(){
       const id = $("customerPick").value;
       if(!id){ setStatus("Kein Kunde ausgewählt", false); return; }
@@ -756,6 +800,35 @@
     }
 
     // ===== Invoices =====
+    function collectInvoice(){
+      const fields = [
+        "issuerCompany",
+        "issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId",
+        "issuerIban","issuerBic","issuerHolder",
+        "custName","custEmail","custContact","custAddress",
+        "invDate","dueDate","invNo","vatMode","serviceTitle","objekt","zeitraum",
+        "mitarbeiter","tagPreis","modus","purpose",
+        "shiftStart","shiftEnd","nachtRule",
+        "tagH","nachtH","sonntagH","feiertagH",
+        "nachtPercent","sonntagPercent","feiertagPercent",
+        "nachtFest","sonntagFest","feiertagFest",
+        "note","rechnungText"
+      ];
+      const form = {};
+      for(const id of fields){ if($(id)) form[id] = $(id).value; }
+      return {
+        invNo: $("invNo").value,
+        invDate: $("invDate").value,
+        custName: $("custName").value,
+        serviceTitle: $("serviceTitle").value,
+        purpose: $("purpose").value,
+        subTotalFmt: $("subTotal").textContent,
+        grandTotalFmt: $("grandTotal").textContent,
+        logoDataUrl: $("logoImg").src || "",
+        form
+      };
+    }
+
     function saveInvoice(){
       if(!validateCore()) return;
       const inv = collectInvoice();
@@ -789,7 +862,6 @@
         `;
         wrap.appendChild(el);
       }
-
       wrap.querySelectorAll("button").forEach(b=>{
         b.addEventListener("click", async ()=>{
           const act = b.getAttribute("data-act");
@@ -808,50 +880,17 @@
       const invoices = loadJSON(KEY_INVOICES, []);
       const inv = invoices.find(x=>x.invNo===invNo);
       if(!inv){ setStatus("Rechnung nicht gefunden", false); return; }
-      for(const [k,v] of Object.entries(inv.form || {})){
-        if($(k)) $(k).value = v;
-      }
-      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); }
+      for(const [k,v] of Object.entries(inv.form || {})){ if($(k)) $(k).value = v; }
+      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); } // keep fest
       setStatus("Rechnung geladen", true);
       calculate();
       showList(false);
     }
-
     function deleteInvoice(invNo){
       const invoices = loadJSON(KEY_INVOICES, []).filter(x=>x.invNo!==invNo);
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gelöscht", true);
       renderInvoices();
-    }
-
-    function collectInvoice(){
-      const fields = [
-        "issuerCompany", // ✅ NEW
-        "issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId",
-        "issuerIban","issuerBic","issuerHolder",
-        "custName","custEmail","custContact","custAddress",
-        "invDate","dueDate","invNo","vatMode","serviceTitle","objekt","zeitraum",
-        "mitarbeiter","tagPreis","modus","purpose",
-        "tagH","nachtH","sonntagH","feiertagH",
-        "nachtPercent","sonntagPercent","feiertagPercent",
-        "nachtFest","sonntagFest","feiertagFest",
-        "note","rechnungText"
-      ];
-      const form = {};
-      for(const id of fields){
-        if($(id)) form[id] = $(id).value;
-      }
-      return {
-        invNo: $("invNo").value,
-        invDate: $("invDate").value,
-        custName: $("custName").value,
-        serviceTitle: $("serviceTitle").value,
-        purpose: $("purpose").value,
-        subTotalFmt: $("subTotal").textContent,
-        grandTotalFmt: $("grandTotal").textContent,
-        logoDataUrl: $("logoImg").src || "",
-        form
-      };
     }
 
     // ===== wait images before PDF/Print =====
@@ -867,7 +906,6 @@
     // ===== PDF/Print =====
     function buildPrintHtml(inv){
       const f = inv.form;
-
       const company = String(f.issuerCompany || "Masculine Security").trim();
 
       const logoSrc = inv.logoDataUrl || $("logoImg").src || "";
@@ -917,13 +955,14 @@
       const zr = String(f.zeitraum||"").trim();
       const note = String(f.note||"").trim();
 
+      const nightText = f.nachtRule==="23-06" ? "23:00 – 06:00" : (f.nachtRule==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
+
       return `
         <div class="invHeader">
           <div class="left">
             ${logo}
             <div>
               <p class="invTitle">Rechnung</p>
-              <!-- ✅ NOW: show company/brand -->
               <div class="invMeta"><b>${escapeHtml(company)}</b></div>
               <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
               ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
@@ -941,7 +980,6 @@
         <div class="invGrid2" style="margin-top:12px">
           <div class="invBox">
             <h4>Rechnungssteller</h4>
-            <!-- ✅ NOW: show company/brand -->
             <div class="mini"><b>${escapeHtml(company)}</b></div>
             <div class="mini">${escapeHtml(f.issuerAddress||"")}</div>
             <div class="mini">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
@@ -961,6 +999,7 @@
 
         <div class="invBox" style="margin-top:12px">
           <h4>Leistungsübersicht</h4>
+          <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
           <table class="invTable">
             <thead>
               <tr>
@@ -1082,7 +1121,6 @@
         saveJSON(KEY_APP, state);
       }, 250);
     }
-
     function restoreAutoSave(){
       const state = loadJSON(KEY_APP, null);
       if(!state) return;
@@ -1096,12 +1134,10 @@
       $("listCard").style.display = show ? "" : "none";
       if(show){ renderInvoices(); }
     }
-
     function resetAll(){
       localStorage.removeItem(KEY_APP);
       location.reload();
     }
-
     function newInvoice(){
       const keep = [
         "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
@@ -1109,12 +1145,11 @@
         "vatMode","serviceTitle","objekt","zeitraum",
         "mitarbeiter","tagPreis","modus",
         "nachtPercent","sonntagPercent","feiertagPercent",
-        "nachtFest","sonntagFest","feiertagFest"
+        "nachtFest","sonntagFest","feiertagFest",
+        "nachtRule"
       ];
       const snapshot = {};
-      for(const id of keep){
-        if($(id)) snapshot[id] = $(id).value;
-      }
+      for(const id of keep){ if($(id)) snapshot[id] = $(id).value; }
 
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
@@ -1122,15 +1157,18 @@
         el.value = "";
       });
 
-      for(const [id,val] of Object.entries(snapshot)){
-        if($(id)) $(id).value = val;
-      }
+      for(const [id,val] of Object.entries(snapshot)){ if($(id)) $(id).value = val; }
 
       $("invDate").value = todayISO();
       $("dueDate").value = addDaysISO($("invDate").value, 14);
       $("invNo").value = nextInvoiceNo($("invDate").value);
 
-      $("tagH").value = 0; $("nachtH").value = 0; $("sonntagH").value = 0; $("feiertagH").value = 0;
+      $("shiftStart").value = "18:00";
+      $("shiftEnd").value = "06:00";
+      calculateDayNight();
+
+      $("sonntagH").value = 0;
+      $("feiertagH").value = 0;
       $("note").value = "";
       $("rechnungText").value = "";
 
@@ -1168,6 +1206,7 @@
         window.location.href = `mailto:${mail}`;
       });
 
+      // FEST LOGO
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change", (e)=>{
         const file = e.target.files?.[0];
@@ -1177,6 +1216,7 @@
         rd.readAsDataURL(file);
       });
 
+      // actions
       $("btnSave").addEventListener("click", saveInvoice);
       $("btnPdf").addEventListener("click", exportPdf);
       $("btnPrint").addEventListener("click", doPrint);
@@ -1187,23 +1227,45 @@
         showList(now);
       });
 
+      // customers
       $("btnSaveCustomer").addEventListener("click", saveCustomer);
       $("btnDeleteCustomer").addEventListener("click", deleteCustomer);
       $("customerPick").addEventListener("change", (e)=> loadCustomer(e.target.value));
 
+      // date change
       $("invDate").addEventListener("change", ()=>{
         $("dueDate").value = addDaysISO($("invDate").value, 14);
         $("invNo").value = nextInvoiceNo($("invDate").value);
         calculate();
       });
 
+      // mode changes
       $("vatMode").addEventListener("change", calculate);
       $("modus").addEventListener("change", calculate);
 
+      // AUTO day/night
+      $("shiftStart").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
+      $("shiftEnd").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
+      $("nachtRule").addEventListener("change", ()=>{ calculateDayNight(); calculate(); });
+
+      // all inputs
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
+        if(el.id==="shiftStart" || el.id==="shiftEnd" || el.id==="nachtRule") return; // handled above
         el.addEventListener("input", calculate);
       });
+    }
+
+    function initDefaults(){
+      $("invDate").value = $("invDate").value || todayISO();
+      $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
+      $("invNo").value = $("invNo").value || nextInvoiceNo($("invDate").value);
+      updateVatHint();
+      updatePurpose();
+      renderCustomers();
+      toggleModeUI();
+      calculateDayNight();
+      setStatus("Bereit", true);
     }
 
     // ===== Boot =====
@@ -1214,7 +1276,6 @@
       initDefaults();
       calculate();
       showList(false);
-      setStatus("Bereit", true);
     });
   </script>
 </body>
