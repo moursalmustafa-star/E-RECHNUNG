@@ -3,25 +3,31 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — B2B Rechnung System (100% Business Ready)</title>
 
-  <!-- PDF libs -->
+  <!-- ✅ Strong cache-bust (fix blank/old versions on GitHub Pages / Android) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+
+  <title>Masculine Security — B2B Rechnung (Lexoffice-Style)</title>
+
+  <!-- ✅ PDF libs (stable CDN) -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{
+      --brand:#0b5fa8;
+      --brand2:#0a4d86;
+      --bg:#f6f8fc;
+      --card:#ffffff;
       --ink:#0b1220;
-      --muted:#475569;
-      --line:#e5e7eb;
-      --paper:#ffffff;
-      --bg:#f5f7fb;
+      --muted:#66758f;
+      --line:#e3e9f2;
 
-      --accent:#0b5fa8;
-      --accent2:#0a4d86;
-
-      --r:16px;
-      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --r:18px;
+      --shadow:0 18px 55px rgba(15,23,42,.10);
+      --shadow2:0 10px 26px rgba(15,23,42,.08);
 
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
@@ -29,343 +35,422 @@
 
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg)}
-
-    /* ===== Error banner (shows if JS breaks) ===== */
-    .errBanner{
-      display:none;
-      position:sticky; top:0; z-index:9999;
-      background:#fee2e2; color:#7f1d1d;
-      border-bottom:1px solid #fecaca;
-      padding:10px 12px;
-      font-weight:900;
-      font-size:13px;
-    }
-    .errBanner small{display:block;font-weight:700;margin-top:4px;opacity:.9}
-    .errBanner code{font-family:var(--mono)}
-    .errBanner .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .errBanner button{
-      border:1px solid #ef4444;background:#fff;color:#7f1d1d;
-      border-radius:10px;padding:8px 10px;font-weight:950;cursor:pointer;
-      box-shadow:none;
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(11,95,168,.14), transparent 55%),
+        radial-gradient(1000px 600px at 90% 0%, rgba(10,77,134,.10), transparent 50%),
+        var(--bg);
     }
 
     /* ===== Topbar ===== */
     .topbar{
-      position:sticky;top:0;z-index:9;
-      background:rgba(255,255,255,.84);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(229,231,235,.95);
+      position:sticky; top:0; z-index:10;
+      background:rgba(255,255,255,.78);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(227,233,242,.75);
     }
-    .topbarInner{
-      max-width:1180px;margin:0 auto;padding:14px 14px;
-      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:280px}
+    .topbarInner{max-width:1240px;margin:0 auto;padding:14px 16px}
+    .row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+    .brand{display:flex; align-items:center; gap:12px; min-width:280px}
     .logo{
-      width:44px;height:44px;border-radius:12px;
-      border:1px solid rgba(229,231,235,.95);
-      overflow:hidden;background:#fff;
-      box-shadow:0 10px 24px rgba(15,23,42,.06);
-      display:grid;place-items:center;
-      flex:0 0 auto;
+      width:46px;height:46px;border-radius:14px;
+      display:grid;place-items:center;overflow:hidden;
+      background:linear-gradient(180deg, rgba(11,95,168,.10), rgba(11,95,168,.02));
+      border:1px solid rgba(11,95,168,.18);
+      box-shadow: var(--shadow2);
     }
     .logo img{width:100%;height:100%;object-fit:cover}
-    .btitle{font-weight:950;letter-spacing:-.3px;line-height:1.1}
-    .bsub{font-size:12px;color:var(--muted);margin-top:2px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+    .title{font-weight:950;letter-spacing:-.2px;line-height:1.1;font-size:15px;color:#0a2540}
+    .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+    .actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto}
 
+    /* ===== Buttons ===== */
     button{
-      border:1px solid rgba(229,231,235,.98);
-      background:#fff;color:#0a2540;font-weight:900;
-      border-radius:12px;padding:10px 12px;cursor:pointer;
-      box-shadow:0 8px 20px rgba(15,23,42,.06);
-      transition: transform .06s ease, box-shadow .14s ease, border-color .14s ease;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+      background:#fff;
+      color:#0a2540;
+      box-shadow:0 6px 18px rgba(15,23,42,.06);
+      transition: transform .06s ease, box-shadow .15s ease, border-color .15s ease;
+      -webkit-tap-highlight-color: transparent;
     }
-    button:hover{box-shadow:0 12px 26px rgba(15,23,42,.10);border-color:#dbe3ef}
-    button:active{transform:translateY(1px)}
+    button:hover{box-shadow:0 10px 24px rgba(15,23,42,.10); border-color:#d7e2f0}
+    button:active{transform: translateY(1px)}
     button.primary{
-      background:linear-gradient(180deg,var(--accent),var(--accent2));
-      color:#fff;border-color:rgba(11,95,168,.35);
-      box-shadow:0 14px 34px rgba(11,95,168,.22);
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      color:#fff;
+      border-color:rgba(11,95,168,.35);
+      box-shadow:0 14px 32px rgba(11,95,168,.22);
     }
-    button.ghost{background:transparent;box-shadow:none}
+    button.primary:hover{box-shadow:0 18px 42px rgba(11,95,168,.28)}
+    button.ghost{background:transparent; box-shadow:none}
     button.ok{
-      background:linear-gradient(180deg,#17b897,#12a988);
-      color:#fff;border-color:rgba(18,169,136,.35);
-      box-shadow:0 14px 34px rgba(18,169,136,.18);
+      background:linear-gradient(180deg, #17b897, #12a988);
+      border-color:rgba(18,169,136,.35);
+      color:#fff;
+      box-shadow:0 14px 32px rgba(18,169,136,.20);
     }
     button.danger{
-      background:linear-gradient(180deg,#ff4d6d,#e11d48);
-      color:#fff;border-color:rgba(225,29,72,.35);
-      box-shadow:0 14px 34px rgba(225,29,72,.16);
+      background:linear-gradient(180deg, #ff4d6d, #e11d48);
+      border-color:rgba(225,29,72,.35);
+      color:#fff;
+      box-shadow:0 14px 32px rgba(225,29,72,.18);
     }
 
-    .chips{
-      max-width:1180px;margin:0 auto;padding:0 14px 12px;
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-      color:var(--muted);font-size:12px;
-    }
-    .tag{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(229,231,235,.98);
-      background:#fff;
-      box-shadow:0 8px 20px rgba(15,23,42,.05);
-      font-weight:900;
+    /* ✅ Clickable chips (anchors) */
+    .brandSub{
+      margin-top:10px;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
       color:var(--muted);
-      white-space:nowrap;
+      font-size:12px;
+    }
+    a.linkbtn{
+      text-decoration:none;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0a2540;
+      font-weight:900;
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
     }
     .dot{width:8px;height:8px;border-radius:99px;background:#22c55e}
-    .dot.gray{background:#94a3b8}
 
-    /* Clickable chips as <a> */
-    a.chipLink{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(229,231,235,.98);
-      background:#fff;
-      box-shadow:0 8px 20px rgba(15,23,42,.05);
-      font-weight:950;
-      color:#0a2540;
-      text-decoration:none;
-      cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
+    /* ===== Error banner (100% no-blank debugging) ===== */
+    .err{
+      display:none;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(225,29,72,.25);
+      background:rgba(225,29,72,.06);
+      color:#991b1b;
+      font-size:12px;
+      font-weight:800;
+      white-space:pre-wrap;
     }
-    a.chipLink:hover{border-color:#dbe3ef;box-shadow:0 12px 26px rgba(15,23,42,.10)}
-    a.chipLink:active{transform:translateY(1px)}
 
     /* ===== Layout ===== */
-    .shell{
-      max-width:1180px;margin:0 auto;padding:14px 14px 44px;
-      display:grid;gap:14px;
-      min-height: calc(100vh - 120px);
+    .appShell{
+      max-width:1240px;
+      margin:0 auto;
+      padding:18px 14px 50px;
+      display:grid;
+      gap:14px;
     }
-    @media (min-width:980px){.shell{grid-template-columns:260px 1fr}}
-
+    @media (min-width:1020px){
+      .appShell{ grid-template-columns: 260px 1fr; }
+    }
     .sidebar{
-      background:#fff;border:1px solid rgba(229,231,235,.98);
-      border-radius:16px;box-shadow:var(--shadow);
-      overflow:hidden;position:sticky;top:92px;height:calc(100vh - 110px);
+      background:#fff;
+      border:1px solid rgba(227,233,242,.85);
+      border-radius:18px;
+      box-shadow: 0 18px 55px rgba(15,23,42,.08);
+      overflow:hidden;
+      position:sticky;
+      top:92px;
+      height: calc(100vh - 110px);
     }
-    @media (max-width:979px){
-      .sidebar{position:relative;top:auto;height:auto}
+    .sideHead{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(227,233,242,.85);
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
     }
-    .shead{padding:14px 14px 10px;border-bottom:1px solid rgba(229,231,235,.98);background:linear-gradient(180deg,#fff,#fbfcff)}
-    .shead .h1{font-weight:950;color:#0a2540;font-size:14px}
-    .shead .h2{font-size:12px;color:var(--muted);margin-top:4px}
-    .snav{padding:10px}
-    .sbtn{
-      width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 12px;border-radius:14px;border:1px solid transparent;background:transparent;
-      font-weight:950;color:#0a2540;cursor:pointer;box-shadow:none;
+    .sideHead .h1{font-weight:950;color:#0a2540;font-size:14px}
+    .sideHead .h2{font-size:12px;color:#66758f;margin-top:4px}
+    .sideNav{padding:10px}
+    .sideBtn{
+      width:100%;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid transparent;
+      background:transparent;
+      cursor:pointer;
+      font-weight:950;
+      color:#0a2540;
+      box-shadow:none;
     }
-    .sbtn:hover{background:rgba(11,95,168,.06);border-color:rgba(11,95,168,.12)}
-    .sbtn.active{background:linear-gradient(180deg,rgba(11,95,168,.12),rgba(11,95,168,.05));border-color:rgba(11,95,168,.18)}
-    .stag{
-      font-size:12px;color:var(--muted);border:1px solid rgba(229,231,235,.98);background:#fff;
-      padding:4px 8px;border-radius:999px;font-family:var(--mono);
+    .sideBtn:hover{background:rgba(11,95,168,.06);border-color:rgba(11,95,168,.12)}
+    .sideBtn.active{
+      background:linear-gradient(180deg, rgba(11,95,168,.12), rgba(11,95,168,.05));
+      border-color:rgba(11,95,168,.18);
     }
+    .sideTag{
+      font-size:12px;
+      color:#66758f;
+      border:1px solid rgba(227,233,242,.95);
+      background:#fff;
+      padding:4px 8px;
+      border-radius:999px;
+      font-family: var(--mono);
+    }
+    .mainArea{min-width:0}
 
-    .main{min-width:0}
-    /* ✅ FAILSAFE VIEWS:
-       If JS fails -> all views visible (so not blank).
-       JS will set [aria-hidden="true"] on non-active views. */
-    .view[aria-hidden="true"]{display:none}
-    .view{display:block}
+    /* ✅ IMPORTANT: avoid "blank page" if JS fails (Create view visible by default) */
+    .view{display:none}
+    #viewCreate{display:block}
+    .view.active{display:block}
 
+    /* ===== Cards ===== */
+    .grid{display:grid;gap:14px}
+    @media (min-width:1020px){.grid{grid-template-columns:1.35fr .85fr}}
     .card{
-      background:#fff;border:1px solid rgba(229,231,235,.98);
-      border-radius:16px;box-shadow:var(--shadow);overflow:hidden;
+      background:var(--card);
+      border:1px solid rgba(227,233,242,.85);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
     }
     .card h2{
-      margin:0;padding:14px 16px;font-size:13px;letter-spacing:.2px;color:#0a2540;
-      background:linear-gradient(180deg,#fff,#fbfcff);border-bottom:1px solid rgba(229,231,235,.98);
-      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      margin:0;
+      padding:14px 16px;
+      font-size:13px;
+      letter-spacing:.2px;
+      color:#0a2540;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border-bottom:1px solid rgba(227,233,242,.85);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     .card .body{padding:14px 16px}
-
-    .grid{display:grid;gap:14px}
-    @media (min-width:980px){.grid{grid-template-columns:1.35fr .85fr}}
 
     .row2{display:grid;gap:10px}
     @media (min-width:760px){.row2{grid-template-columns:1fr 1fr}}
     .row3{display:grid;gap:10px}
     @media (min-width:760px){.row3{grid-template-columns:1fr 1fr 1fr}}
 
-    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:800}
-    input,select,textarea{
-      width:100%;border:1px solid rgba(229,231,235,.99);border-radius:14px;padding:11px 12px;
-      font:inherit;background:#fff;outline:none;transition: box-shadow .15s ease, border-color .15s ease;
+    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:700}
+    input, select, textarea{
+      width:100%;
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:14px;
+      padding:11px 12px;
+      font:inherit;
+      background:#fff;
+      outline:none;
+      transition: box-shadow .15s ease, border-color .15s ease;
     }
-    input:focus,select:focus,textarea:focus{border-color:rgba(11,95,168,.45);box-shadow:0 0 0 4px rgba(11,95,168,.10)}
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(11,95,168,.45);
+      box-shadow:0 0 0 4px rgba(11,95,168,.10);
+    }
     textarea{min-height:92px;resize:vertical}
-    .mono{font-family:var(--mono)}
-    .hr{height:1px;background:rgba(229,231,235,.98);margin:12px 0}
-    .note{
-      font-size:12px;color:var(--muted);
-      border:1px solid rgba(229,231,235,.99);border-radius:14px;padding:10px;background:linear-gradient(180deg,#fff,#fbfcff);
-    }
+
     .pill{
-      font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(229,231,235,.98);
-      background:#fff;color:var(--muted);font-family:var(--mono);white-space:nowrap;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
+    .mono{font-family:var(--mono)}
+    .hr{height:1px;background:rgba(227,233,242,.85);margin:12px 0}
+    .note{
+      font-size:12px;
+      color:var(--muted);
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:14px;
+      padding:10px;
     }
 
+    /* ===== KPI ===== */
     .kpi{display:grid;gap:10px}
     @media (min-width:760px){.kpi{grid-template-columns:1fr 1fr}}
     .kpi .box{
-      border:1px solid rgba(229,231,235,.99);border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#fbfcff);
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
     }
     .kpi .big{font-size:22px;font-weight:950}
-    .kpi .small{font-size:12px;color:var(--muted);font-weight:800}
+    .kpi .small{font-size:12px;color:var(--muted);font-weight:700}
 
+    /* ===== Table ===== */
     .table{
-      width:100%;border-collapse:separate;border-spacing:0;
-      border:1px solid rgba(229,231,235,.99);border-radius:16px;overflow:hidden;
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      overflow:hidden;
     }
-    .table th,.table td{padding:10px 10px;border-bottom:1px solid rgba(229,231,235,.99);font-size:13px}
-    .table th{background:#f7fafc;text-align:left;color:#0a2540;font-weight:950}
+    .table th,.table td{padding:10px 10px;border-bottom:1px solid rgba(227,233,242,.95);font-size:13px}
+    .table th{background:#f7fafc;text-align:left;color:#0a2540;font-weight:900}
     .table tr:last-child td{border-bottom:0}
     .right{text-align:right}
 
+    /* ===== Lists ===== */
     .list{display:grid;gap:10px}
     .item{
-      border:1px solid rgba(229,231,235,.99);border-radius:16px;padding:12px;
-      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
-      background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.06);
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      padding:12px;
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      background:#fff;
+      box-shadow:0 10px 26px rgba(15,23,42,.06);
     }
     .item b{display:block}
     .item small{color:var(--muted)}
     .item .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .item .btns button{border-radius:12px}
 
-    /* ===== PRINT / PDF ===== */
-    #printWrap{display:none}
-    #printA4{
-      background:#fff;color:#111;
-      padding:18mm 16mm;width:210mm;min-height:297mm;margin:0 auto;
+    /* ✅ PRINT/PDF FIX (NO MORE BLANK SECOND PAGE ON ANDROID / LETTER) */
+    @page{
+      size: A4;
+      margin: 12mm;
     }
-    .invHead{
-      display:flex;justify-content:space-between;gap:16px;
-      border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:12px;
+
+    #printAreaWrap{display:none}
+    #printArea{
+      background:#fff;
+      color:#111;
+      padding:0;
+      width:auto;
+      min-height:auto;
+      margin:0;
     }
-    .invLeft{display:flex;gap:12px;align-items:center}
-    .invLogo{width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;background:#fff}
-    .invLogo img{width:100%;height:100%;object-fit:cover}
-    .invTitle{font-size:28px;font-weight:950;margin:0;letter-spacing:-.5px}
-    .invBrand{font-size:13px;color:#111;font-weight:950;margin-top:2px}
-    .invMeta{font-size:12px;color:#111;margin-top:2px}
-    .metaBox{min-width:280px;border:1px solid #111;padding:10px;font-size:12px}
-    .metaLine{display:flex;justify-content:space-between;gap:10px;margin:4px 0}
-    .metaLine .k{font-weight:900}
-    .metaLine .v{font-family:var(--mono)}
-    .cols2{display:grid;gap:12px;margin-top:10px}
-    @media (min-width:900px){.cols2{grid-template-columns:1fr 1fr}}
-    .boxPrint{border:1px solid #111;padding:10px;font-size:12px;min-height:72px}
-    .boxPrint h4{margin:0 0 8px;font-size:12px;font-weight:950}
-    .boxPrint .l{margin:2px 0}
-    .invTable{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
-    .invTable th,.invTable td{border:1px solid #111;padding:7px}
-    .invTable th{background:#f3f4f6;text-align:left;font-weight:950}
-    .invRight{text-align:right}
-    .totals{
-      margin-top:10px;display:grid;gap:6px;font-size:12px;max-width:380px;margin-left:auto;
+    .printDoc{
+      max-width: 780px;
+      margin:0 auto;
+      padding:0;
+      page-break-inside: avoid;
     }
-    .tline{display:flex;justify-content:space-between;gap:10px}
-    .grand{font-size:13px;font-weight:950}
-    .footer{
-      margin-top:12px;font-size:11px;color:#111;border-top:1px solid #111;padding-top:10px;
-    }
-    .annexTitle{
-      margin-top:14mm;font-size:14px;font-weight:950;border-bottom:1px solid #111;padding-bottom:6px;
-    }
-    .mutedSmall{font-size:11px;color:#111;margin-top:6px}
     @media print{
       body{background:#fff}
-      .errBanner,.topbar,.chips,.shell{display:none!important}
-      #printWrap{display:block!important}
-      #printA4{box-shadow:none;border:none}
+      .topbar,.appShell{display:none!important}
+      #printAreaWrap{display:block!important}
+      #printArea{display:block!important}
+      /* keep tables together */
+      .invBox, .invHeader, .invGrid2, .invTable { page-break-inside: avoid; }
     }
+
+    /* Invoice print design (steuerberater / lexoffice style) */
+    .mini{font-size:11px;color:#444}
+    .invHeader{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+    .invHeader .left{display:flex;gap:12px;align-items:center}
+    .invLogo{width:54px;height:54px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef}
+    .invLogo img{width:100%;height:100%;object-fit:cover}
+    .invTitle{font-size:24px;font-weight:950;margin:0}
+    .invMeta{font-size:12px;color:#334155}
+    .invGrid2{display:grid;gap:10px}
+    @media (min-width:900px){.invGrid2{grid-template-columns:1fr 1fr}}
+    .invBox{border:1px solid #e5e8ef;border-radius:16px;padding:12px}
+    .invBox h4{margin:0 0 8px;font-size:12px;color:#0a2540}
+    .invBox .line{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0}
+    .invTable{width:100%;border-collapse:collapse;margin-top:10px}
+    .invTable th,.invTable td{border:1px solid #e5e8ef;padding:8px;font-size:12px}
+    .invTable th{background:#f5f7fb;text-align:left}
+    .invRight{text-align:right}
+    .invTotals{display:grid;gap:8px;margin-top:10px}
+    .invTotals .tline{display:flex;justify-content:space-between;font-size:12px}
+    .invTotals .grand{font-size:14px;font-weight:950}
+    .invFooter{margin-top:14px;font-size:11px;color:#334155}
   </style>
 </head>
 
 <body>
-  <!-- JS error banner -->
-  <div class="errBanner" id="errBanner">
-    <div class="row">
-      <div>
-        ⚠️ App Fehler (Browser/Cache). <small id="errText">—</small>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" id="btnHardReload">Hard Reload</button>
-        <button type="button" id="btnClearSite">Clear Site Data</button>
-      </div>
-    </div>
-  </div>
 
   <div class="topbar">
     <div class="topbarInner">
-      <div class="brand">
-        <div class="logo" title="Logo (fest gespeichert)">
-          <img id="logoImg" alt="Logo"/>
+
+      <div class="row">
+        <div class="brand">
+          <div class="logo" title="Logo (fest gespeichert)">
+            <img id="logoImg" alt="Logo"/>
+          </div>
+          <div>
+            <div class="title" id="brandTitle">Masculine Security</div>
+            <div class="subtitle">B2B Rechnung • Lexoffice-Style • Steuerberater-Design • Auto 99%</div>
+          </div>
         </div>
-        <div>
-          <div class="btitle" id="topCompany">Masculine Security</div>
-          <div class="bsub">B2B Rechnung • Steuerberater-Design • Anlage Einsatznachweis • Auto 99%</div>
+
+        <div class="actions">
+          <button class="ghost" id="btnLogo" type="button">Logo ändern</button>
+          <button class="ghost" id="btnNew" type="button">Neu</button>
+          <button class="ok" id="btnSave" type="button">Rechnung speichern</button>
+          <button class="ghost" id="btnList" type="button">Rechnungen</button>
+          <button class="danger" id="btnReset" type="button">Reset</button>
+          <button class="primary" id="btnPdf" type="button">PDF speichern</button>
+          <button class="primary" id="btnPrint" type="button">Print</button>
         </div>
       </div>
 
-      <div class="actions">
-        <button class="ghost" id="btnLogo" type="button">Logo ändern</button>
-        <button class="ghost" id="btnNew" type="button">Neu</button>
-        <button class="ok" id="btnSave" type="button">Rechnung speichern</button>
-        <button class="ghost" id="btnList" type="button">Rechnungen</button>
-        <button class="danger" id="btnReset" type="button">Reset</button>
-        <button class="primary" id="btnPdf" type="button">PDF speichern</button>
-        <button class="primary" id="btnPrint" type="button">Print</button>
+      <div class="brandSub">
+        <span class="badge"><span class="dot"></span> Auto-Save aktiv</span>
+        <span class="badge">B2B: ON</span>
+        <a class="linkbtn" id="callLink" href="tel:015778697052">📞 <span id="callText">015778697052</span></a>
+        <a class="linkbtn" id="mailLink" href="mailto:Kontakt.mass.bremen@hotmail.com">✉️ <span id="mailText">Kontakt.mass.bremen@hotmail.com</span></a>
       </div>
-    </div>
 
-    <div class="chips">
-      <span class="tag"><span class="dot"></span> Auto-Save aktiv</span>
-      <span class="tag" id="b2bTag"><span class="dot"></span> B2B: ON (1 Position + Anlage)</span>
+      <div class="err" id="errBox"></div>
 
-      <!-- ✅ CLICKABLE ALWAYS -->
-      <a class="chipLink" id="btnCallLink" href="tel:015778697052">☎ <span id="chipTel">015778697052</span></a>
-      <a class="chipLink" id="btnMailLink" href="mailto:Kontakt.mass.bremen@hotmail.com">✉ <span id="chipMail">Kontakt.mass.bremen@hotmail.com</span></a>
-
-      <span class="tag" id="statusTag"><span class="dot gray"></span> <span id="liveStatus">Bereit</span></span>
     </div>
   </div>
 
-  <div class="shell">
+  <div class="appShell">
+
     <aside class="sidebar">
-      <div class="shead">
-        <div class="h1">Masculine Security</div>
+      <div class="sideHead">
+        <div class="h1" id="sideBrand">Masculine Security</div>
         <div class="h2">B2B Rechnungssystem</div>
       </div>
-      <div class="snav">
-        <button class="sbtn active" id="navCreate" type="button"><span>➕ Rechnung</span><span class="stag">FORM</span></button>
-        <button class="sbtn" id="navInvoices" type="button"><span>📄 Rechnungen</span><span class="stag" id="navInvCount">0</span></button>
-        <button class="sbtn" id="navCustomers" type="button"><span>👤 Kunden</span><span class="stag" id="navCustCount">0</span></button>
-        <button class="sbtn" id="navSettings" type="button"><span>⚙ Einstellungen</span><span class="stag">PRO</span></button>
+
+      <div class="sideNav">
+        <button class="sideBtn active" id="navCreate" type="button">
+          <span>➕ Rechnung</span>
+          <span class="sideTag">FORM</span>
+        </button>
+
+        <button class="sideBtn" id="navInvoices" type="button">
+          <span>📄 Rechnungen</span>
+          <span class="sideTag" id="navInvCount">0</span>
+        </button>
+
+        <button class="sideBtn" id="navCustomers" type="button">
+          <span>👤 Kunden</span>
+          <span class="sideTag" id="navCustCount">0</span>
+        </button>
+
+        <button class="sideBtn" id="navSettings" type="button">
+          <span>⚙ Einstellungen</span>
+          <span class="sideTag">PRO</span>
+        </button>
       </div>
     </aside>
 
-    <main class="main">
+    <main class="mainArea">
 
-      <!-- CREATE (visible by default even if JS fails) -->
-      <div class="view" id="viewCreate" aria-hidden="false">
+      <div class="view active" id="viewCreate">
         <div class="grid">
 
           <div class="card">
             <h2>
               <span>Rechnungsdaten</span>
-              <span style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-                <span class="pill mono" id="modePill">MODE: FEST</span>
-                <span class="pill mono" id="b2bPill">B2B: ON</span>
-                <span class="pill mono" id="rcPill">RC: OFF</span>
-              </span>
+              <span class="pill" id="liveStatus">Bereit</span>
             </h2>
 
             <div class="body">
@@ -392,18 +477,15 @@
                 </div>
               </div>
 
-              <div class="row3" style="margin-top:10px">
+              <div class="row2" style="margin-top:10px">
                 <div>
                   <label>Steuernummer / Hinweis *</label>
                   <input id="issuerTaxNo" value="wird nachgereicht"/>
+                  <div class="note" style="margin-top:8px">Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.</div>
                 </div>
                 <div>
                   <label>USt-IdNr (optional)</label>
                   <input id="issuerVatId" placeholder="DE123456789"/>
-                </div>
-                <div>
-                  <label>Rechtsform (optional)</label>
-                  <input id="issuerLegalForm" placeholder="Einzelunternehmen"/>
                 </div>
               </div>
 
@@ -418,18 +500,14 @@
                 </div>
               </div>
 
-              <div class="row3" style="margin-top:10px">
+              <div class="row2" style="margin-top:10px">
                 <div>
                   <label>Kontoinhaber *</label>
                   <input id="issuerHolder" value="MUSTAFA MURSAL ABDI"/>
                 </div>
                 <div>
-                  <label>Handelsregister (optional)</label>
-                  <input id="issuerRegister" placeholder="HRB ... (falls vorhanden)"/>
-                </div>
-                <div>
-                  <label>Gerichtsstand (optional)</label>
-                  <input id="issuerCourt" placeholder="Bremen"/>
+                  <label>—</label>
+                  <input disabled value=""/>
                 </div>
               </div>
 
@@ -439,6 +517,7 @@
                 <div>
                   <label>Kunde auswählen</label>
                   <select id="customerPick"></select>
+
                   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
                     <button id="btnSaveCustomer" class="ghost" type="button">Kunde speichern</button>
                     <button id="btnDeleteCustomer" class="danger" type="button">Kunde löschen</button>
@@ -461,18 +540,9 @@
                 </div>
               </div>
 
-              <div class="row2" style="margin-top:10px">
-                <div>
-                  <label>Kundendaten (Adresse) *</label>
-                  <textarea id="custAddress" placeholder="Straße • PLZ Ort"></textarea>
-                </div>
-                <div>
-                  <label>Kunde USt-IdNr (optional, EU B2B)</label>
-                  <input id="custVatId" placeholder="z.B. ATU..., NL..., etc."/>
-                  <div class="note" style="margin-top:8px">
-                    Wenn EU-B2B + Reverse Charge: trage USt-IdNr ein und aktiviere Reverse Charge unten.
-                  </div>
-                </div>
+              <div style="margin-top:10px">
+                <label>Kundendaten (Adresse / Ansprechpartner) *</label>
+                <textarea id="custAddress" placeholder="Straße • PLZ Ort&#10;Ansprechpartner"></textarea>
               </div>
 
               <div class="hr"></div>
@@ -483,30 +553,18 @@
                   <input id="invDate" type="date"/>
                 </div>
                 <div>
-                  <label>Zahlungsziel (Tage) *</label>
-                  <input id="payDays" type="number" min="0" step="1" value="14"/>
-                  <div class="note" style="margin-top:8px">Fällig = Datum + Zahlungsziel</div>
-                </div>
-                <div>
                   <label>Fällig am *</label>
                   <input id="dueDate" type="date"/>
+                  <div class="note" style="margin-top:8px">Standard = +14 Tage (du kannst ändern).</div>
+                </div>
+                <div>
+                  <label>Rechnungsnummer *</label>
+                  <input id="invNo" class="mono"/>
+                  <div class="note" style="margin-top:8px">Auto pro Tag laufend (YYYYMMDD-0001).</div>
                 </div>
               </div>
 
               <div class="row2" style="margin-top:10px">
-                <div>
-                  <label>Rechnungsnummer *</label>
-                  <input id="invNo" class="mono"/>
-                </div>
-                <div>
-                  <label>Verwendungszweck (auto)</label>
-                  <input id="purpose" class="mono" readonly/>
-                </div>
-              </div>
-
-              <div class="hr"></div>
-
-              <div class="row3">
                 <div>
                   <label>USt-Status *</label>
                   <select id="vatMode">
@@ -516,26 +574,6 @@
                   <div class="note" style="margin-top:8px" id="vatHint">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
                 </div>
 
-                <div>
-                  <label>Reverse Charge (EU B2B) *</label>
-                  <select id="reverseCharge">
-                    <option value="off">OFF</option>
-                    <option value="on">ON (VAT 0%, Hinweis im PDF)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label>B2B Darstellung *</label>
-                  <select id="b2bMode">
-                    <option value="on">ON (1 Position + Anlage Einsatznachweis)</option>
-                    <option value="off">OFF (Detail auf Rechnung)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="hr"></div>
-
-              <div class="row2">
                 <div>
                   <label>Leistungsbeschreibung *</label>
                   <input id="serviceTitle" value="Sicherheitsdienstleistung – Objektschutz"/>
@@ -550,10 +588,6 @@
                     </div>
                   </div>
                 </div>
-                <div>
-                  <label>Leistungsdatum (optional)</label>
-                  <input id="leistungsdatum" placeholder="z.B. 08.03.2026"/>
-                </div>
               </div>
 
               <div class="hr"></div>
@@ -561,15 +595,33 @@
               <div class="row2">
                 <div>
                   <label>Anzahl Mitarbeiter *</label>
-                  <input id="mitarbeiter" type="number" min="0" value="5"/>
+                  <input id="mitarbeiter" type="number" min="0" value="1"/>
                 </div>
                 <div>
-                  <label>Tag-Stundensatz (€) *</label>
+                  <label>Basis-Stundensatz Tag (€) *</label>
                   <input id="tagPreis" type="number" min="0" step="0.01" value="23"/>
                 </div>
               </div>
 
-              <div class="row3" style="margin-top:10px">
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>Berechnungsart Zuschläge *</label>
+                  <select id="modus">
+                    <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
+                    <option value="percent">Zuschlag % (auf Tagpreis)</option>
+                  </select>
+                  <div class="note" style="margin-top:8px">✅ B2B meist bevorzugt: <b>Festpreise</b>. Prozent ist optional.</div>
+                </div>
+                <div>
+                  <label>Verwendungszweck (auto)</label>
+                  <input id="purpose" class="mono" readonly/>
+                  <div class="note" style="margin-top:8px">Kunde kann bei Überweisung so schreiben.</div>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row3">
                 <div>
                   <label>Schicht Beginn</label>
                   <input id="shiftStart" type="time" value="18:00"/>
@@ -579,7 +631,7 @@
                   <input id="shiftEnd" type="time" value="06:00"/>
                 </div>
                 <div>
-                  <label>Nachtzeit Regel *</label>
+                  <label>Nachtzeit Regel</label>
                   <select id="nachtRule">
                     <option value="22-06">22:00 – 06:00 (Standard)</option>
                     <option value="23-06">23:00 – 06:00</option>
@@ -589,7 +641,8 @@
               </div>
 
               <div class="note" style="margin-top:10px">
-                Auto berechnet Tag/Nacht-Stunden. Sonntag/Feiertag separat (keine Doppelzählung).
+                Auto-Funktion berechnet <b>Tagstunden</b> und <b>Nachtstunden</b> aus Beginn/Ende.
+                Sonntag/Feiertag trägst du separat ein (keine Doppelzählung).
               </div>
 
               <div class="hr"></div>
@@ -613,60 +666,39 @@
                 <div>
                   <label>Feiertagstunden</label>
                   <input id="feiertagH" type="number" min="0" step="0.25" value="0"/>
+                  <div class="note" style="margin-top:8px">Stunden nur in <b>eine</b> Kategorie eintragen.</div>
                 </div>
-                <div>
-                  <label>Festpreise Zuschläge *</label>
-                  <div class="row3">
-                    <div>
-                      <label style="margin-top:0">Nacht (€)</label>
-                      <input id="nachtFest" type="number" min="0" step="0.01" value="24"/>
-                    </div>
-                    <div>
-                      <label style="margin-top:0">Sonntag (€)</label>
-                      <input id="sonntagFest" type="number" min="0" step="0.01" value="32"/>
-                    </div>
-                    <div>
-                      <label style="margin-top:0">Feiertag (€)</label>
-                      <input id="feiertagFest" type="number" min="0" step="0.01" value="36"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="hr"></div>
-
-              <div class="row2">
-                <div>
-                  <label>Zahlungsbedingungen (Text) *</label>
-                  <textarea id="paymentTermsText">Zahlbar innerhalb von 14 Tagen ohne Abzug.</textarea>
-                </div>
-                <div>
-                  <label>Mahnung / Verzug (optional)</label>
-                  <textarea id="dunningText">Bei Zahlungsverzug behalten wir uns vor, Mahngebühren sowie gesetzliche Verzugszinsen zu berechnen.</textarea>
-                </div>
-              </div>
-
-              <div class="row2" style="margin-top:10px">
                 <div>
                   <label>Hinweis / Notiz (optional)</label>
-                  <textarea id="note"></textarea>
-                </div>
-                <div>
-                  <label>Interner Hinweis (nicht im PDF)</label>
-                  <textarea id="internalNote"></textarea>
+                  <textarea id="note" placeholder="z.B. laut Vereinbarung / Einsatzzeiten / Ansprechpartner..."></textarea>
                 </div>
               </div>
 
               <div class="hr"></div>
 
-              <div class="row2">
-                <div>
-                  <label>Rechnungstext (auto)</label>
-                  <textarea id="rechnungText"></textarea>
+              <div class="row3">
+                <div id="percentBox" style="display:none">
+                  <label>Nachtzuschlag (%)</label>
+                  <input id="nachtPercent" type="number" min="0" step="0.01" value="0"/>
+                  <label style="margin-top:10px">Sonntag (%)</label>
+                  <input id="sonntagPercent" type="number" min="0" step="0.01" value="0"/>
+                  <label style="margin-top:10px">Feiertag (%)</label>
+                  <input id="feiertagPercent" type="number" min="0" step="0.01" value="0"/>
                 </div>
+
+                <div id="fixedBox">
+                  <label>Festpreis Nacht (€)</label>
+                  <input id="nachtFest" type="number" min="0" step="0.01" value="24"/>
+                  <label style="margin-top:10px">Festpreis Sonntag (€)</label>
+                  <input id="sonntagFest" type="number" min="0" step="0.01" value="32"/>
+                  <label style="margin-top:10px">Festpreis Feiertag (€)</label>
+                  <input id="feiertagFest" type="number" min="0" step="0.01" value="36"/>
+                </div>
+
                 <div>
-                  <label>Fußzeile Zusatz (optional)</label>
-                  <textarea id="footerExtra"></textarea>
+                  <label>Rechnung Text (auto)</label>
+                  <textarea id="rechnungText"></textarea>
+                  <div class="note" style="margin-top:8px">Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).</div>
                 </div>
               </div>
 
@@ -676,10 +708,9 @@
           <div class="card">
             <h2>
               <span>Berechnung & Summe</span>
-              <span class="pill mono" id="calcBadge">AUTO</span>
+              <span class="pill mono" id="modeBadge">MODE: FEST</span>
             </h2>
             <div class="body">
-
               <div class="kpi">
                 <div class="box">
                   <div class="small">Zwischensumme (netto)</div>
@@ -703,32 +734,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr id="rowB2B">
-                    <td><b>B2B Pauschale</b> (All-in, Anlage Einsatznachweis)</td>
-                    <td class="right mono" id="b2bStd">0</td>
-                    <td class="right mono" id="b2bPreis">—</td>
-                    <td class="right mono" id="b2bSum">0,00 €</td>
-                  </tr>
-
-                  <tr class="rowDetail">
+                  <tr>
                     <td>Tagdienst</td>
                     <td class="right mono" id="t_tagStd">0</td>
                     <td class="right mono" id="t_tagPreis">0,00 €</td>
                     <td class="right mono" id="t_tagSum">0,00 €</td>
                   </tr>
-                  <tr class="rowDetail">
+                  <tr>
                     <td>Nachtdienst</td>
                     <td class="right mono" id="t_nachtStd">0</td>
                     <td class="right mono" id="t_nachtPreis">0,00 €</td>
                     <td class="right mono" id="t_nachtSum">0,00 €</td>
                   </tr>
-                  <tr class="rowDetail">
+                  <tr>
                     <td>Sonntag</td>
                     <td class="right mono" id="t_sonntagStd">0</td>
                     <td class="right mono" id="t_sonntagPreis">0,00 €</td>
                     <td class="right mono" id="t_sonntagSum">0,00 €</td>
                   </tr>
-                  <tr class="rowDetail">
+                  <tr>
                     <td>Feiertag</td>
                     <td class="right mono" id="t_feiertagStd">0</td>
                     <td class="right mono" id="t_feiertagPreis">0,00 €</td>
@@ -740,48 +764,53 @@
               <div class="hr"></div>
 
               <div class="note">
-                <b>Regel:</b> <span class="mono">Summe = Mitarbeiter × Stunden × Preis</span><br/>
-                <b>B2B ON:</b> PDF = 1 Position + Anlage (Detail).<br/>
-                <b>Reverse Charge ON:</b> VAT 0% + RC-Hinweis.
+                <b>Wichtig:</b> Mitarbeiter werden automatisch multipliziert:
+                <span class="mono">(Mitarbeiter × Stunden × Preis)</span>.
               </div>
-
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- INVOICES -->
-      <div class="view" id="viewInvoices" aria-hidden="true">
+      <div class="view" id="viewInvoices">
         <div class="card">
-          <h2><span>Gespeicherte Rechnungen</span><span class="pill mono" id="invCount">0</span></h2>
-          <div class="body"><div class="list" id="invList"></div></div>
+          <h2>
+            <span>Gespeicherte Rechnungen</span>
+            <span class="pill mono" id="invCount">0</span>
+          </h2>
+          <div class="body">
+            <div class="list" id="invList"></div>
+          </div>
         </div>
       </div>
 
-      <!-- CUSTOMERS -->
-      <div class="view" id="viewCustomers" aria-hidden="true">
+      <div class="view" id="viewCustomers">
         <div class="card">
-          <h2><span>Kunden</span><span class="pill mono" id="custCount">0</span></h2>
+          <h2>
+            <span>Kunden</span>
+            <span class="pill mono" id="custCount">0</span>
+          </h2>
           <div class="body">
-            <div class="note">Kundenliste. Auswählen lädt Daten ins Formular.</div>
+            <div class="note">Liste deiner gespeicherten Kunden (Auswählen führt zurück zum Formular).</div>
             <div class="hr"></div>
             <div class="list" id="custList"></div>
           </div>
         </div>
       </div>
 
-      <!-- SETTINGS -->
-      <div class="view" id="viewSettings" aria-hidden="true">
+      <div class="view" id="viewSettings">
         <div class="card">
-          <h2><span>Einstellungen (Pro)</span><span class="pill mono">Backup</span></h2>
+          <h2>
+            <span>Einstellungen</span>
+            <span class="pill mono">Brand</span>
+          </h2>
           <div class="body">
-            <div class="note">✅ Fest-Logo • ✅ Auto-Save • ✅ Backup/Restore</div>
+            <div class="note">Logo (fest gespeichert) + Firmenname kannst du hier schnell ändern.</div>
             <div class="hr"></div>
-
             <div class="row2">
               <div>
-                <label>Firmenname</label>
+                <label>Firmenname / Brand</label>
                 <input id="issuerCompanyMirror" placeholder="Masculine Security"/>
               </div>
               <div>
@@ -791,35 +820,9 @@
             </div>
 
             <div class="hr"></div>
-
-            <div class="row2">
-              <div>
-                <label>Backup Export</label>
-                <div style="display:flex;gap:10px;flex-wrap:wrap">
-                  <button type="button" class="primary" id="btnExportBackup">Backup herunterladen</button>
-                  <button type="button" class="ghost" id="btnCopyBackup">Backup in Clipboard</button>
-                </div>
-              </div>
-              <div>
-                <label>Backup Import / Wipe</label>
-                <div style="display:flex;gap:10px;flex-wrap:wrap">
-                  <button type="button" class="primary" id="btnImportBackup">Backup importieren</button>
-                  <button type="button" class="danger" id="btnWipeData">Alle Daten löschen</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="row2">
-              <div>
-                <label>Quick Export: Rechnungen</label>
-                <button type="button" id="btnExportInvoices">Rechnungen exportieren</button>
-              </div>
-              <div>
-                <label>Quick Export: Kunden</label>
-                <button type="button" id="btnExportCustomers">Kunden exportieren</button>
-              </div>
+            <div class="note">
+              ✅ Wenn mal “blank” passiert: Cache wurde fixiert + ServiceWorker wird automatisch entfernt.<br/>
+              ✅ Print/PDF ist A4 (kein 2. leeres Blatt).
             </div>
           </div>
         </div>
@@ -828,28 +831,48 @@
     </main>
   </div>
 
-  <!-- PRINT / PDF -->
-  <div id="printWrap"><div id="printA4"></div></div>
+  <div id="printAreaWrap"><div id="printArea"></div></div>
 
-  <!-- LOGO upload -->
   <input id="logoFile" type="file" accept="image/*" style="display:none"/>
-  <!-- BACKUP import upload -->
-  <input id="backupFile" type="file" accept="application/json" style="display:none"/>
 
   <script>
-    // ===== Storage Keys =====
-    const KEY_APP       = "ms_b2b_app_100_v2";
-    const KEY_CUSTOMERS = "ms_b2b_customers_100_v2";
-    const KEY_INVOICES  = "ms_b2b_invoices_100_v2";
-    const KEY_COUNTERS  = "ms_b2b_counters_100_v2";
-    const KEY_LOGO      = "ms_b2b_logo_100_v2";
+    /* ============================
+       100% STABILITY PATCHES
+       ============================ */
+
+    // ✅ Remove any Service Worker (prevents old blank cached app on GitHub Pages)
+    (function killSW(){
+      try{
+        if("serviceWorker" in navigator){
+          navigator.serviceWorker.getRegistrations()
+            .then(regs=>regs.forEach(r=>r.unregister()))
+            .catch(()=>{});
+        }
+        if(window.caches?.keys){
+          caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});
+        }
+      }catch(e){}
+    })();
+
+    // ✅ Global error banner (no silent blank)
+    const errBox = document.getElementById("errBox");
+    function showErr(msg){
+      if(!errBox) return;
+      errBox.style.display = "block";
+      errBox.textContent = "Fehler (Fix needed):\n" + String(msg || "");
+    }
+    window.addEventListener("error", (e)=> showErr(e.message || e.error || e));
+    window.addEventListener("unhandledrejection", (e)=> showErr(e.reason || e));
+
+    // ===== Storage Keys (versioned) =====
+    const KEY_APP = "ms_b2b_rechnung_app_v4";       // ✅ version bump = fixes old storage conflicts
+    const KEY_CUSTOMERS = "ms_b2b_customers_v2";
+    const KEY_INVOICES = "ms_b2b_invoices_v2";
+    const KEY_COUNTERS = "ms_b2b_inv_counters_v2";
+    const KEY_LOGO = "ms_b2b_logo_v2";
 
     // ===== Helpers =====
     const $ = (id)=>document.getElementById(id);
-    const safeNum = (v)=> {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : 0;
-    };
     const fmtEUR = (n)=>{
       const v = Number(n||0);
       return v.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
@@ -869,61 +892,39 @@
       const dd = String(d.getDate()).padStart(2,"0");
       return `${yyyy}-${mm}-${dd}`;
     };
-    const yyyymmdd = (iso)=> String(iso||"").replaceAll("-","");
-
+    const yyyymmdd = (iso)=> iso.replaceAll("-","");
+    const safeNum = (v)=> {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const setStatus = (txt, ok=true)=>{
+      $("liveStatus").textContent = txt;
+      $("liveStatus").style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(225,29,72,.35)";
+      $("liveStatus").style.color = ok ? "var(--muted)" : "#b91c1c";
+    };
     const loadJSON = (k, fallback)=>{
-      try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; }
+      try{ const v = localStorage.getItem(k); return v? JSON.parse(v) : fallback; }catch(e){ return fallback; }
     };
     const saveJSON = (k, v)=> localStorage.setItem(k, JSON.stringify(v));
 
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
-
-    function setStatus(txt, ok=true){
-      $("liveStatus").textContent = txt;
-      const dot = document.querySelector("#statusTag .dot");
-      if(dot){
-        dot.classList.toggle("gray", !ok);
-        dot.style.background = ok ? "#22c55e" : "#ef4444";
-      }
+    // ✅ Keep header/side brand always synced
+    function syncBrandEverywhere(){
+      const name = String($("issuerCompany").value || "Masculine Security").trim() || "Masculine Security";
+      $("brandTitle").textContent = name;
+      $("sideBrand").textContent = name;
     }
 
-    // ===== Error handling (shows banner if something breaks) =====
-    function showErr(err){
-      const b = $("errBanner");
-      const t = $("errText");
-      if(!b || !t) return;
-      b.style.display = "block";
-      t.innerHTML = `Fehler: <code>${escapeHtml(String(err && (err.message||err) || "unknown"))}</code>`;
-    }
-    window.addEventListener("error", (e)=> showErr(e.error || e.message || e));
-    window.addEventListener("unhandledrejection", (e)=> showErr(e.reason || e));
+    // ✅ Clickable tel/mail always synced to inputs
+    function syncClickableLinks(){
+      const telRaw = String($("issuerPhone").value || "").trim();
+      const tel = telRaw.replace(/\s+/g,"");
+      const mail = String($("issuerEmail").value || "").trim();
 
-    // ===== Buttons in error banner =====
-    function hardReload(){
-      // force reload from server
-      try { location.reload(true); } catch(_) { location.reload(); }
-    }
-    function clearSiteData(){
-      try{
-        // clear storages + caches
-        localStorage.clear();
-        sessionStorage.clear();
-        if(window.caches){
-          caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).finally(()=>location.reload());
-        }else{
-          location.reload();
-        }
-      }catch(e){
-        location.reload();
-      }
+      $("callText").textContent = telRaw || "—";
+      $("mailText").textContent = mail || "—";
+
+      $("callLink").href = tel ? `tel:${tel}` : "#";
+      $("mailLink").href = mail ? `mailto:${mail}` : "#";
     }
 
     // ===== FEST LOGO =====
@@ -953,52 +954,47 @@
     }
 
     function updateVatHint(){
-      const rc = $("reverseCharge").value === "on";
-      if(rc){
-        $("vatHint").textContent = "Reverse Charge aktiv: Umsatzsteuer wird nicht berechnet (0%).";
-        return;
-      }
       $("vatHint").textContent = ($("vatMode").value==="kmu")
         ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
         : "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
     }
+
     function updatePurpose(){
       const no = $("invNo").value || "";
       $("purpose").value = `Rechnung: ${no}`;
     }
 
-    // ✅ CLICKABLE TEL/MAIL always
-    function updateClickableChips(){
-      const telRaw = String($("issuerPhone").value || "").trim();
-      const mailRaw = String($("issuerEmail").value || "").trim();
-      const tel = telRaw.replace(/\s+/g,"");
-      const mail = mailRaw;
-
-      $("chipTel").textContent = telRaw || "—";
-      $("chipMail").textContent = mailRaw || "—";
-
-      $("btnCallLink").setAttribute("href", tel ? `tel:${tel}` : "#");
-      $("btnMailLink").setAttribute("href", mail ? `mailto:${mail}` : "#");
+    function toggleModeUI(){
+      const m = $("modus").value;
+      $("percentBox").style.display = (m==="percent") ? "" : "none";
+      $("fixedBox").style.display = (m==="fixed") ? "" : "none";
+      $("modeBadge").textContent = (m==="percent") ? "MODE: %" : "MODE: FEST";
     }
 
-    function syncTopBrand(){
-      const name = String($("issuerCompany").value || "Masculine Security").trim();
-      $("topCompany").textContent = name;
-      const mir = $("issuerCompanyMirror");
-      if(mir && document.activeElement !== mir) mir.value = name;
-      updateClickableChips();
-    }
-
-    function syncPills(){
-      const b2bOn = $("b2bMode").value === "on";
-      $("b2bPill").textContent = b2bOn ? "B2B: ON" : "B2B: OFF";
-      $("b2bTag").innerHTML = b2bOn
-        ? `<span class="dot"></span> B2B: ON (1 Position + Anlage)`
-        : `<span class="dot gray"></span> B2B: OFF (Detail)`;
-      const dot = document.querySelector("#b2bTag .dot");
-      if(dot){ dot.style.background = b2bOn ? "#22c55e" : "#94a3b8"; }
-      const rc = $("reverseCharge").value === "on";
-      $("rcPill").textContent = rc ? "RC: ON" : "RC: OFF";
+    function validateCore(){
+      const must = [
+        ["issuerCompany","Firmenname"],
+        ["issuerAddress","Adresse"],
+        ["issuerEmail","E-Mail"],
+        ["issuerTaxNo","Steuernummer/Hinweis"],
+        ["issuerIban","IBAN"],
+        ["issuerBic","BIC"],
+        ["issuerHolder","Kontoinhaber"],
+        ["custName","Kundenname"],
+        ["custAddress","Kundendaten"],
+        ["invDate","Rechnungsdatum"],
+        ["dueDate","Fällig am"],
+        ["invNo","Rechnungsnummer"],
+        ["serviceTitle","Leistungsbeschreibung"]
+      ];
+      for(const [id,label] of must){
+        if(!String($(id).value||"").trim()){
+          setStatus(`Fehlt: ${label}`, false);
+          return false;
+        }
+      }
+      setStatus("OK", true);
+      return true;
     }
 
     // ===== AUTO Tag/Nacht =====
@@ -1018,6 +1014,7 @@
       const start = parseTimeToMinutes($("shiftStart").value);
       const endRaw = parseTimeToMinutes($("shiftEnd").value);
       if(start===null || endRaw===null) return;
+
       let end = endRaw;
       if(end <= start) end += 1440;
 
@@ -1025,12 +1022,13 @@
       const {start: nightStart, end: nightEnd} = getNightWindow();
 
       let nightMin = 0;
-      const nightEndMod = nightEnd % 1440; // 360
+      const nightEndMod = nightEnd % 1440;
       for(let i=start;i<end;i++){
         const mod = i % 1440;
         const isNight = (mod >= nightStart) || (mod < nightEndMod);
         if(isNight) nightMin++;
       }
+
       const nightH = nightMin / 60;
       const dayH = (totalMin/60) - nightH;
 
@@ -1038,204 +1036,106 @@
       $("nachtH").value = Math.max(0, nightH).toFixed(2);
     }
 
-    // ===== Due date sync =====
-    function syncDueDateFromPayDays(){
-      const invDate = $("invDate").value || todayISO();
-      const days = Math.max(0, Math.floor(safeNum($("payDays").value)));
-      $("dueDate").value = addDaysISO(invDate, days);
-    }
-
     // ===== Calculation =====
-    function computeAll(form){
-      const m = safeNum(form.mitarbeiter);
-      const tagPreis = safeNum(form.tagPreis);
-      const nachtPreis = safeNum(form.nachtFest);
-      const sonntagPreis = safeNum(form.sonntagFest);
-      const feiertagPreis = safeNum(form.feiertagFest);
-      const tagH = safeNum(form.tagH);
-      const nachtH = safeNum(form.nachtH);
-      const sonntagH = safeNum(form.sonntagH);
-      const feiertagH = safeNum(form.feiertagH);
-
-      const tagSum = m * tagH * tagPreis;
-      const nachtSum = m * nachtH * nachtPreis;
-      const sonntagSum = m * sonntagH * sonntagPreis;
-      const feiertagSum = m * feiertagH * feiertagPreis;
-      const sub = tagSum + nachtSum + sonntagSum + feiertagSum;
-
-      const totalHours = tagH + nachtH + sonntagH + feiertagH;
-      const manHours = m * totalHours;
-
-      const rc = form.reverseCharge === "on";
-      const vatMode = form.vatMode;
-      const vatRate = rc ? 0 : ((vatMode==="vat19") ? 0.19 : 0);
-      const vatAmount = sub * vatRate;
-      const grand = sub + vatAmount;
-
-      return {m,tagPreis,nachtPreis,sonntagPreis,feiertagPreis,tagH,nachtH,sonntagH,feiertagH,tagSum,nachtSum,sonntagSum,feiertagSum,sub,totalHours,manHours,vatRate,vatAmount,grand};
-    }
-
-    function collectFormOnly(){
-      const fields = [
-        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerLegalForm","issuerRegister","issuerCourt",
-        "issuerIban","issuerBic","issuerHolder",
-        "custName","custEmail","custContact","custAddress","custVatId",
-        "invDate","payDays","dueDate","invNo","purpose",
-        "vatMode","reverseCharge","b2bMode",
-        "serviceTitle","objekt","zeitraum","leistungsdatum",
-        "mitarbeiter","tagPreis",
-        "shiftStart","shiftEnd","nachtRule",
-        "tagH","nachtH","sonntagH","feiertagH",
-        "nachtFest","sonntagFest","feiertagFest",
-        "paymentTermsText","dunningText","note","internalNote","rechnungText","footerExtra"
-      ];
-      const form = {};
-      for(const id of fields){ if($(id)) form[id] = $(id).value; }
-      return form;
-    }
-
     function calculate(){
+      toggleModeUI();
       updateVatHint();
       updatePurpose();
-      syncTopBrand();
-      syncPills();
+      syncBrandEverywhere();
+      syncClickableLinks();
 
-      const b2bOn = $("b2bMode").value === "on";
-      document.querySelectorAll(".rowDetail").forEach(r => r.style.display = b2bOn ? "none" : "");
-      $("rowB2B").style.display = b2bOn ? "" : "none";
+      const m = safeNum($("mitarbeiter").value);
+      const tagPreis = safeNum($("tagPreis").value);
 
-      const form = collectFormOnly();
-      const c = computeAll(form);
+      const tagH = safeNum($("tagH").value);
+      const nachtH = safeNum($("nachtH").value);
+      const sonntagH = safeNum($("sonntagH").value);
+      const feiertagH = safeNum($("feiertagH").value);
 
-      $("t_tagStd").textContent = String(c.tagH);
-      $("t_nachtStd").textContent = String(c.nachtH);
-      $("t_sonntagStd").textContent = String(c.sonntagH);
-      $("t_feiertagStd").textContent = String(c.feiertagH);
+      const mode = $("modus").value;
 
-      $("t_tagPreis").textContent = fmtEUR(c.tagPreis);
-      $("t_nachtPreis").textContent = fmtEUR(c.nachtPreis);
-      $("t_sonntagPreis").textContent = fmtEUR(c.sonntagPreis);
-      $("t_feiertagPreis").textContent = fmtEUR(c.feiertagPreis);
+      let nachtPreisFinal = 0, sonntagPreisFinal = 0, feiertagPreisFinal = 0;
+      if(mode==="percent"){
+        const nachtP = safeNum($("nachtPercent").value);
+        const sonntagP = safeNum($("sonntagPercent").value);
+        const feiertagP = safeNum($("feiertagPercent").value);
+        nachtPreisFinal = tagPreis + (tagPreis * nachtP/100);
+        sonntagPreisFinal = tagPreis + (tagPreis * sonntagP/100);
+        feiertagPreisFinal = tagPreis + (tagPreis * feiertagP/100);
+      }else{
+        nachtPreisFinal = safeNum($("nachtFest").value);
+        sonntagPreisFinal = safeNum($("sonntagFest").value);
+        feiertagPreisFinal = safeNum($("feiertagFest").value);
+      }
 
-      $("t_tagSum").textContent = fmtEUR(c.tagSum);
-      $("t_nachtSum").textContent = fmtEUR(c.nachtSum);
-      $("t_sonntagSum").textContent = fmtEUR(c.sonntagSum);
-      $("t_feiertagSum").textContent = fmtEUR(c.feiertagSum);
+      const tagSum = m * tagH * tagPreis;
+      const nachtSum = m * nachtH * nachtPreisFinal;
+      const sonntagSum = m * sonntagH * sonntagPreisFinal;
+      const feiertagSum = m * feiertagH * feiertagPreisFinal;
 
-      $("b2bStd").textContent = String(c.manHours.toFixed(2)) + " Std";
-      $("b2bPreis").textContent = "Pauschale";
-      $("b2bSum").textContent = fmtEUR(c.sub);
+      const subTotal = tagSum + nachtSum + sonntagSum + feiertagSum;
 
-      $("subTotal").textContent = fmtEUR(c.sub);
-      $("grandTotal").textContent = fmtEUR(c.grand);
+      const vatMode = $("vatMode").value;
+      const vatRate = (vatMode==="vat19") ? 0.19 : 0;
+      const vatAmount = subTotal * vatRate;
+      const grandTotal = subTotal + vatAmount;
 
-      const nightText = ($("nachtRule").value==="23-06") ? "23:00 – 06:00" : (($("nachtRule").value==="20-06") ? "20:00 – 06:00" : "22:00 – 06:00");
+      $("t_tagStd").textContent = String(tagH);
+      $("t_nachtStd").textContent = String(nachtH);
+      $("t_sonntagStd").textContent = String(sonntagH);
+      $("t_feiertagStd").textContent = String(feiertagH);
+
+      $("t_tagPreis").textContent = fmtEUR(tagPreis);
+      $("t_nachtPreis").textContent = fmtEUR(nachtPreisFinal);
+      $("t_sonntagPreis").textContent = fmtEUR(sonntagPreisFinal);
+      $("t_feiertagPreis").textContent = fmtEUR(feiertagPreisFinal);
+
+      $("t_tagSum").textContent = fmtEUR(tagSum);
+      $("t_nachtSum").textContent = fmtEUR(nachtSum);
+      $("t_sonntagSum").textContent = fmtEUR(sonntagSum);
+      $("t_feiertagSum").textContent = fmtEUR(feiertagSum);
+
+      $("subTotal").textContent = fmtEUR(subTotal);
+      $("grandTotal").textContent = fmtEUR(grandTotal);
+
       const obj = String($("objekt").value||"").trim();
       const zr = String($("zeitraum").value||"").trim();
-      const ld = String($("leistungsdatum").value||"").trim();
       const note = String($("note").value||"").trim();
 
-      const rc = $("reverseCharge").value === "on";
-      const vatLine = rc
-        ? "Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge). Umsatzsteuer wird nicht berechnet."
-        : (($("vatMode").value==="kmu")
-            ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
-            : `Umsatzsteuer 19%: ${fmtEUR(c.vatAmount)} (in Gesamtbetrag enthalten).`);
+      const modeLine = (mode==="percent")
+        ? `Zuschläge gemäß Prozent (auf Tagpreis ${fmtEUR(tagPreis)}).`
+        : `Stundensätze laut Vereinbarung (Festpreise).`;
 
-      const payTxt = String($("paymentTermsText").value||"").trim();
-      const dunTxt = String($("dunningText").value||"").trim();
+      const vatLine = (vatMode==="kmu")
+        ? `Gemäß §19 UStG wird keine Umsatzsteuer berechnet.`
+        : `Umsatzsteuer 19%: ${fmtEUR(vatAmount)} (in Gesamtbetrag enthalten).`;
+
+      const nightText = $("nachtRule").value==="23-06" ? "23:00 – 06:00" : ($("nachtRule").value==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
       $("rechnungText").value = [
-        `${$("serviceTitle").value} — ${b2bOn ? "B2B Pauschale" : "Detailabrechnung"}`,
+        `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeiter(n)`,
         obj ? `Objekt/Ort: ${obj}` : "",
         zr ? `Zeitraum: ${zr}` : "",
-        ld ? `Leistungsdatum: ${ld}` : "",
-        `Einsatz mit ${c.m} Mitarbeitern.`,
-        b2bOn ? `Abrechnung als Pauschale (All-in). Anlage Einsatznachweis.` : `Detail laut Kategorien (Tag/Nacht/Sonntag/Feiertag).`,
-        `Mitarbeiterstunden gesamt: ${c.manHours.toFixed(2)} Std`,
-        `Zwischensumme (netto): ${fmtEUR(c.sub)}`,
-        vatLine,
-        `Gesamtbetrag: ${fmtEUR(c.grand)}`,
+        "",
+        `Tagdienst (${fmtEUR(tagPreis)}/Std): ${m} × ${tagH} Std`,
+        `Nachtdienst (${fmtEUR(nachtPreisFinal)}/Std): ${m} × ${nachtH} Std`,
+        `Sonntag (${fmtEUR(sonntagPreisFinal)}/Std): ${m} × ${sonntagH} Std`,
+        `Feiertag (${fmtEUR(feiertagPreisFinal)}/Std): ${m} × ${feiertagH} Std`,
+        "",
+        `Zwischensumme (netto): ${fmtEUR(subTotal)}`,
+        `${vatLine}`,
+        `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
+        "",
+        modeLine,
         `Nachtzeit laut Vereinbarung: ${nightText}`,
-        payTxt ? `Zahlungsbedingungen: ${payTxt}` : "",
-        dunTxt ? `Verzug/Mahnung: ${dunTxt}` : "",
+        "Abrechnung gemäß Einsatzzeiten.",
         note ? `Hinweis: ${note}` : ""
       ].filter(Boolean).join("\n");
 
       autoSave();
     }
 
-    function validateCore(){
-      const must = [
-        ["issuerCompany","Firmenname"],
-        ["issuerAddress","Adresse"],
-        ["issuerEmail","E-Mail"],
-        ["issuerTaxNo","Steuernummer/Hinweis"],
-        ["issuerIban","IBAN"],
-        ["issuerBic","BIC"],
-        ["issuerHolder","Kontoinhaber"],
-        ["custName","Kundenname"],
-        ["custAddress","Kundendaten"],
-        ["invDate","Rechnungsdatum"],
-        ["dueDate","Fällig am"],
-        ["invNo","Rechnungsnummer"],
-        ["serviceTitle","Leistungsbeschreibung"],
-        ["paymentTermsText","Zahlungsbedingungen"]
-      ];
-      for(const [id,label] of must){
-        if(!String($(id).value||"").trim()){
-          setStatus(`Fehlt: ${label}`, false);
-          return false;
-        }
-      }
-      if($("reverseCharge").value==="on" && !String($("custVatId").value||"").trim()){
-        setStatus("Warnung: Reverse Charge ON, aber Kunden USt-IdNr fehlt", false);
-      }else{
-        setStatus("OK", true);
-      }
-      return true;
-    }
-
     // ===== Customers =====
-    function cryptoRandomId(){
-      if(window.crypto?.getRandomValues){
-        const a = new Uint32Array(2);
-        window.crypto.getRandomValues(a);
-        return a[0].toString(16)+a[1].toString(16);
-      }
-      return String(Date.now()) + Math.random().toString(16).slice(2);
-    }
-
-    function renderCustomerList(){
-      const wrap = $("custList");
-      if(!wrap) return;
-      const customers = loadJSON(KEY_CUSTOMERS, []);
-      wrap.innerHTML = "";
-      customers.forEach(c=>{
-        const el = document.createElement("div");
-        el.className = "item";
-        el.innerHTML = `
-          <div>
-            <b>${escapeHtml(c.name||"")}</b>
-            <small>${escapeHtml((c.address||"").slice(0,120))}${(c.address||"").length>120?"…":""}</small><br/>
-            ${c.vatId ? `<small class="mono">USt-IdNr: ${escapeHtml(c.vatId)}</small>` : `<small class="mono">USt-IdNr: —</small>`}
-          </div>
-          <div class="btns">
-            <button type="button" data-id="${escapeAttr(c.id)}">Auswählen</button>
-          </div>
-        `;
-        wrap.appendChild(el);
-      });
-      wrap.querySelectorAll("button[data-id]").forEach(b=>{
-        b.addEventListener("click", ()=>{
-          const id = b.getAttribute("data-id");
-          $("customerPick").value = id;
-          $("customerPick").dispatchEvent(new Event("change"));
-          setActiveNav("navCreate","viewCreate");
-        });
-      });
-    }
-
     function renderCustomers(){
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const sel = $("customerPick");
@@ -1244,6 +1144,7 @@
       opt0.value = "";
       opt0.textContent = "— auswählen —";
       sel.appendChild(opt0);
+
       for(const c of customers){
         const o = document.createElement("option");
         o.value = c.id;
@@ -1252,9 +1153,16 @@
       }
       $("custCount").textContent = String(customers.length);
       $("navCustCount").textContent = String(customers.length);
-      renderCustomerList();
     }
 
+    function cryptoRandomId(){
+      if(window.crypto?.getRandomValues){
+        const a = new Uint32Array(2);
+        window.crypto.getRandomValues(a);
+        return a[0].toString(16)+a[1].toString(16);
+      }
+      return String(Date.now()) + Math.random().toString(16).slice(2);
+    }
     function saveCustomer(){
       const name = String($("custName").value||"").trim();
       const address = String($("custAddress").value||"").trim();
@@ -1266,16 +1174,14 @@
         name,
         email: String($("custEmail").value||"").trim(),
         contact: String($("custContact").value||"").trim(),
-        address,
-        vatId: String($("custVatId").value||"").trim()
+        address
       });
       saveJSON(KEY_CUSTOMERS, customers);
       renderCustomers();
       $("customerPick").value = id;
       setStatus("Kunde gespeichert", true);
-      calculate();
+      renderCustomerList();
     }
-
     function loadCustomer(id){
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const c = customers.find(x=>x.id===id);
@@ -1284,31 +1190,52 @@
       $("custEmail").value = c.email || "";
       $("custContact").value = c.contact || "";
       $("custAddress").value = c.address || "";
-      $("custVatId").value = c.vatId || "";
       setStatus("Kunde geladen", true);
       calculate();
     }
-
     function deleteCustomer(){
       const id = $("customerPick").value;
       if(!id){ setStatus("Kein Kunde ausgewählt", false); return; }
       const customers = loadJSON(KEY_CUSTOMERS, []).filter(x=>x.id!==id);
       saveJSON(KEY_CUSTOMERS, customers);
-      $("customerPick").value = "";
       renderCustomers();
+      $("customerPick").value = "";
       setStatus("Kunde gelöscht", true);
-      calculate();
+      renderCustomerList();
     }
 
     // ===== Invoices =====
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
     function collectInvoice(){
-      const form = collectFormOnly();
+      const fields = [
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId",
+        "issuerIban","issuerBic","issuerHolder",
+        "custName","custEmail","custContact","custAddress",
+        "invDate","dueDate","invNo","vatMode","serviceTitle","objekt","zeitraum",
+        "mitarbeiter","tagPreis","modus","purpose",
+        "shiftStart","shiftEnd","nachtRule",
+        "tagH","nachtH","sonntagH","feiertagH",
+        "nachtPercent","sonntagPercent","feiertagPercent",
+        "nachtFest","sonntagFest","feiertagFest",
+        "note","rechnungText"
+      ];
+      const form = {};
+      for(const id of fields){ if($(id)) form[id] = $(id).value; }
       return {
-        invNo: form.invNo,
-        invDate: form.invDate,
-        custName: form.custName,
-        serviceTitle: form.serviceTitle,
-        purpose: form.purpose,
+        invNo: $("invNo").value,
+        invDate: $("invDate").value,
+        custName: $("custName").value,
+        serviceTitle: $("serviceTitle").value,
+        purpose: $("purpose").value,
         subTotalFmt: $("subTotal").textContent,
         grandTotalFmt: $("grandTotal").textContent,
         logoDataUrl: $("logoImg").src || "",
@@ -1325,6 +1252,7 @@
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gespeichert", true);
       renderInvoices();
+      updateInvoiceCounts();
     }
 
     function renderInvoices(){
@@ -1334,7 +1262,7 @@
 
       const wrap = $("invList");
       wrap.innerHTML = "";
-      invoices.forEach(inv=>{
+      for(const inv of invoices){
         const el = document.createElement("div");
         el.className = "item";
         el.innerHTML = `
@@ -1345,20 +1273,31 @@
           </div>
           <div class="btns">
             <button type="button" data-act="load" data-no="${escapeAttr(inv.invNo)}">Laden</button>
+            <button type="button" data-act="pdf" data-no="${escapeAttr(inv.invNo)}">PDF</button>
             <button type="button" data-act="del" class="danger" data-no="${escapeAttr(inv.invNo)}">Löschen</button>
           </div>
         `;
         wrap.appendChild(el);
-      });
+      }
 
       wrap.querySelectorAll("button").forEach(b=>{
-        b.addEventListener("click", ()=>{
+        b.addEventListener("click", async ()=>{
           const act = b.getAttribute("data-act");
           const no = b.getAttribute("data-no");
           if(act==="load") loadInvoice(no);
           if(act==="del") deleteInvoice(no);
+          if(act==="pdf") {
+            const inv = loadJSON(KEY_INVOICES, []).find(x=>x.invNo===no);
+            if(inv){ await exportPdfFromInvoice(inv); }
+          }
         });
       });
+    }
+
+    function updateInvoiceCounts(){
+      const invoices = loadJSON(KEY_INVOICES, []);
+      $("invCount").textContent = String(invoices.length);
+      $("navInvCount").textContent = String(invoices.length);
     }
 
     function loadInvoice(invNo){
@@ -1366,7 +1305,7 @@
       const inv = invoices.find(x=>x.invNo===invNo);
       if(!inv){ setStatus("Rechnung nicht gefunden", false); return; }
       for(const [k,v] of Object.entries(inv.form || {})){ if($(k)) $(k).value = v; }
-      if(inv.logoDataUrl) setLogo(inv.logoDataUrl, true);
+      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); }
       setStatus("Rechnung geladen", true);
       calculateDayNight();
       calculate();
@@ -1378,48 +1317,10 @@
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gelöscht", true);
       renderInvoices();
+      updateInvoiceCounts();
     }
 
-    // ===== Auto Save =====
-    let autoSaveTimer = null;
-    function autoSave(){
-      clearTimeout(autoSaveTimer);
-      autoSaveTimer = setTimeout(()=>{
-        saveJSON(KEY_APP, collectFormOnly());
-      }, 250);
-    }
-    function restoreAutoSave(){
-      const state = loadJSON(KEY_APP, null);
-      if(!state) return;
-      for(const [k,v] of Object.entries(state)){
-        if($(k)) $(k).value = v;
-      }
-    }
-
-    // ===== Nav (aria-hidden toggling) =====
-    function setActiveNav(btnId, viewId){
-      ["navCreate","navInvoices","navCustomers","navSettings"].forEach(id=>{
-        const b = $(id); if(b) b.classList.toggle("active", id===btnId);
-      });
-      ["viewCreate","viewInvoices","viewCustomers","viewSettings"].forEach(id=>{
-        const v = $(id);
-        if(!v) return;
-        v.setAttribute("aria-hidden", id===viewId ? "false" : "true");
-      });
-    }
-
-    function syncCompanyMirror(){
-      const main = $("issuerCompany");
-      const mir = $("issuerCompanyMirror");
-      if(!main || !mir) return;
-      mir.value = main.value || "";
-      mir.oninput = ()=>{
-        main.value = mir.value;
-        calculate();
-      };
-    }
-
-    // ===== Print/PDF placeholders (kept, but no longer required for main UI) =====
+    // ===== wait images before PDF/Print =====
     function waitImagesLoaded(root){
       const imgs = Array.from(root.querySelectorAll("img")).filter(i=>i.src);
       return Promise.all(imgs.map(img => new Promise(res=>{
@@ -1429,17 +1330,159 @@
       })));
     }
 
+    // ===== Build Print HTML =====
     function buildPrintHtml(inv){
-      // Minimal safe print (kept short). You can expand later.
       const f = inv.form;
-      const c = computeAll(f);
+      const company = String(f.issuerCompany || "Masculine Security").trim();
+
+      const logoSrc = inv.logoDataUrl || $("logoImg").src || "";
+      const logo = logoSrc ? `<div class="invLogo"><img src="${escapeAttr(logoSrc)}" alt="Logo"/></div>` : "";
+
+      const vatMode = f.vatMode;
+      const vatLine = (vatMode==="kmu")
+        ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
+        : "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
+
+      const mode = f.modus;
+      const modeLine = (mode==="percent")
+        ? `Zuschläge gemäß Prozent (auf Tagpreis).`
+        : `Stundensätze laut Vereinbarung (Festpreise).`;
+
+      const m = safeNum(f.mitarbeiter);
+      const tagPreis = safeNum(f.tagPreis);
+      const tagH = safeNum(f.tagH);
+      const nachtH = safeNum(f.nachtH);
+      const sonntagH = safeNum(f.sonntagH);
+      const feiertagH = safeNum(f.feiertagH);
+
+      let nachtPreisFinal=0, sonntagPreisFinal=0, feiertagPreisFinal=0;
+      if(mode==="percent"){
+        const nachtP = safeNum(f.nachtPercent);
+        const sonntagP = safeNum(f.sonntagPercent);
+        const feiertagP = safeNum(f.feiertagPercent);
+        nachtPreisFinal = tagPreis + (tagPreis * nachtP/100);
+        sonntagPreisFinal = tagPreis + (tagPreis * sonntagP/100);
+        feiertagPreisFinal = tagPreis + (tagPreis * feiertagP/100);
+      }else{
+        nachtPreisFinal = safeNum(f.nachtFest);
+        sonntagPreisFinal = safeNum(f.sonntagFest);
+        feiertagPreisFinal = safeNum(f.feiertagFest);
+      }
+
+      const tagSum = m * tagH * tagPreis;
+      const nachtSum = m * nachtH * nachtPreisFinal;
+      const sonntagSum = m * sonntagH * sonntagPreisFinal;
+      const feiertagSum = m * feiertagH * feiertagPreisFinal;
+      const subTotal = tagSum+nachtSum+sonntagSum+feiertagSum;
+      const vatRate = (vatMode==="vat19") ? 0.19 : 0;
+      const vatAmount = subTotal*vatRate;
+      const grand = subTotal+vatAmount;
+
+      const obj = String(f.objekt||"").trim();
+      const zr = String(f.zeitraum||"").trim();
+      const note = String(f.note||"").trim();
+      const nightText = f.nachtRule==="23-06" ? "23:00 – 06:00" : (f.nachtRule==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
+
       return `
-        <div style="font-family:Arial;padding:20px">
-          <h2>Rechnung ${escapeHtml(f.invNo||"")}</h2>
-          <p><b>${escapeHtml(f.issuerCompany||"")}</b> — ${escapeHtml(f.issuerAddress||"")}</p>
-          <p><b>Kunde:</b> ${escapeHtml(f.custName||"")} — ${escapeHtml(f.custAddress||"").replaceAll("\n","<br/>")}</p>
-          <hr/>
-          <p><b>Netto:</b> ${fmtEUR(c.sub)}<br/><b>Brutto:</b> ${fmtEUR(c.grand)}</p>
+        <div class="invHeader">
+          <div class="left">
+            ${logo}
+            <div>
+              <p class="invTitle">Rechnung</p>
+              <div class="invMeta"><b>${escapeHtml(company)}</b></div>
+              <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
+              ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
+              ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
+            </div>
+          </div>
+          <div class="invBox" style="min-width:260px">
+            <div class="line"><span><b>Rechnungsnr.</b></span><span class="mono">${escapeHtml(f.invNo||"")}</span></div>
+            <div class="line"><span>Datum</span><span>${escapeHtml(f.invDate||"")}</span></div>
+            <div class="line"><span>Fällig</span><span>${escapeHtml(f.dueDate||"")}</span></div>
+            <div class="line"><span>Zweck</span><span class="mono">${escapeHtml(f.purpose||"")}</span></div>
+          </div>
+        </div>
+
+        <div class="invGrid2" style="margin-top:12px">
+          <div class="invBox">
+            <h4>Rechnungssteller</h4>
+            <div class="mini"><b>${escapeHtml(company)}</b></div>
+            <div class="mini">${escapeHtml(f.issuerAddress||"")}</div>
+            <div class="mini">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
+            <div class="mini">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
+            <div class="mini">Steuernr./Hinweis: ${escapeHtml(f.issuerTaxNo||"")}</div>
+            ${String(f.issuerVatId||"").trim() ? `<div class="mini">USt-IdNr: ${escapeHtml(f.issuerVatId||"")}</div>` : ``}
+          </div>
+
+          <div class="invBox">
+            <h4>Rechnung an</h4>
+            <div class="mini"><b>${escapeHtml(f.custName||"")}</b></div>
+            <div class="mini">${escapeHtml(f.custAddress||"").replaceAll("\n","<br/>")}</div>
+            ${String(f.custEmail||"").trim() ? `<div class="mini">E-Mail: ${escapeHtml(f.custEmail||"")}</div>` : ``}
+            ${String(f.custContact||"").trim() ? `<div class="mini">Ansprechpartner: ${escapeHtml(f.custContact||"")}</div>` : ``}
+          </div>
+        </div>
+
+        <div class="invBox" style="margin-top:12px">
+          <h4>Leistungsübersicht</h4>
+          <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
+
+          <table class="invTable">
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th class="invRight">Mitarbeiter</th>
+                <th class="invRight">Std.</th>
+                <th class="invRight">Preis/Std.</th>
+                <th class="invRight">Summe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tagdienst</td>
+                <td class="invRight">${m}</td>
+                <td class="invRight">${tagH}</td>
+                <td class="invRight">${fmtEUR(tagPreis)}</td>
+                <td class="invRight">${fmtEUR(tagSum)}</td>
+              </tr>
+              <tr>
+                <td>Nachtdienst</td>
+                <td class="invRight">${m}</td>
+                <td class="invRight">${nachtH}</td>
+                <td class="invRight">${fmtEUR(nachtPreisFinal)}</td>
+                <td class="invRight">${fmtEUR(nachtSum)}</td>
+              </tr>
+              <tr>
+                <td>Sonntag</td>
+                <td class="invRight">${m}</td>
+                <td class="invRight">${sonntagH}</td>
+                <td class="invRight">${fmtEUR(sonntagPreisFinal)}</td>
+                <td class="invRight">${fmtEUR(sonntagSum)}</td>
+              </tr>
+              <tr>
+                <td>Feiertag</td>
+                <td class="invRight">${m}</td>
+                <td class="invRight">${feiertagH}</td>
+                <td class="invRight">${fmtEUR(feiertagPreisFinal)}</td>
+                <td class="invRight">${fmtEUR(feiertagSum)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="invTotals">
+            <div class="tline"><span>Zwischensumme (netto)</span><span>${fmtEUR(subTotal)}</span></div>
+            ${vatRate>0 ? `<div class="tline"><span>USt 19%</span><span>${fmtEUR(vatAmount)}</span></div>` : ``}
+            <div class="tline grand"><span>Gesamtbetrag</span><span>${fmtEUR(grand)}</span></div>
+          </div>
+
+          <div class="invFooter">
+            <div>${escapeHtml(vatLine)}</div>
+            <div>${escapeHtml(modeLine)} Abrechnung gemäß Einsatzzeiten.</div>
+            ${note ? `<div><b>Hinweis:</b> ${escapeHtml(note)}</div>` : ``}
+            <div style="margin-top:10px">
+              <b>Bankverbindung:</b> IBAN ${escapeHtml(f.issuerIban||"")} • BIC ${escapeHtml(f.issuerBic||"")} • Inhaber ${escapeHtml(f.issuerHolder||"")}
+            </div>
+          </div>
         </div>
       `;
     }
@@ -1447,19 +1490,27 @@
     async function exportPdf(){
       if(!validateCore()) return;
       const inv = collectInvoice();
-      const root = $("printA4");
-      root.innerHTML = buildPrintHtml(inv);
-      $("printWrap").style.display = "block";
-      await waitImagesLoaded(root);
-      const canvas = await html2canvas(root, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
+      await exportPdfFromInvoice(inv);
+    }
+
+    async function exportPdfFromInvoice(inv){
+      const printArea = $("printArea");
+      printArea.innerHTML = `<div class="printDoc">${buildPrintHtml(inv)}</div>`;
+      $("printAreaWrap").style.display = "block";
+      await waitImagesLoaded(printArea);
+
+      const canvas = await html2canvas(printArea, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
       const imgData = canvas.toDataURL("image/png");
       const { jsPDF } = window.jspdf;
+
       const pdf = new jsPDF("p","mm","a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
+
       const imgProps = pdf.getImageProperties(imgData);
       const imgW = pageW;
       const imgH = (imgProps.height * imgW) / imgProps.width;
+
       if(imgH <= pageH){
         pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
       }else{
@@ -1472,142 +1523,104 @@
           y += pageH;
         }
       }
+
       pdf.save(`${inv.invNo}.pdf`);
-      $("printWrap").style.display = "none";
+      $("printAreaWrap").style.display = "none";
       setStatus("PDF gespeichert", true);
     }
 
+    // ✅ Print fix: no blank second page + auto cleanup
     async function doPrint(){
       if(!validateCore()) return;
       const inv = collectInvoice();
-      $("printA4").innerHTML = buildPrintHtml(inv);
-      $("printWrap").style.display = "block";
-      await waitImagesLoaded($("printA4"));
-      window.print();
-      $("printWrap").style.display = "none";
-    }
+      $("printArea").innerHTML = `<div class="printDoc">${buildPrintHtml(inv)}</div>`;
+      $("printAreaWrap").style.display = "block";
+      await waitImagesLoaded($("printArea"));
 
-    // ===== Backup =====
-    function downloadText(filename, text, mime="application/json"){
-      const blob = new Blob([text], {type:mime});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-    function buildBackup(){
-      return {
-        version: "MS-B2B-100-v2",
-        exportedAt: new Date().toISOString(),
-        data: {
-          app: loadJSON(KEY_APP, null),
-          customers: loadJSON(KEY_CUSTOMERS, []),
-          invoices: loadJSON(KEY_INVOICES, []),
-          counters: loadJSON(KEY_COUNTERS, {}),
-          logo: localStorage.getItem(KEY_LOGO) || ""
-        }
+      const cleanup = ()=>{
+        $("printAreaWrap").style.display = "none";
+        window.removeEventListener("afterprint", cleanup);
       };
+      window.addEventListener("afterprint", cleanup);
+
+      window.print();
+      setTimeout(cleanup, 1500);
     }
-    async function copyToClipboard(text){
-      try{
-        await navigator.clipboard.writeText(text);
-        setStatus("Backup in Clipboard kopiert", true);
-      }catch(e){
-        setStatus("Clipboard nicht erlaubt. Nutze Download.", false);
+
+    // ===== Auto Save =====
+    let autoSaveTimer = null;
+    function autoSave(){
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(()=>{
+        const state = collectInvoice().form;
+        saveJSON(KEY_APP, state);
+      }, 250);
+    }
+    function restoreAutoSave(){
+      const state = loadJSON(KEY_APP, null);
+      if(!state) return;
+      for(const [k,v] of Object.entries(state)){
+        if($(k)) $(k).value = v;
       }
     }
-    function exportBackup(){
-      const b = buildBackup();
-      downloadText(`ms_backup_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(b, null, 2));
-      setStatus("Backup heruntergeladen", true);
-    }
-    function exportInvoices(){
-      const invoices = loadJSON(KEY_INVOICES, []);
-      downloadText(`ms_invoices_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(invoices, null, 2));
-      setStatus("Rechnungen exportiert", true);
-    }
-    function exportCustomers(){
+
+    // ===== Customers list view =====
+    function renderCustomerList(){
+      const wrap = $("custList");
       const customers = loadJSON(KEY_CUSTOMERS, []);
-      downloadText(`ms_customers_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(customers, null, 2));
-      setStatus("Kunden exportiert", true);
-    }
-    function importBackupFromObject(obj){
-      try{
-        if(!obj || !obj.data) throw new Error("Ungültiges Backup");
-        const d = obj.data;
-        if(d.app) saveJSON(KEY_APP, d.app);
-        if(d.customers) saveJSON(KEY_CUSTOMERS, d.customers);
-        if(d.invoices) saveJSON(KEY_INVOICES, d.invoices);
-        if(d.counters) saveJSON(KEY_COUNTERS, d.counters);
-        if(typeof d.logo === "string" && d.logo) localStorage.setItem(KEY_LOGO, d.logo);
-        setStatus("Backup importiert (Reload)", true);
-        setTimeout(()=>location.reload(), 250);
-      }catch(e){
-        setStatus("Backup Import fehlgeschlagen", false);
-      }
-    }
-    function wipeAllData(){
-      localStorage.removeItem(KEY_APP);
-      localStorage.removeItem(KEY_CUSTOMERS);
-      localStorage.removeItem(KEY_INVOICES);
-      localStorage.removeItem(KEY_COUNTERS);
-      localStorage.removeItem(KEY_LOGO);
-      setStatus("Alle Daten gelöscht (Reload)", true);
-      setTimeout(()=>location.reload(), 250);
-    }
+      $("custCount").textContent = String(customers.length);
+      $("navCustCount").textContent = String(customers.length);
 
-    // ===== Actions =====
-    function resetAll(){
-      localStorage.removeItem(KEY_APP);
-      setStatus("Form reset (Reload)", true);
-      setTimeout(()=>location.reload(), 250);
-    }
-    function newInvoice(){
-      const keep = [
-        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerLegalForm","issuerRegister","issuerCourt",
-        "issuerIban","issuerBic","issuerHolder",
-        "custName","custEmail","custContact","custAddress","custVatId","customerPick",
-        "vatMode","reverseCharge","b2bMode",
-        "serviceTitle","objekt","zeitraum","leistungsdatum",
-        "mitarbeiter","tagPreis",
-        "nachtFest","sonntagFest","feiertagFest",
-        "nachtRule",
-        "payDays","paymentTermsText","dunningText","footerExtra"
-      ];
-      const snapshot = {};
-      keep.forEach(id=>{ if($(id)) snapshot[id] = $(id).value; });
-
-      document.querySelectorAll("input,textarea,select").forEach(el=>{
-        if(el.id==="logoFile" || el.id==="backupFile") return;
-        if(el.type==="date") return;
-        el.value = "";
+      wrap.innerHTML = "";
+      customers.forEach(c=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div>
+            <b>${escapeHtml(c.name||"")}</b>
+            <small>${escapeHtml((c.address||"").slice(0,120))}${(c.address||"").length>120?"…":""}</small>
+          </div>
+          <div class="btns">
+            <button type="button" data-id="${escapeAttr(c.id)}">Auswählen</button>
+          </div>
+        `;
+        wrap.appendChild(el);
       });
 
-      Object.entries(snapshot).forEach(([id,val])=>{ if($(id)) $(id).value = val; });
-
-      $("invDate").value = todayISO();
-      syncDueDateFromPayDays();
-      $("invNo").value = nextInvoiceNo($("invDate").value);
-
-      $("shiftStart").value = "18:00";
-      $("shiftEnd").value = "06:00";
-      calculateDayNight();
-
-      $("sonntagH").value = 0;
-      $("feiertagH").value = 0;
-      $("note").value = "";
-      $("internalNote").value = "";
-      $("rechnungText").value = "";
-
-      setStatus("Neue Rechnung", true);
-      calculate();
+      wrap.querySelectorAll("button[data-id]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          const id = b.getAttribute("data-id");
+          $("customerPick").value = id;
+          $("customerPick").dispatchEvent(new Event("change"));
+          setActiveNav("navCreate","viewCreate");
+        });
+      });
     }
 
-    // ===== Wire =====
+    // ===== Nav =====
+    function setActiveNav(btnId, viewId){
+      ["navCreate","navInvoices","navCustomers","navSettings"].forEach(id=>{
+        const b = $(id);
+        if(b) b.classList.toggle("active", id===btnId);
+      });
+      ["viewCreate","viewInvoices","viewCustomers","viewSettings"].forEach(id=>{
+        const v = $(id);
+        if(v) v.classList.toggle("active", id===viewId);
+      });
+    }
+
+    function syncCompanyMirror(){
+      const main = $("issuerCompany");
+      const mir = $("issuerCompanyMirror");
+      if(!main || !mir) return;
+      mir.value = main.value || "";
+      mir.oninput = ()=>{
+        main.value = mir.value;
+        syncBrandEverywhere();
+        calculate();
+      };
+    }
+
     function wireSidebar(){
       $("navCreate")?.addEventListener("click", ()=> setActiveNav("navCreate","viewCreate"));
       $("navInvoices")?.addEventListener("click", ()=>{
@@ -1625,20 +1638,56 @@
       $("btnLogo2")?.addEventListener("click", ()=> $("logoFile")?.click());
     }
 
+    function resetAll(){
+      localStorage.removeItem(KEY_APP);
+      localStorage.removeItem(KEY_CUSTOMERS);
+      localStorage.removeItem(KEY_INVOICES);
+      localStorage.removeItem(KEY_COUNTERS);
+      // keep logo on reset? user asked "fest logo" -> keep it
+      location.reload();
+    }
+
+    function newInvoice(){
+      const keep = [
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
+        "custName","custEmail","custContact","custAddress","customerPick",
+        "vatMode","serviceTitle","objekt","zeitraum",
+        "mitarbeiter","tagPreis","modus",
+        "nachtPercent","sonntagPercent","feiertagPercent",
+        "nachtFest","sonntagFest","feiertagFest",
+        "nachtRule"
+      ];
+      const snapshot = {};
+      keep.forEach(id=>{ if($(id)) snapshot[id] = $(id).value; });
+
+      document.querySelectorAll("input,textarea,select").forEach(el=>{
+        if(el.id==="logoFile") return;
+        if(el.type==="date") return;
+        el.value = "";
+      });
+
+      Object.entries(snapshot).forEach(([id,val])=>{ if($(id)) $(id).value = val; });
+
+      $("invDate").value = todayISO();
+      $("dueDate").value = addDaysISO($("invDate").value, 14);
+      $("invNo").value = nextInvoiceNo($("invDate").value);
+
+      $("shiftStart").value = "18:00";
+      $("shiftEnd").value = "06:00";
+      calculateDayNight();
+
+      $("sonntagH").value = 0;
+      $("feiertagH").value = 0;
+      $("note").value = "";
+      $("rechnungText").value = "";
+
+      setStatus("Neue Rechnung", true);
+      calculate();
+    }
+
+    // ===== Wire =====
     function wire(){
-      $("btnHardReload")?.addEventListener("click", hardReload);
-      $("btnClearSite")?.addEventListener("click", clearSiteData);
-
-      $("btnCallLink").addEventListener("click", (e)=>{
-        const tel = String($("issuerPhone").value||"").replace(/\s+/g,"");
-        if(!tel){ e.preventDefault(); setStatus("Telefon fehlt", false); }
-      });
-      $("btnMailLink").addEventListener("click", (e)=>{
-        const mail = String($("issuerEmail").value||"").trim();
-        if(!mail){ e.preventDefault(); setStatus("E-Mail fehlt", false); }
-      });
-
-      // Logo
+      // logo
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change", (e)=>{
         const file = e.target.files?.[0];
@@ -1648,7 +1697,7 @@
         rd.readAsDataURL(file);
       });
 
-      // Header actions
+      // header actions
       $("btnPdf").addEventListener("click", exportPdf);
       $("btnPrint").addEventListener("click", doPrint);
       $("btnReset").addEventListener("click", resetAll);
@@ -1659,99 +1708,53 @@
         renderInvoices();
       });
 
-      // Customers
+      // customers
       $("btnSaveCustomer").addEventListener("click", saveCustomer);
       $("btnDeleteCustomer").addEventListener("click", deleteCustomer);
       $("customerPick").addEventListener("change", (e)=> loadCustomer(e.target.value));
 
-      // Dates
+      // date change
       $("invDate").addEventListener("change", ()=>{
-        syncDueDateFromPayDays();
+        $("dueDate").value = addDaysISO($("invDate").value, 14);
         $("invNo").value = nextInvoiceNo($("invDate").value);
         calculate();
       });
-      $("payDays").addEventListener("input", ()=>{
-        syncDueDateFromPayDays();
-        const d = Math.max(0, Math.floor(safeNum($("payDays").value)));
-        $("paymentTermsText").value = `Zahlbar innerhalb von ${d} Tagen ohne Abzug.`;
-        calculate();
-      });
 
-      $("reverseCharge").addEventListener("change", ()=>{
-        if($("reverseCharge").value==="on"){
-          $("vatMode").value = "kmu";
-        }
-        calculate();
-      });
+      // changes
+      $("vatMode").addEventListener("change", calculate);
+      $("modus").addEventListener("change", calculate);
 
-      // Auto day/night
+      // auto day/night
       $("shiftStart").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("shiftEnd").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("nachtRule").addEventListener("change", ()=>{ calculateDayNight(); calculate(); });
 
-      // brand
-      ["issuerPhone","issuerEmail","issuerCompany"].forEach(id=>{
-        $(id).addEventListener("input", ()=>{ syncTopBrand(); calculate(); });
-      });
-
+      // input auto calc
       document.querySelectorAll("input,textarea,select").forEach(el=>{
-        if(el.id==="logoFile" || el.id==="backupFile") return;
+        if(el.id==="logoFile") return;
         if(el.id==="shiftStart" || el.id==="shiftEnd" || el.id==="nachtRule") return;
-        if(el.id==="invDate" || el.id==="payDays" || el.id==="reverseCharge") return;
         el.addEventListener("input", calculate);
-        el.addEventListener("change", calculate);
       });
-
-      // Settings backup
-      $("btnExportBackup")?.addEventListener("click", exportBackup);
-      $("btnCopyBackup")?.addEventListener("click", async ()=> copyToClipboard(JSON.stringify(buildBackup(), null, 2)));
-      $("btnImportBackup")?.addEventListener("click", ()=> $("backupFile").click());
-      $("backupFile")?.addEventListener("change", (e)=>{
-        const file = e.target.files?.[0];
-        if(!file) return;
-        const rd = new FileReader();
-        rd.onload = ()=>{
-          try{
-            const obj = JSON.parse(String(rd.result||"{}"));
-            importBackupFromObject(obj);
-          }catch(err){
-            setStatus("Backup Datei ungültig", false);
-          }
-        };
-        rd.readAsText(file);
-      });
-      $("btnWipeData")?.addEventListener("click", wipeAllData);
-      $("btnExportInvoices")?.addEventListener("click", exportInvoices);
-      $("btnExportCustomers")?.addEventListener("click", exportCustomers);
 
       wireSidebar();
     }
 
     // ===== Init =====
     function initDefaults(){
-      $("b2bMode").value = $("b2bMode").value || "on";
-      $("payDays").value = String(Math.max(0, Math.floor(safeNum($("payDays").value || 14)))) || "14";
-
       $("invDate").value = $("invDate").value || todayISO();
-      syncDueDateFromPayDays();
+      $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
       $("invNo").value = $("invNo").value || nextInvoiceNo($("invDate").value);
-
-      if(!String($("paymentTermsText").value||"").trim()){
-        const d = Math.max(0, Math.floor(safeNum($("payDays").value)));
-        $("paymentTermsText").value = `Zahlbar innerhalb von ${d} Tagen ohne Abzug.`;
-      }
-
+      updateVatHint();
+      updatePurpose();
       renderCustomers();
-      renderInvoices();
-      syncCompanyMirror();
-      setStatus("Bereit", true);
-
+      toggleModeUI();
       calculateDayNight();
-      syncTopBrand();
-      calculate();
-
-      // show only Create view (JS-controlled)
-      setActiveNav("navCreate","viewCreate");
+      renderInvoices();
+      renderCustomerList();
+      syncCompanyMirror();
+      syncBrandEverywhere();
+      syncClickableLinks();
+      setStatus("Bereit", true);
     }
 
     window.addEventListener("load", ()=>{
@@ -1760,10 +1763,11 @@
         restoreAutoSave();
         wire();
         initDefaults();
+        calculate();
       }catch(e){
         showErr(e);
       }
     });
   </script>
 </body>
-</html>
+  </html>
