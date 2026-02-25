@@ -2,16 +2,15 @@
 <html lang="de">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Masculine Security — B2B Rechnung (V4.1)</title>
 
-  <!-- ✅ Strong cache-bust (fix blank/old versions on GitHub Pages / Android) -->
+  <!-- hard cache bust for some browsers -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
 
-  <title>Masculine Security — B2B Rechnung (Lexoffice-Style)</title>
-
-  <!-- ✅ PDF libs (stable CDN) -->
+  <!-- PDF libs -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
@@ -45,29 +44,62 @@
         var(--bg);
     }
 
+    /* Error banner (shows JS errors so we can debug) */
+    .errBox{
+      display:none;
+      position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;
+      background:#fff;
+      border:1px solid rgba(225,29,72,.25);
+      border-left:6px solid #e11d48;
+      border-radius:14px;
+      box-shadow:0 18px 55px rgba(15,23,42,.18);
+      padding:10px 12px;
+      font-size:12px;
+      color:#7f1d1d;
+      white-space:pre-wrap;
+    }
+    .errBox b{display:block;color:#991b1b;margin-bottom:6px}
+
     /* ===== Topbar ===== */
     .topbar{
       position:sticky; top:0; z-index:10;
-      background:rgba(255,255,255,.78);
+      background:rgba(255,255,255,.86);
       backdrop-filter: blur(12px);
       border-bottom:1px solid rgba(227,233,242,.75);
     }
-    .topbarInner{max-width:1240px;margin:0 auto;padding:14px 16px}
-    .row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
-    .brand{display:flex; align-items:center; gap:12px; min-width:280px}
+    .topbarInner{
+      max-width:1240px;
+      margin:0 auto;
+      padding:12px 14px;
+    }
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width:240px;
+    }
     .logo{
-      width:46px;height:46px;border-radius:14px;
+      width:44px;height:44px;border-radius:14px;
       display:grid;place-items:center;overflow:hidden;
       background:linear-gradient(180deg, rgba(11,95,168,.10), rgba(11,95,168,.02));
       border:1px solid rgba(11,95,168,.18);
       box-shadow: var(--shadow2);
+      flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:cover}
-    .title{font-weight:950;letter-spacing:-.2px;line-height:1.1;font-size:15px;color:#0a2540}
-    .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+    .title{
+      font-weight:950;
+      letter-spacing:-.2px;
+      line-height:1.1;
+      font-size:15px;
+      color:#0a2540;
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px;
+    }
     .actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto}
 
-    /* ===== Buttons ===== */
     button{
       border:1px solid var(--line);
       border-radius:12px;
@@ -78,7 +110,6 @@
       color:#0a2540;
       box-shadow:0 6px 18px rgba(15,23,42,.06);
       transition: transform .06s ease, box-shadow .15s ease, border-color .15s ease;
-      -webkit-tap-highlight-color: transparent;
     }
     button:hover{box-shadow:0 10px 24px rgba(15,23,42,.10); border-color:#d7e2f0}
     button:active{transform: translateY(1px)}
@@ -88,8 +119,6 @@
       border-color:rgba(11,95,168,.35);
       box-shadow:0 14px 32px rgba(11,95,168,.22);
     }
-    button.primary:hover{box-shadow:0 18px 42px rgba(11,95,168,.28)}
-    button.ghost{background:transparent; box-shadow:none}
     button.ok{
       background:linear-gradient(180deg, #17b897, #12a988);
       border-color:rgba(18,169,136,.35);
@@ -102,16 +131,17 @@
       color:#fff;
       box-shadow:0 14px 32px rgba(225,29,72,.18);
     }
+    button.ghost{background:transparent; box-shadow:none}
 
-    /* ✅ Clickable chips (anchors) */
+    /* Real clickable links (NOT buttons) */
     .brandSub{
       margin-top:10px;
       display:flex; gap:10px; flex-wrap:wrap; align-items:center;
       color:var(--muted);
       font-size:12px;
     }
-    a.linkbtn{
-      text-decoration:none;
+    .chipLink{
+      display:inline-flex;align-items:center;gap:8px;
       padding:6px 10px;
       border-radius:999px;
       border:1px solid var(--line);
@@ -119,9 +149,8 @@
       color:#0a2540;
       font-weight:900;
       box-shadow:0 8px 20px rgba(15,23,42,.06);
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
+      text-decoration:none;
+      -webkit-tap-highlight-color: transparent;
     }
     .badge{
       display:inline-flex;align-items:center;gap:8px;
@@ -133,41 +162,30 @@
     }
     .dot{width:8px;height:8px;border-radius:99px;background:#22c55e}
 
-    /* ===== Error banner (100% no-blank debugging) ===== */
-    .err{
-      display:none;
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(225,29,72,.25);
-      background:rgba(225,29,72,.06);
-      color:#991b1b;
-      font-size:12px;
-      font-weight:800;
-      white-space:pre-wrap;
-    }
-
     /* ===== Layout ===== */
     .appShell{
       max-width:1240px;
       margin:0 auto;
-      padding:18px 14px 50px;
+      padding:14px 12px 50px;
       display:grid;
       gap:14px;
     }
     @media (min-width:1020px){
       .appShell{ grid-template-columns: 260px 1fr; }
     }
+
     .sidebar{
       background:#fff;
       border:1px solid rgba(227,233,242,.85);
       border-radius:18px;
       box-shadow: 0 18px 55px rgba(15,23,42,.08);
       overflow:hidden;
-      position:sticky;
-      top:92px;
-      height: calc(100vh - 110px);
     }
+    /* Sticky only on desktop (mobile sticky can cause blank/scroll bugs) */
+    @media (min-width:1020px){
+      .sidebar{ position:sticky; top:86px; }
+    }
+
     .sideHead{
       padding:14px 14px 10px;
       border-bottom:1px solid rgba(227,233,242,.85);
@@ -206,14 +224,12 @@
       border-radius:999px;
       font-family: var(--mono);
     }
-    .mainArea{min-width:0}
 
-    /* ✅ IMPORTANT: avoid "blank page" if JS fails (Create view visible by default) */
+    .mainArea{min-width:0}
     .view{display:none}
-    #viewCreate{display:block}
     .view.active{display:block}
 
-    /* ===== Cards ===== */
+    /* Cards */
     .grid{display:grid;gap:14px}
     @media (min-width:1020px){.grid{grid-template-columns:1.35fr .85fr}}
     .card{
@@ -268,6 +284,7 @@
     }
     .mono{font-family:var(--mono)}
     .hr{height:1px;background:rgba(227,233,242,.85);margin:12px 0}
+
     .note{
       font-size:12px;
       color:var(--muted);
@@ -277,7 +294,7 @@
       padding:10px;
     }
 
-    /* ===== KPI ===== */
+    /* KPI */
     .kpi{display:grid;gap:10px}
     @media (min-width:760px){.kpi{grid-template-columns:1fr 1fr}}
     .kpi .box{
@@ -289,7 +306,7 @@
     .kpi .big{font-size:22px;font-weight:950}
     .kpi .small{font-size:12px;color:var(--muted);font-weight:700}
 
-    /* ===== Table ===== */
+    /* Table */
     .table{
       width:100%;
       border-collapse:separate;
@@ -303,7 +320,7 @@
     .table tr:last-child td{border-bottom:0}
     .right{text-align:right}
 
-    /* ===== Lists ===== */
+    /* Lists */
     .list{display:grid;gap:10px}
     .item{
       border:1px solid rgba(227,233,242,.95);
@@ -318,65 +335,63 @@
     .item .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .item .btns button{border-radius:12px}
 
-    /* ✅ PRINT/PDF FIX (NO MORE BLANK SECOND PAGE ON ANDROID / LETTER) */
-    @page{
-      size: A4;
-      margin: 12mm;
+    /* ===== PRINT/PDF FIX ===== */
+    @page { size: A4; margin: 10mm; }
+    #printAreaWrap{
+      display:none;
+      background:#fff;
     }
-
-    #printAreaWrap{display:none}
+    /* IMPORTANT: remove min-height (it caused 2nd blank page on some Android printers) */
     #printArea{
       background:#fff;
       color:#111;
+      width:190mm; /* 210 - 2*10mm margin */
       padding:0;
-      width:auto;
-      min-height:auto;
-      margin:0;
-    }
-    .printDoc{
-      max-width: 780px;
       margin:0 auto;
+      height:auto;
+    }
+    .a4block{
+      width:190mm;
       padding:0;
+      margin:0 auto;
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     @media print{
       body{background:#fff}
-      .topbar,.appShell{display:none!important}
+      .topbar,.appShell,.errBox{display:none!important}
       #printAreaWrap{display:block!important}
-      #printArea{display:block!important}
-      /* keep tables together */
-      .invBox, .invHeader, .invGrid2, .invTable { page-break-inside: avoid; }
     }
 
-    /* Invoice print design (steuerberater / lexoffice style) */
     .mini{font-size:11px;color:#444}
-    .invHeader{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
-    .invHeader .left{display:flex;gap:12px;align-items:center}
-    .invLogo{width:54px;height:54px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef}
+    .invHeader{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+    .invHeader .left{display:flex;gap:10px;align-items:center}
+    .invLogo{width:52px;height:52px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef;flex:0 0 auto}
     .invLogo img{width:100%;height:100%;object-fit:cover}
-    .invTitle{font-size:24px;font-weight:950;margin:0}
+    .invTitle{font-size:22px;font-weight:950;margin:0}
     .invMeta{font-size:12px;color:#334155}
     .invGrid2{display:grid;gap:10px}
-    @media (min-width:900px){.invGrid2{grid-template-columns:1fr 1fr}}
-    .invBox{border:1px solid #e5e8ef;border-radius:16px;padding:12px}
+    .invGrid2{grid-template-columns:1fr 1fr}
+    .invBox{border:1px solid #e5e8ef;border-radius:16px;padding:10px}
     .invBox h4{margin:0 0 8px;font-size:12px;color:#0a2540}
     .invBox .line{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0}
     .invTable{width:100%;border-collapse:collapse;margin-top:10px}
-    .invTable th,.invTable td{border:1px solid #e5e8ef;padding:8px;font-size:12px}
+    .invTable th,.invTable td{border:1px solid #e5e8ef;padding:7px;font-size:12px}
     .invTable th{background:#f5f7fb;text-align:left}
     .invRight{text-align:right}
-    .invTotals{display:grid;gap:8px;margin-top:10px}
+    .invTotals{display:grid;gap:6px;margin-top:10px}
     .invTotals .tline{display:flex;justify-content:space-between;font-size:12px}
     .invTotals .grand{font-size:14px;font-weight:950}
-    .invFooter{margin-top:14px;font-size:11px;color:#334155}
+    .invFooter{margin-top:12px;font-size:11px;color:#334155}
   </style>
 </head>
 
 <body>
+  <div class="errBox" id="errBox"><b>Fehler</b><span id="errText"></span></div>
 
+  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbarInner">
-
       <div class="row">
         <div class="brand">
           <div class="logo" title="Logo (fest gespeichert)">
@@ -384,7 +399,7 @@
           </div>
           <div>
             <div class="title" id="brandTitle">Masculine Security</div>
-            <div class="subtitle">B2B Rechnung • Lexoffice-Style • Steuerberater-Design • Auto 99%</div>
+            <div class="subtitle">B2B Rechnung • Steuerberater-Design • Auto 99% • V4.1</div>
           </div>
         </div>
 
@@ -401,60 +416,34 @@
 
       <div class="brandSub">
         <span class="badge"><span class="dot"></span> Auto-Save aktiv</span>
-        <span class="badge">B2B: ON</span>
-        <a class="linkbtn" id="callLink" href="tel:015778697052">📞 <span id="callText">015778697052</span></a>
-        <a class="linkbtn" id="mailLink" href="mailto:Kontakt.mass.bremen@hotmail.com">✉️ <span id="mailText">Kontakt.mass.bremen@hotmail.com</span></a>
+        <a class="chipLink" id="telLink" href="tel:015778697052">📞 <span id="telText">015778697052</span></a>
+        <a class="chipLink" id="mailLink" href="mailto:Kontakt.mass.bremen@hotmail.com">✉️ <span id="mailText">Kontakt.mass.bremen@hotmail.com</span></a>
+        <span class="badge">✅ B2B Ready</span>
       </div>
-
-      <div class="err" id="errBox"></div>
-
     </div>
   </div>
 
   <div class="appShell">
-
     <aside class="sidebar">
       <div class="sideHead">
-        <div class="h1" id="sideBrand">Masculine Security</div>
+        <div class="h1">Masculine Security</div>
         <div class="h2">B2B Rechnungssystem</div>
       </div>
-
       <div class="sideNav">
-        <button class="sideBtn active" id="navCreate" type="button">
-          <span>➕ Rechnung</span>
-          <span class="sideTag">FORM</span>
-        </button>
-
-        <button class="sideBtn" id="navInvoices" type="button">
-          <span>📄 Rechnungen</span>
-          <span class="sideTag" id="navInvCount">0</span>
-        </button>
-
-        <button class="sideBtn" id="navCustomers" type="button">
-          <span>👤 Kunden</span>
-          <span class="sideTag" id="navCustCount">0</span>
-        </button>
-
-        <button class="sideBtn" id="navSettings" type="button">
-          <span>⚙ Einstellungen</span>
-          <span class="sideTag">PRO</span>
-        </button>
+        <button class="sideBtn active" id="navCreate" type="button"><span>➕ Rechnung</span><span class="sideTag">FORM</span></button>
+        <button class="sideBtn" id="navInvoices" type="button"><span>📄 Rechnungen</span><span class="sideTag" id="navInvCount">0</span></button>
+        <button class="sideBtn" id="navCustomers" type="button"><span>👤 Kunden</span><span class="sideTag" id="navCustCount">0</span></button>
+        <button class="sideBtn" id="navSettings" type="button"><span>⚙ Einstellungen</span><span class="sideTag">PRO</span></button>
       </div>
     </aside>
 
     <main class="mainArea">
-
       <div class="view active" id="viewCreate">
         <div class="grid">
 
           <div class="card">
-            <h2>
-              <span>Rechnungsdaten</span>
-              <span class="pill" id="liveStatus">Bereit</span>
-            </h2>
-
+            <h2><span>Rechnungsdaten</span><span class="pill" id="liveStatus">Bereit</span></h2>
             <div class="body">
-
               <div class="row2">
                 <div>
                   <label>Firmenname / Brand *</label>
@@ -517,7 +506,6 @@
                 <div>
                   <label>Kunde auswählen</label>
                   <select id="customerPick"></select>
-
                   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
                     <button id="btnSaveCustomer" class="ghost" type="button">Kunde speichern</button>
                     <button id="btnDeleteCustomer" class="danger" type="button">Kunde löschen</button>
@@ -595,7 +583,7 @@
               <div class="row2">
                 <div>
                   <label>Anzahl Mitarbeiter *</label>
-                  <input id="mitarbeiter" type="number" min="0" value="1"/>
+                  <input id="mitarbeiter" type="number" min="0" value="5"/>
                 </div>
                 <div>
                   <label>Basis-Stundensatz Tag (€) *</label>
@@ -610,7 +598,7 @@
                     <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
                     <option value="percent">Zuschlag % (auf Tagpreis)</option>
                   </select>
-                  <div class="note" style="margin-top:8px">✅ B2B meist bevorzugt: <b>Festpreise</b>. Prozent ist optional.</div>
+                  <div class="note" style="margin-top:8px">B2B meist lieber: <b>Festpreise</b> (klar & einfach).</div>
                 </div>
                 <div>
                   <label>Verwendungszweck (auto)</label>
@@ -641,7 +629,7 @@
               </div>
 
               <div class="note" style="margin-top:10px">
-                Auto-Funktion berechnet <b>Tagstunden</b> und <b>Nachtstunden</b> aus Beginn/Ende.
+                Auto berechnet <b>Tagstunden</b> und <b>Nachtstunden</b>.
                 Sonntag/Feiertag trägst du separat ein (keine Doppelzählung).
               </div>
 
@@ -670,7 +658,7 @@
                 </div>
                 <div>
                   <label>Hinweis / Notiz (optional)</label>
-                  <textarea id="note" placeholder="z.B. laut Vereinbarung / Einsatzzeiten / Ansprechpartner..."></textarea>
+                  <textarea id="note" placeholder="z.B. laut Vereinbarung / Ansprechpartner / Einsatzzeiten..."></textarea>
                 </div>
               </div>
 
@@ -681,9 +669,9 @@
                   <label>Nachtzuschlag (%)</label>
                   <input id="nachtPercent" type="number" min="0" step="0.01" value="0"/>
                   <label style="margin-top:10px">Sonntag (%)</label>
-                  <input id="sonntagPercent" type="number" min="0" step="0.01" value="0"/>
+                  <input id="sonntagPercent" type="number" min="0" step="0.01" value="50"/>
                   <label style="margin-top:10px">Feiertag (%)</label>
-                  <input id="feiertagPercent" type="number" min="0" step="0.01" value="0"/>
+                  <input id="feiertagPercent" type="number" min="0" step="0.01" value="100"/>
                 </div>
 
                 <div id="fixedBox">
@@ -698,7 +686,7 @@
                 <div>
                   <label>Rechnung Text (auto)</label>
                   <textarea id="rechnungText"></textarea>
-                  <div class="note" style="margin-top:8px">Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).</div>
+                  <div class="note" style="margin-top:8px">Text auto-update (waad edit-gareyn kartaa).</div>
                 </div>
               </div>
 
@@ -706,10 +694,7 @@
           </div>
 
           <div class="card">
-            <h2>
-              <span>Berechnung & Summe</span>
-              <span class="pill mono" id="modeBadge">MODE: FEST</span>
-            </h2>
+            <h2><span>Berechnung & Summe</span><span class="pill mono" id="modeBadge">MODE: FEST</span></h2>
             <div class="body">
               <div class="kpi">
                 <div class="box">
@@ -775,24 +760,16 @@
 
       <div class="view" id="viewInvoices">
         <div class="card">
-          <h2>
-            <span>Gespeicherte Rechnungen</span>
-            <span class="pill mono" id="invCount">0</span>
-          </h2>
-          <div class="body">
-            <div class="list" id="invList"></div>
-          </div>
+          <h2><span>Gespeicherte Rechnungen</span><span class="pill mono" id="invCount">0</span></h2>
+          <div class="body"><div class="list" id="invList"></div></div>
         </div>
       </div>
 
       <div class="view" id="viewCustomers">
         <div class="card">
-          <h2>
-            <span>Kunden</span>
-            <span class="pill mono" id="custCount">0</span>
-          </h2>
+          <h2><span>Kunden</span><span class="pill mono" id="custCount">0</span></h2>
           <div class="body">
-            <div class="note">Liste deiner gespeicherten Kunden (Auswählen führt zurück zum Formular).</div>
+            <div class="note">Liste deiner gespeicherten Kunden.</div>
             <div class="hr"></div>
             <div class="list" id="custList"></div>
           </div>
@@ -801,12 +778,9 @@
 
       <div class="view" id="viewSettings">
         <div class="card">
-          <h2>
-            <span>Einstellungen</span>
-            <span class="pill mono">Brand</span>
-          </h2>
+          <h2><span>Einstellungen</span><span class="pill mono">Brand</span></h2>
           <div class="body">
-            <div class="note">Logo (fest gespeichert) + Firmenname kannst du hier schnell ändern.</div>
+            <div class="note">Firmenname + Logo (fest gespeichert).</div>
             <div class="hr"></div>
             <div class="row2">
               <div>
@@ -818,12 +792,6 @@
                 <button class="primary" type="button" id="btnLogo2">Logo ändern</button>
               </div>
             </div>
-
-            <div class="hr"></div>
-            <div class="note">
-              ✅ Wenn mal “blank” passiert: Cache wurde fixiert + ServiceWorker wird automatisch entfernt.<br/>
-              ✅ Print/PDF ist A4 (kein 2. leeres Blatt).
-            </div>
           </div>
         </div>
       </div>
@@ -831,45 +799,20 @@
     </main>
   </div>
 
+  <!-- PRINT/PDF AREA -->
   <div id="printAreaWrap"><div id="printArea"></div></div>
 
+  <!-- FEST LOGO upload -->
   <input id="logoFile" type="file" accept="image/*" style="display:none"/>
 
   <script>
-    /* ============================
-       100% STABILITY PATCHES
-       ============================ */
-
-    // ✅ Remove any Service Worker (prevents old blank cached app on GitHub Pages)
-    (function killSW(){
-      try{
-        if("serviceWorker" in navigator){
-          navigator.serviceWorker.getRegistrations()
-            .then(regs=>regs.forEach(r=>r.unregister()))
-            .catch(()=>{});
-        }
-        if(window.caches?.keys){
-          caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});
-        }
-      }catch(e){}
-    })();
-
-    // ✅ Global error banner (no silent blank)
-    const errBox = document.getElementById("errBox");
-    function showErr(msg){
-      if(!errBox) return;
-      errBox.style.display = "block";
-      errBox.textContent = "Fehler (Fix needed):\n" + String(msg || "");
-    }
-    window.addEventListener("error", (e)=> showErr(e.message || e.error || e));
-    window.addEventListener("unhandledrejection", (e)=> showErr(e.reason || e));
-
-    // ===== Storage Keys (versioned) =====
-    const KEY_APP = "ms_b2b_rechnung_app_v4";       // ✅ version bump = fixes old storage conflicts
-    const KEY_CUSTOMERS = "ms_b2b_customers_v2";
-    const KEY_INVOICES = "ms_b2b_invoices_v2";
-    const KEY_COUNTERS = "ms_b2b_inv_counters_v2";
-    const KEY_LOGO = "ms_b2b_logo_v2";
+    // ===== Version + Storage Keys (V4.1) =====
+    const APP_VER = "v41";
+    const KEY_APP = "ms_rechnung_app_" + APP_VER;
+    const KEY_CUSTOMERS = "ms_customers_" + APP_VER;
+    const KEY_INVOICES = "ms_invoices_" + APP_VER;
+    const KEY_COUNTERS = "ms_inv_counters_" + APP_VER;
+    const KEY_LOGO = "ms_logo_" + APP_VER;
 
     // ===== Helpers =====
     const $ = (id)=>document.getElementById(id);
@@ -892,7 +835,7 @@
       const dd = String(d.getDate()).padStart(2,"0");
       return `${yyyy}-${mm}-${dd}`;
     };
-    const yyyymmdd = (iso)=> iso.replaceAll("-","");
+    const yyyymmdd = (iso)=> String(iso||"").replaceAll("-","");
     const safeNum = (v)=> {
       const n = Number(v);
       return Number.isFinite(n) ? n : 0;
@@ -902,30 +845,21 @@
       $("liveStatus").style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(225,29,72,.35)";
       $("liveStatus").style.color = ok ? "var(--muted)" : "#b91c1c";
     };
+
     const loadJSON = (k, fallback)=>{
       try{ const v = localStorage.getItem(k); return v? JSON.parse(v) : fallback; }catch(e){ return fallback; }
     };
     const saveJSON = (k, v)=> localStorage.setItem(k, JSON.stringify(v));
 
-    // ✅ Keep header/side brand always synced
-    function syncBrandEverywhere(){
-      const name = String($("issuerCompany").value || "Masculine Security").trim() || "Masculine Security";
-      $("brandTitle").textContent = name;
-      $("sideBrand").textContent = name;
+    // ===== Error capture =====
+    function showErr(msg){
+      const box = $("errBox"), txt = $("errText");
+      if(!box || !txt) return;
+      txt.textContent = msg;
+      box.style.display = "block";
     }
-
-    // ✅ Clickable tel/mail always synced to inputs
-    function syncClickableLinks(){
-      const telRaw = String($("issuerPhone").value || "").trim();
-      const tel = telRaw.replace(/\s+/g,"");
-      const mail = String($("issuerEmail").value || "").trim();
-
-      $("callText").textContent = telRaw || "—";
-      $("mailText").textContent = mail || "—";
-
-      $("callLink").href = tel ? `tel:${tel}` : "#";
-      $("mailLink").href = mail ? `mailto:${mail}` : "#";
-    }
+    window.addEventListener("error", (e)=> showErr(String(e?.message||e)));
+    window.addEventListener("unhandledrejection", (e)=> showErr(String(e?.reason||e)));
 
     // ===== FEST LOGO =====
     function setLogo(dataUrl, persist=true){
@@ -958,7 +892,6 @@
         ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
         : "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
     }
-
     function updatePurpose(){
       const no = $("invNo").value || "";
       $("purpose").value = `Rechnung: ${no}`;
@@ -1020,9 +953,9 @@
 
       const totalMin = end - start;
       const {start: nightStart, end: nightEnd} = getNightWindow();
+      const nightEndMod = nightEnd % 1440;
 
       let nightMin = 0;
-      const nightEndMod = nightEnd % 1440;
       for(let i=start;i<end;i++){
         const mod = i % 1440;
         const isNight = (mod >= nightStart) || (mod < nightEndMod);
@@ -1041,8 +974,7 @@
       toggleModeUI();
       updateVatHint();
       updatePurpose();
-      syncBrandEverywhere();
-      syncClickableLinks();
+      syncContactLinks();
 
       const m = safeNum($("mitarbeiter").value);
       const tagPreis = safeNum($("tagPreis").value);
@@ -1113,7 +1045,7 @@
       const nightText = $("nachtRule").value==="23-06" ? "23:00 – 06:00" : ($("nachtRule").value==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
       $("rechnungText").value = [
-        `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeiter(n)`,
+        `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
         obj ? `Objekt/Ort: ${obj}` : "",
         zr ? `Zeitraum: ${zr}` : "",
         "",
@@ -1163,6 +1095,7 @@
       }
       return String(Date.now()) + Math.random().toString(16).slice(2);
     }
+
     function saveCustomer(){
       const name = String($("custName").value||"").trim();
       const address = String($("custAddress").value||"").trim();
@@ -1182,6 +1115,7 @@
       setStatus("Kunde gespeichert", true);
       renderCustomerList();
     }
+
     function loadCustomer(id){
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const c = customers.find(x=>x.id===id);
@@ -1193,6 +1127,7 @@
       setStatus("Kunde geladen", true);
       calculate();
     }
+
     function deleteCustomer(){
       const id = $("customerPick").value;
       if(!id){ setStatus("Kein Kunde ausgewählt", false); return; }
@@ -1205,16 +1140,6 @@
     }
 
     // ===== Invoices =====
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
-
     function collectInvoice(){
       const fields = [
         "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId",
@@ -1252,7 +1177,6 @@
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gespeichert", true);
       renderInvoices();
-      updateInvoiceCounts();
     }
 
     function renderInvoices(){
@@ -1294,12 +1218,6 @@
       });
     }
 
-    function updateInvoiceCounts(){
-      const invoices = loadJSON(KEY_INVOICES, []);
-      $("invCount").textContent = String(invoices.length);
-      $("navInvCount").textContent = String(invoices.length);
-    }
-
     function loadInvoice(invNo){
       const invoices = loadJSON(KEY_INVOICES, []);
       const inv = invoices.find(x=>x.invNo===invNo);
@@ -1317,7 +1235,6 @@
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gelöscht", true);
       renderInvoices();
-      updateInvoiceCounts();
     }
 
     // ===== wait images before PDF/Print =====
@@ -1330,13 +1247,24 @@
       })));
     }
 
-    // ===== Build Print HTML =====
+    // ===== Security helpers =====
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
+    // ===== PDF/Print HTML =====
     function buildPrintHtml(inv){
       const f = inv.form;
       const company = String(f.issuerCompany || "Masculine Security").trim();
 
       const logoSrc = inv.logoDataUrl || $("logoImg").src || "";
-      const logo = logoSrc ? `<div class="invLogo"><img src="${escapeAttr(logoSrc)}" alt="Logo"/></div>` : "";
+      const logo = logoSrc ? `<div class="invLogo"><img src="${escapeAttr(logoSrc)}"/></div>` : "";
 
       const vatMode = f.vatMode;
       const vatLine = (vatMode==="kmu")
@@ -1384,118 +1312,114 @@
       const nightText = f.nachtRule==="23-06" ? "23:00 – 06:00" : (f.nachtRule==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
       return `
-        <div class="invHeader">
-          <div class="left">
-            ${logo}
-            <div>
-              <p class="invTitle">Rechnung</p>
-              <div class="invMeta"><b>${escapeHtml(company)}</b></div>
-              <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
-              ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
-              ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
+        <div class="a4block">
+          <div class="invHeader">
+            <div class="left">
+              ${logo}
+              <div>
+                <p class="invTitle">Rechnung</p>
+                <div class="invMeta"><b>${escapeHtml(company)}</b></div>
+                <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
+                ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
+                ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
+              </div>
+            </div>
+            <div class="invBox" style="min-width:260px">
+              <div class="line"><span><b>Rechnungsnr.</b></span><span class="mono">${escapeHtml(f.invNo||"")}</span></div>
+              <div class="line"><span>Datum</span><span>${escapeHtml(f.invDate||"")}</span></div>
+              <div class="line"><span>Fällig</span><span>${escapeHtml(f.dueDate||"")}</span></div>
+              <div class="line"><span>Zweck</span><span class="mono">${escapeHtml(f.purpose||"")}</span></div>
             </div>
           </div>
-          <div class="invBox" style="min-width:260px">
-            <div class="line"><span><b>Rechnungsnr.</b></span><span class="mono">${escapeHtml(f.invNo||"")}</span></div>
-            <div class="line"><span>Datum</span><span>${escapeHtml(f.invDate||"")}</span></div>
-            <div class="line"><span>Fällig</span><span>${escapeHtml(f.dueDate||"")}</span></div>
-            <div class="line"><span>Zweck</span><span class="mono">${escapeHtml(f.purpose||"")}</span></div>
-          </div>
-        </div>
 
-        <div class="invGrid2" style="margin-top:12px">
-          <div class="invBox">
-            <h4>Rechnungssteller</h4>
-            <div class="mini"><b>${escapeHtml(company)}</b></div>
-            <div class="mini">${escapeHtml(f.issuerAddress||"")}</div>
-            <div class="mini">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
-            <div class="mini">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
-            <div class="mini">Steuernr./Hinweis: ${escapeHtml(f.issuerTaxNo||"")}</div>
-            ${String(f.issuerVatId||"").trim() ? `<div class="mini">USt-IdNr: ${escapeHtml(f.issuerVatId||"")}</div>` : ``}
-          </div>
+          <div class="invGrid2" style="margin-top:12px">
+            <div class="invBox">
+              <h4>Rechnungssteller</h4>
+              <div class="mini"><b>${escapeHtml(company)}</b></div>
+              <div class="mini">${escapeHtml(f.issuerAddress||"")}</div>
+              <div class="mini">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
+              <div class="mini">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
+              <div class="mini">Steuernr./Hinweis: ${escapeHtml(f.issuerTaxNo||"")}</div>
+              ${String(f.issuerVatId||"").trim() ? `<div class="mini">USt-IdNr: ${escapeHtml(f.issuerVatId||"")}</div>` : ``}
+            </div>
 
-          <div class="invBox">
-            <h4>Rechnung an</h4>
-            <div class="mini"><b>${escapeHtml(f.custName||"")}</b></div>
-            <div class="mini">${escapeHtml(f.custAddress||"").replaceAll("\n","<br/>")}</div>
-            ${String(f.custEmail||"").trim() ? `<div class="mini">E-Mail: ${escapeHtml(f.custEmail||"")}</div>` : ``}
-            ${String(f.custContact||"").trim() ? `<div class="mini">Ansprechpartner: ${escapeHtml(f.custContact||"")}</div>` : ``}
-          </div>
-        </div>
-
-        <div class="invBox" style="margin-top:12px">
-          <h4>Leistungsübersicht</h4>
-          <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
-
-          <table class="invTable">
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th class="invRight">Mitarbeiter</th>
-                <th class="invRight">Std.</th>
-                <th class="invRight">Preis/Std.</th>
-                <th class="invRight">Summe</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Tagdienst</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${tagH}</td>
-                <td class="invRight">${fmtEUR(tagPreis)}</td>
-                <td class="invRight">${fmtEUR(tagSum)}</td>
-              </tr>
-              <tr>
-                <td>Nachtdienst</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${nachtH}</td>
-                <td class="invRight">${fmtEUR(nachtPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(nachtSum)}</td>
-              </tr>
-              <tr>
-                <td>Sonntag</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${sonntagH}</td>
-                <td class="invRight">${fmtEUR(sonntagPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(sonntagSum)}</td>
-              </tr>
-              <tr>
-                <td>Feiertag</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${feiertagH}</td>
-                <td class="invRight">${fmtEUR(feiertagPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(feiertagSum)}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="invTotals">
-            <div class="tline"><span>Zwischensumme (netto)</span><span>${fmtEUR(subTotal)}</span></div>
-            ${vatRate>0 ? `<div class="tline"><span>USt 19%</span><span>${fmtEUR(vatAmount)}</span></div>` : ``}
-            <div class="tline grand"><span>Gesamtbetrag</span><span>${fmtEUR(grand)}</span></div>
+            <div class="invBox">
+              <h4>Rechnung an</h4>
+              <div class="mini"><b>${escapeHtml(f.custName||"")}</b></div>
+              <div class="mini">${escapeHtml(f.custAddress||"").replaceAll("\n","<br/>")}</div>
+              ${String(f.custEmail||"").trim() ? `<div class="mini">E-Mail: ${escapeHtml(f.custEmail||"")}</div>` : ``}
+              ${String(f.custContact||"").trim() ? `<div class="mini">Ansprechpartner: ${escapeHtml(f.custContact||"")}</div>` : ``}
+            </div>
           </div>
 
-          <div class="invFooter">
-            <div>${escapeHtml(vatLine)}</div>
-            <div>${escapeHtml(modeLine)} Abrechnung gemäß Einsatzzeiten.</div>
-            ${note ? `<div><b>Hinweis:</b> ${escapeHtml(note)}</div>` : ``}
-            <div style="margin-top:10px">
-              <b>Bankverbindung:</b> IBAN ${escapeHtml(f.issuerIban||"")} • BIC ${escapeHtml(f.issuerBic||"")} • Inhaber ${escapeHtml(f.issuerHolder||"")}
+          <div class="invBox" style="margin-top:12px">
+            <h4>Leistungsübersicht</h4>
+            <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
+
+            <table class="invTable">
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th class="invRight">Mitarbeiter</th>
+                  <th class="invRight">Std.</th>
+                  <th class="invRight">Preis/Std.</th>
+                  <th class="invRight">Summe</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Tagdienst</td>
+                  <td class="invRight">${m}</td>
+                  <td class="invRight">${tagH}</td>
+                  <td class="invRight">${fmtEUR(tagPreis)}</td>
+                  <td class="invRight">${fmtEUR(tagSum)}</td>
+                </tr>
+                <tr>
+                  <td>Nachtdienst</td>
+                  <td class="invRight">${m}</td>
+                  <td class="invRight">${nachtH}</td>
+                  <td class="invRight">${fmtEUR(nachtPreisFinal)}</td>
+                  <td class="invRight">${fmtEUR(nachtSum)}</td>
+                </tr>
+                <tr>
+                  <td>Sonntag</td>
+                  <td class="invRight">${m}</td>
+                  <td class="invRight">${sonntagH}</td>
+                  <td class="invRight">${fmtEUR(sonntagPreisFinal)}</td>
+                  <td class="invRight">${fmtEUR(sonntagSum)}</td>
+                </tr>
+                <tr>
+                  <td>Feiertag</td>
+                  <td class="invRight">${m}</td>
+                  <td class="invRight">${feiertagH}</td>
+                  <td class="invRight">${fmtEUR(feiertagPreisFinal)}</td>
+                  <td class="invRight">${fmtEUR(feiertagSum)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="invTotals">
+              <div class="tline"><span>Zwischensumme (netto)</span><span>${fmtEUR(subTotal)}</span></div>
+              ${vatRate>0 ? `<div class="tline"><span>USt 19%</span><span>${fmtEUR(vatAmount)}</span></div>` : ``}
+              <div class="tline grand"><span>Gesamtbetrag</span><span>${fmtEUR(grand)}</span></div>
+            </div>
+
+            <div class="invFooter">
+              <div>${escapeHtml(vatLine)}</div>
+              <div>${escapeHtml(modeLine)} Abrechnung gemäß Einsatzzeiten.</div>
+              ${note ? `<div><b>Hinweis:</b> ${escapeHtml(note)}</div>` : ``}
+              <div style="margin-top:10px">
+                <b>Bankverbindung:</b> IBAN ${escapeHtml(f.issuerIban||"")} • BIC ${escapeHtml(f.issuerBic||"")} • Inhaber ${escapeHtml(f.issuerHolder||"")}
+              </div>
             </div>
           </div>
         </div>
       `;
     }
 
-    async function exportPdf(){
-      if(!validateCore()) return;
-      const inv = collectInvoice();
-      await exportPdfFromInvoice(inv);
-    }
-
     async function exportPdfFromInvoice(inv){
       const printArea = $("printArea");
-      printArea.innerHTML = `<div class="printDoc">${buildPrintHtml(inv)}</div>`;
+      printArea.innerHTML = buildPrintHtml(inv);
       $("printAreaWrap").style.display = "block";
       await waitImagesLoaded(printArea);
 
@@ -1516,10 +1440,11 @@
       }else{
         let y = 0;
         let remaining = imgH;
-        while(remaining > 0){
+        const EPS = 1; // avoid last blank page by tiny rounding
+        while(remaining > EPS){
           pdf.addImage(imgData, "PNG", 0, y ? -y : 0, imgW, imgH);
           remaining -= pageH;
-          if(remaining > 0) pdf.addPage();
+          if(remaining > EPS) pdf.addPage();
           y += pageH;
         }
       }
@@ -1529,22 +1454,20 @@
       setStatus("PDF gespeichert", true);
     }
 
-    // ✅ Print fix: no blank second page + auto cleanup
+    async function exportPdf(){
+      if(!validateCore()) return;
+      const inv = collectInvoice();
+      await exportPdfFromInvoice(inv);
+    }
+
     async function doPrint(){
       if(!validateCore()) return;
       const inv = collectInvoice();
-      $("printArea").innerHTML = `<div class="printDoc">${buildPrintHtml(inv)}</div>`;
+      $("printArea").innerHTML = buildPrintHtml(inv);
       $("printAreaWrap").style.display = "block";
       await waitImagesLoaded($("printArea"));
-
-      const cleanup = ()=>{
-        $("printAreaWrap").style.display = "none";
-        window.removeEventListener("afterprint", cleanup);
-      };
-      window.addEventListener("afterprint", cleanup);
-
       window.print();
-      setTimeout(cleanup, 1500);
+      $("printAreaWrap").style.display = "none";
     }
 
     // ===== Auto Save =====
@@ -1616,9 +1539,22 @@
       mir.value = main.value || "";
       mir.oninput = ()=>{
         main.value = mir.value;
-        syncBrandEverywhere();
+        $("brandTitle").textContent = mir.value || "Masculine Security";
         calculate();
       };
+    }
+
+    function syncContactLinks(){
+      const tel = String($("issuerPhone").value||"").replace(/\s+/g,"");
+      const mail = String($("issuerEmail").value||"").trim();
+      if(tel){
+        $("telLink").href = `tel:${tel}`;
+        $("telText").textContent = tel;
+      }
+      if(mail){
+        $("mailLink").href = `mailto:${mail}`;
+        $("mailText").textContent = mail;
+      }
     }
 
     function wireSidebar(){
@@ -1635,15 +1571,13 @@
         setActiveNav("navSettings","viewSettings");
         syncCompanyMirror();
       });
+
       $("btnLogo2")?.addEventListener("click", ()=> $("logoFile")?.click());
     }
 
     function resetAll(){
-      localStorage.removeItem(KEY_APP);
-      localStorage.removeItem(KEY_CUSTOMERS);
-      localStorage.removeItem(KEY_INVOICES);
-      localStorage.removeItem(KEY_COUNTERS);
-      // keep logo on reset? user asked "fest logo" -> keep it
+      // only reset this version keys
+      [KEY_APP,KEY_CUSTOMERS,KEY_INVOICES,KEY_COUNTERS,KEY_LOGO].forEach(k=>localStorage.removeItem(k));
       location.reload();
     }
 
@@ -1685,7 +1619,6 @@
       calculate();
     }
 
-    // ===== Wire =====
     function wire(){
       // logo
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
@@ -1697,7 +1630,6 @@
         rd.readAsDataURL(file);
       });
 
-      // header actions
       $("btnPdf").addEventListener("click", exportPdf);
       $("btnPrint").addEventListener("click", doPrint);
       $("btnReset").addEventListener("click", resetAll);
@@ -1708,28 +1640,23 @@
         renderInvoices();
       });
 
-      // customers
       $("btnSaveCustomer").addEventListener("click", saveCustomer);
       $("btnDeleteCustomer").addEventListener("click", deleteCustomer);
       $("customerPick").addEventListener("change", (e)=> loadCustomer(e.target.value));
 
-      // date change
       $("invDate").addEventListener("change", ()=>{
         $("dueDate").value = addDaysISO($("invDate").value, 14);
         $("invNo").value = nextInvoiceNo($("invDate").value);
         calculate();
       });
 
-      // changes
       $("vatMode").addEventListener("change", calculate);
       $("modus").addEventListener("change", calculate);
 
-      // auto day/night
       $("shiftStart").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("shiftEnd").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("nachtRule").addEventListener("change", ()=>{ calculateDayNight(); calculate(); });
 
-      // input auto calc
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
         if(el.id==="shiftStart" || el.id==="shiftEnd" || el.id==="nachtRule") return;
@@ -1739,11 +1666,12 @@
       wireSidebar();
     }
 
-    // ===== Init =====
     function initDefaults(){
       $("invDate").value = $("invDate").value || todayISO();
       $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
       $("invNo").value = $("invNo").value || nextInvoiceNo($("invDate").value);
+
+      $("brandTitle").textContent = $("issuerCompany").value || "Masculine Security";
       updateVatHint();
       updatePurpose();
       renderCustomers();
@@ -1752,22 +1680,18 @@
       renderInvoices();
       renderCustomerList();
       syncCompanyMirror();
-      syncBrandEverywhere();
-      syncClickableLinks();
+      syncContactLinks();
       setStatus("Bereit", true);
     }
 
+    // ===== Boot =====
     window.addEventListener("load", ()=>{
-      try{
-        loadLogo();
-        restoreAutoSave();
-        wire();
-        initDefaults();
-        calculate();
-      }catch(e){
-        showErr(e);
-      }
+      loadLogo();
+      restoreAutoSave();
+      wire();
+      initDefaults();
+      calculate();
     });
   </script>
 </body>
-  </html>
+</html>
