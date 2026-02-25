@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Masculine Security — B2B Rechnung (Simple)</title>
+  <title>Masculine Security — B2B Rechnung (1 Datei)</title>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- PDF (stable) -->
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
@@ -24,22 +25,25 @@
     }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family:var(--sans); color:var(--ink);
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
       background:
         radial-gradient(1000px 500px at 10% -10%, rgba(11,95,168,.16), transparent 55%),
         radial-gradient(900px 500px at 90% 0%, rgba(10,77,134,.12), transparent 55%),
         var(--bg);
     }
-    .wrap{max-width:1100px;margin:0 auto;padding:14px 12px 50px}
+
+    /* TOPBAR */
     .top{
-      position:sticky;top:0;z-index:9;
-      background:rgba(255,255,255,.88);
+      position:sticky; top:0; z-index:9;
+      background:rgba(255,255,255,.90);
       backdrop-filter: blur(10px);
       border-bottom:1px solid rgba(226,232,240,.9);
     }
-    .topInner{max-width:1100px;margin:0 auto;padding:12px 12px}
+    .topInner{max-width:1180px;margin:0 auto;padding:12px 12px}
     .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:10px;min-width:240px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:260px}
     .logo{
       width:44px;height:44px;border-radius:14px;overflow:hidden;
       border:1px solid rgba(11,95,168,.18);
@@ -61,8 +65,10 @@
       font-weight:900;
       cursor:pointer;
       box-shadow:0 6px 18px rgba(15,23,42,.06);
+      transition: box-shadow .15s ease, transform .06s ease;
     }
     button:hover{box-shadow:0 10px 24px rgba(15,23,42,.10)}
+    button:active{transform:translateY(1px)}
     button.primary{
       background:linear-gradient(180deg, var(--brand), var(--brand2));
       color:#fff;border-color:rgba(11,95,168,.28);
@@ -78,6 +84,7 @@
       color:#fff;border-color:rgba(225,29,72,.28);
       box-shadow:0 14px 32px rgba(225,29,72,.18);
     }
+
     .chips{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
     .chipLink{
       display:inline-flex;align-items:center;gap:8px;
@@ -93,8 +100,10 @@
     }
     .dot{width:8px;height:8px;border-radius:99px;background:#22c55e}
 
+    /* LAYOUT */
+    .wrap{max-width:1180px;margin:0 auto;padding:14px 12px 60px}
     .grid{display:grid;gap:14px;margin-top:14px}
-    @media(min-width:980px){.grid{grid-template-columns:1.2fr .8fr}}
+    @media(min-width:1000px){.grid{grid-template-columns:1.25fr .75fr}}
     .card{
       background:var(--card);
       border:1px solid rgba(226,232,240,.95);
@@ -111,10 +120,9 @@
     }
     .body{padding:14px 16px}
     .row2{display:grid;gap:10px}
-    @media(min-width:720px){.row2{grid-template-columns:1fr 1fr}}
+    @media(min-width:760px){.row2{grid-template-columns:1fr 1fr}}
     .row3{display:grid;gap:10px}
-    @media(min-width:720px){.row3{grid-template-columns:1fr 1fr 1fr}}
-
+    @media(min-width:760px){.row3{grid-template-columns:1fr 1fr 1fr}}
     label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin:0 0 6px}
     input,select,textarea{
       width:100%;
@@ -129,7 +137,7 @@
       border-color:rgba(11,95,168,.45);
       box-shadow:0 0 0 4px rgba(11,95,168,.10);
     }
-    textarea{min-height:92px;resize:vertical}
+    textarea{min-height:88px;resize:vertical}
     .mono{font-family:var(--mono)}
     .hr{height:1px;background:rgba(226,232,240,.95);margin:12px 0}
     .note{
@@ -139,8 +147,10 @@
       border-radius:14px;
       padding:10px;
     }
+
+    /* KPI + TABLE */
     .kpi{display:grid;gap:10px}
-    @media(min-width:720px){.kpi{grid-template-columns:1fr 1fr}}
+    @media(min-width:760px){.kpi{grid-template-columns:1fr 1fr}}
     .kpi .box{
       border:1px solid rgba(226,232,240,.98);
       border-radius:16px;
@@ -148,18 +158,17 @@
     }
     .kpi .big{font-size:22px;font-weight:950}
     .kpi .small{font-size:12px;color:var(--muted);font-weight:800}
-
     table{
       width:100%;
       border-collapse:separate;border-spacing:0;
       border:1px solid rgba(226,232,240,.98);
       border-radius:16px;overflow:hidden;
+      background:#fff;
     }
     th,td{padding:10px;border-bottom:1px solid rgba(226,232,240,.98);font-size:13px}
     th{background:#f7fafc;text-align:left;font-weight:950;color:#0a2540}
     tr:last-child td{border-bottom:0}
     .right{text-align:right}
-
     .list{display:grid;gap:10px}
     .item{
       border:1px solid rgba(226,232,240,.98);
@@ -172,56 +181,63 @@
     .item .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .item .btns button{border-radius:12px}
 
-    /* PRINT/PDF */
+    /* ===== A4 PRINT/PDF TEMPLATE ===== */
     @page { size: A4; margin: 10mm; }
     #printWrap{display:none;background:#fff}
-    #printArea{width:190mm;margin:0 auto;color:#111;background:#fff}
-    .a4{width:190mm;page-break-inside:avoid;break-inside:avoid}
+    #invoiceA4{
+      width:190mm; /* A4 - margins */
+      margin:0 auto;
+      background:#fff;
+      color:#111;
+      padding:0;
+    }
+    .a4Header{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+    .a4Left{display:flex;gap:10px;align-items:center}
+    .a4Logo{width:50px;height:50px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef;flex:0 0 auto}
+    .a4Logo img{width:100%;height:100%;object-fit:cover}
+    .a4Title{margin:0;font-size:22px;font-weight:950}
+    .a4Meta{font-size:12px;color:#334155;line-height:1.35}
+    .a4Box{border:1px solid #e5e8ef;border-radius:16px;padding:10px}
+    .a4Box h4{margin:0 0 8px;font-size:12px;color:#0a2540}
+    .a4Line{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0}
+    .a4Grid2{display:grid;gap:10px;margin-top:12px;grid-template-columns:1fr 1fr}
+    .a4Table{width:100%;border-collapse:collapse;margin-top:10px}
+    .a4Table th,.a4Table td{border:1px solid #e5e8ef;padding:7px;font-size:12px}
+    .a4Table th{background:#f5f7fb;text-align:left}
+    .a4Right{text-align:right}
+    .a4Totals{display:grid;gap:6px;margin-top:10px}
+    .a4Totals .tline{display:flex;justify-content:space-between;font-size:12px}
+    .a4Totals .grand{font-size:14px;font-weight:950}
+    .a4Footer{margin-top:12px;font-size:11px;color:#334155;line-height:1.35}
+
     @media print{
       body{background:#fff}
       .top,.wrap{display:none!important}
       #printWrap{display:block!important}
     }
-    .invHeader{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
-    .invLeft{display:flex;gap:10px;align-items:center}
-    .invLogo{width:52px;height:52px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef;flex:0 0 auto}
-    .invLogo img{width:100%;height:100%;object-fit:cover}
-    .invTitle{margin:0;font-size:22px;font-weight:950}
-    .invMeta{font-size:12px;color:#334155}
-    .invBox{border:1px solid #e5e8ef;border-radius:16px;padding:10px}
-    .invBox h4{margin:0 0 8px;font-size:12px;color:#0a2540}
-    .invLine{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0}
-    .invGrid2{display:grid;gap:10px;margin-top:12px;grid-template-columns:1fr 1fr}
-    .invTable{width:100%;border-collapse:collapse;margin-top:10px}
-    .invTable th,.invTable td{border:1px solid #e5e8ef;padding:7px;font-size:12px}
-    .invTable th{background:#f5f7fb}
-    .invRight{text-align:right}
-    .invTotals{display:grid;gap:6px;margin-top:10px}
-    .invTotals .tline{display:flex;justify-content:space-between;font-size:12px}
-    .invTotals .grand{font-size:14px;font-weight:950}
-    .invFooter{margin-top:12px;font-size:11px;color:#334155}
   </style>
 </head>
 
 <body>
+  <!-- TOPBAR -->
   <div class="top">
     <div class="topInner">
       <div class="row">
         <div class="brand">
-          <div class="logo" title="Logo (fest gespeichert)">
+          <div class="logo" title="Festes Logo (lokal gespeichert)">
             <img id="logoImg" alt="Logo"/>
           </div>
           <div>
             <div class="title" id="topBrand">Masculine Security</div>
-            <div class="sub">Simple B2B Rechnung • Festpreise • Auto-Save</div>
+            <div class="sub">B2B Rechnung • Positionslogik wie Firmen • Stabil & einfach</div>
           </div>
         </div>
 
         <div class="actions">
           <button type="button" id="btnLogo">Logo ändern</button>
           <button type="button" id="btnNew">Neu</button>
-          <button type="button" class="ok" id="btnSaveInv">Rechnung speichern</button>
-          <button type="button" id="btnShowInv">Rechnungen</button>
+          <button type="button" class="ok" id="btnSave">Rechnung speichern</button>
+          <button type="button" id="btnRefreshLists">Listen</button>
           <button type="button" class="danger" id="btnReset">Reset</button>
           <button type="button" class="primary" id="btnPdf">PDF</button>
           <button type="button" class="primary" id="btnPrint">Print</button>
@@ -232,7 +248,7 @@
         <span class="badge"><span class="dot"></span> Auto-Save</span>
         <a class="chipLink" id="telLink" href="tel:015778697052">📞 <span id="telText">015778697052</span></a>
         <a class="chipLink" id="mailLink" href="mailto:Kontakt.mass.bremen@hotmail.com">✉️ <span id="mailText">Kontakt.mass.bremen@hotmail.com</span></a>
-        <span class="badge">B2B Ready</span>
+        <span class="badge">B2B • Positions-Rechnung</span>
       </div>
     </div>
   </div>
@@ -243,9 +259,11 @@
       <div class="card" id="viewForm">
         <h2><span>Rechnung erstellen</span><span class="badge" id="status">Bereit</span></h2>
         <div class="body">
+
+          <!-- ISSUER -->
           <div class="row2">
             <div>
-              <label>Firmenname / Brand *</label>
+              <label>Rechnungssteller (Firma) *</label>
               <input id="issuerCompany" value="Masculine Security"/>
             </div>
             <div>
@@ -265,18 +283,25 @@
             </div>
           </div>
 
-          <div class="row2" style="margin-top:10px">
+          <div class="row3" style="margin-top:10px">
             <div>
               <label>Steuernummer / Hinweis *</label>
               <input id="issuerTax" value="wird nachgereicht"/>
             </div>
             <div>
               <label>USt-IdNr (optional)</label>
-              <input id="issuerVat" placeholder="DE123456789"/>
+              <input id="issuerVatId" placeholder="DE123456789"/>
+            </div>
+            <div>
+              <label>USt-Status *</label>
+              <select id="vatMode">
+                <option value="kmu">Kleinunternehmer (§19)</option>
+                <option value="vat19">USt 19%</option>
+              </select>
             </div>
           </div>
 
-          <div class="row2" style="margin-top:10px">
+          <div class="row3" style="margin-top:10px">
             <div>
               <label>IBAN *</label>
               <input id="iban" value="DE98 1001 1001 2333 0146 96"/>
@@ -285,40 +310,30 @@
               <label>BIC *</label>
               <input id="bic" value="NTSBDEB1XXX"/>
             </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
             <div>
               <label>Kontoinhaber *</label>
               <input id="holder" value="MUSTAFA MURSAL ABDI"/>
-            </div>
-            <div>
-              <label>USt-Status *</label>
-              <select id="vatMode">
-                <option value="kmu">0% (Kleinunternehmer §19)</option>
-                <option value="vat19">19% USt</option>
-              </select>
             </div>
           </div>
 
           <div class="hr"></div>
 
-          <!-- CUSTOMER -->
+          <!-- CUSTOMER (100% working) -->
           <div class="row2">
             <div>
-              <label>Kunde wählen (100% working)</label>
+              <label>Kunde wählen (100% funktioniert)</label>
               <select id="customerSelect"></select>
               <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
                 <button type="button" id="btnSaveCustomer">Kunde speichern</button>
                 <button type="button" class="danger" id="btnDeleteCustomer">Kunde löschen</button>
               </div>
               <div class="note" style="margin-top:10px">
-                Tipp: Kunde speichern → danach dropdown ka ka dooro.
+                Workflow: Kundendaten eintragen → <b>Kunde speichern</b> → danach im Dropdown auswählen.
               </div>
             </div>
 
             <div>
-              <label>Kundenname *</label>
+              <label>Rechnungsempfänger (Kundenname) *</label>
               <input id="custName" placeholder="Firma / Name"/>
               <div class="row2" style="margin-top:10px">
                 <div>
@@ -334,12 +349,13 @@
           </div>
 
           <div style="margin-top:10px">
-            <label>Kundendaten (Adresse) *</label>
+            <label>Kundenadresse (B2B) *</label>
             <textarea id="custAddress" placeholder="Straße • PLZ Ort&#10;Ansprechpartner"></textarea>
           </div>
 
           <div class="hr"></div>
 
+          <!-- INVOICE META -->
           <div class="row3">
             <div>
               <label>Rechnungsdatum *</label>
@@ -355,21 +371,25 @@
             </div>
           </div>
 
-          <div class="row2" style="margin-top:10px">
+          <div class="row3" style="margin-top:10px">
             <div>
-              <label>Leistungsbeschreibung *</label>
-              <input id="serviceTitle" value="Sicherheitsdienstleistung – Objektschutz"/>
+              <label>Leistungsdatum (optional)</label>
+              <input id="serviceDate" placeholder="z.B. 25.02.2026"/>
             </div>
             <div>
-              <label>Objekt/Ort (optional)</label>
+              <label>Objekt / Ort (optional)</label>
               <input id="objekt" placeholder="z.B. Bremen"/>
+            </div>
+            <div>
+              <label>Zeitraum (optional)</label>
+              <input id="zeitraum" placeholder="z.B. 08.03.2026 – 09.03.2026"/>
             </div>
           </div>
 
           <div class="row2" style="margin-top:10px">
             <div>
-              <label>Zeitraum (optional)</label>
-              <input id="zeitraum" placeholder="z.B. 08.03.2026 – 09.03.2026"/>
+              <label>Leistungsbeschreibung *</label>
+              <input id="serviceTitle" value="Sicherheitsdienstleistung – Objektschutz"/>
             </div>
             <div>
               <label>Verwendungszweck (auto)</label>
@@ -379,72 +399,80 @@
 
           <div class="hr"></div>
 
-          <!-- PRICES -->
+          <!-- B2B POSITIONS (1:1 style) -->
           <div class="row2">
             <div>
               <label>Anzahl Mitarbeiter *</label>
               <input id="mCount" type="number" min="0" value="5"/>
             </div>
             <div>
-              <label>Tag (€ / Std.) *</label>
-              <input id="pTag" type="number" step="0.01" value="23"/>
-            </div>
-          </div>
-
-          <div class="row3" style="margin-top:10px">
-            <div>
-              <label>Nacht (€ / Std.) *</label>
-              <input id="pNacht" type="number" step="0.01" value="24"/>
-            </div>
-            <div>
-              <label>Sonntag (€ / Std.) *</label>
-              <input id="pSonntag" type="number" step="0.01" value="32"/>
-            </div>
-            <div>
-              <label>Feiertag (€ / Std.) *</label>
-              <input id="pFeiertag" type="number" step="0.01" value="36"/>
+              <label>Einheit</label>
+              <input id="unit" value="Std."/>
             </div>
           </div>
 
           <div class="note" style="margin-top:10px">
-            B2B firms badanaa waxay jecel yihiin <b>Festpreise</b> (Tag/Nacht/Sonntag/Feiertag) — waa cad oo sahlan.
+            <b>Positions-Logik wie B2B Firmen:</b> Position → Menge (Stunden) → Einzelpreis → Betrag.
+            Mitarbeiter wird automatisch multipliziert.
           </div>
 
           <div class="hr"></div>
 
-          <!-- HOURS -->
           <div class="row3">
             <div>
-              <label>Tagstunden</label>
+              <label>Tag (€/Std.)</label>
+              <input id="pTag" type="number" step="0.01" value="23"/>
+              <label style="margin-top:10px">Tag Stunden</label>
               <input id="hTag" type="number" step="0.25" value="0"/>
             </div>
             <div>
-              <label>Nachtstunden</label>
+              <label>Nacht (€/Std.)</label>
+              <input id="pNacht" type="number" step="0.01" value="24"/>
+              <label style="margin-top:10px">Nacht Stunden</label>
               <input id="hNacht" type="number" step="0.25" value="0"/>
             </div>
             <div>
-              <label>Sonntagstunden</label>
+              <label>Sonntag (€/Std.)</label>
+              <input id="pSonntag" type="number" step="0.01" value="32"/>
+              <label style="margin-top:10px">Sonntag Stunden</label>
               <input id="hSonntag" type="number" step="0.25" value="0"/>
             </div>
           </div>
 
           <div class="row2" style="margin-top:10px">
             <div>
-              <label>Feiertagstunden</label>
-              <input id="hFeiertag" type="number" step="0.25" value="0"/>
-              <div class="note" style="margin-top:8px">Stunden kaliya hal category ku qor (no double).</div>
+              <label>Feiertag (€/Std.)</label>
+              <input id="pFeiertag" type="number" step="0.01" value="36"/>
             </div>
             <div>
-              <label>Notiz (optional)</label>
-              <textarea id="note" placeholder="z.B. laut Vereinbarung / Ansprechpartner..."></textarea>
+              <label>Feiertag Stunden</label>
+              <input id="hFeiertag" type="number" step="0.25" value="0"/>
             </div>
           </div>
+
+          <div class="note" style="margin-top:10px">
+            Hinweis: Stunden nur in <b>eine</b> Kategorie eintragen (keine Doppelzählung).
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row2">
+            <div>
+              <label>Notiz / Hinweis (optional)</label>
+              <textarea id="note" placeholder="z.B. laut Vereinbarung / Ansprechpartner / Einsatzzeiten..."></textarea>
+            </div>
+            <div>
+              <label>Zahlungsbedingungen (optional)</label>
+              <textarea id="paymentTerms" placeholder="z.B. Zahlbar ohne Abzug bis Fälligkeitsdatum."></textarea>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- SUMMARY + LISTS -->
+      <!-- RIGHT: SUMMARY + LISTS -->
       <div class="card">
-        <h2><span>Summe & Listen</span><span class="badge mono" id="badgeMode">B2B</span></h2>
+        <h2><span>Summe & Listen</span><span class="badge mono" id="modeBadge">B2B</span></h2>
         <div class="body">
 
           <div class="kpi">
@@ -463,24 +491,45 @@
           <table>
             <thead>
               <tr>
-                <th>Position</th>
-                <th class="right">Std.</th>
-                <th class="right">Preis</th>
-                <th class="right">Summe</th>
+                <th>Pos.</th>
+                <th>Bezeichnung</th>
+                <th class="right">Menge</th>
+                <th class="right">Einzelpreis</th>
+                <th class="right">Betrag</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Tag</td><td class="right mono" id="tH1">0</td><td class="right mono" id="tP1">0,00 €</td><td class="right mono" id="tS1">0,00 €</td></tr>
-              <tr><td>Nacht</td><td class="right mono" id="tH2">0</td><td class="right mono" id="tP2">0,00 €</td><td class="right mono" id="tS2">0,00 €</td></tr>
-              <tr><td>Sonntag</td><td class="right mono" id="tH3">0</td><td class="right mono" id="tP3">0,00 €</td><td class="right mono" id="tS3">0,00 €</td></tr>
-              <tr><td>Feiertag</td><td class="right mono" id="tH4">0</td><td class="right mono" id="tP4">0,00 €</td><td class="right mono" id="tS4">0,00 €</td></tr>
+              <tr>
+                <td class="mono">1</td><td>Tagdienst</td>
+                <td class="right mono" id="tQty1">0</td>
+                <td class="right mono" id="tP1">0,00 €</td>
+                <td class="right mono" id="tS1">0,00 €</td>
+              </tr>
+              <tr>
+                <td class="mono">2</td><td>Nachtdienst</td>
+                <td class="right mono" id="tQty2">0</td>
+                <td class="right mono" id="tP2">0,00 €</td>
+                <td class="right mono" id="tS2">0,00 €</td>
+              </tr>
+              <tr>
+                <td class="mono">3</td><td>Sonntag</td>
+                <td class="right mono" id="tQty3">0</td>
+                <td class="right mono" id="tP3">0,00 €</td>
+                <td class="right mono" id="tS3">0,00 €</td>
+              </tr>
+              <tr>
+                <td class="mono">4</td><td>Feiertag</td>
+                <td class="right mono" id="tQty4">0</td>
+                <td class="right mono" id="tP4">0,00 €</td>
+                <td class="right mono" id="tS4">0,00 €</td>
+              </tr>
             </tbody>
           </table>
 
           <div class="hr"></div>
 
           <div class="note">
-            <b>Formel:</b> Mitarbeiter × Stunden × Preis/Std.
+            <b>Formel:</b> Betrag = <span class="mono">Mitarbeiter × Stunden × Einzelpreis</span>
             <div class="mono" style="margin-top:6px" id="formulaLine">5 × 0 × 23,00 €</div>
           </div>
 
@@ -499,26 +548,35 @@
 
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- PRINT -->
-  <div id="printWrap"><div id="printArea"></div></div>
+  <!-- PRINT/PDF WRAP -->
+  <div id="printWrap">
+    <div id="invoiceA4"></div>
+  </div>
 
+  <!-- Logo upload -->
   <input id="logoFile" type="file" accept="image/*" style="display:none"/>
 
   <script>
-    // ===== Keys =====
+    // =========================
+    // 100% STABLE B2B APP CORE
+    // =========================
+
+    const VERSION = "b2b_rechnung_v1_0001"; // change only if you want fresh storage
     const KEY = {
-      APP: "ms_b2b_simple_app_v1",
-      LOGO:"ms_b2b_simple_logo_v1",
-      CUSTOMERS:"ms_b2b_simple_customers_v1",
-      INVOICES:"ms_b2b_simple_invoices_v1",
-      COUNTERS:"ms_b2b_simple_counters_v1"
+      LOGO: `${VERSION}:logo`,
+      CUSTOMERS: `${VERSION}:customers`,
+      INVOICES: `${VERSION}:invoices`,
+      COUNTERS: `${VERSION}:counters`,
+      AUTOSAVE: `${VERSION}:autosave`
     };
 
     const $ = (id)=>document.getElementById(id);
 
+    // ---------- helpers ----------
     const fmtEUR = (n)=>{
       const v = Number(n||0);
       return v.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
@@ -548,12 +606,19 @@
     };
     const saveJSON=(k,v)=>localStorage.setItem(k, JSON.stringify(v));
 
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
     function setStatus(txt, ok=true){
-      $("status").innerHTML = (ok?`<span class="dot"></span> `:`⚠️ `) + txt;
+      $("status").innerHTML = (ok?`<span class="dot"></span> `:`⚠️ `) + escapeHtml(txt);
       $("status").style.borderColor = ok ? "rgba(34,197,94,.25)" : "rgba(225,29,72,.25)";
     }
 
-    // ===== Logo =====
+    // ---------- logo ----------
     function setLogo(dataUrl, persist=true){
       $("logoImg").src = dataUrl;
       if(persist) localStorage.setItem(KEY.LOGO, dataUrl);
@@ -565,7 +630,7 @@
       setLogo(`data:image/svg+xml,${svg}`, false);
     }
 
-    // ===== Invoice number =====
+    // ---------- invoice number ----------
     function nextInvoiceNo(dateISO){
       const counters = loadJSON(KEY.COUNTERS,{});
       const d = yyyymmdd(dateISO || todayISO());
@@ -579,10 +644,14 @@
       $("purpose").value = `Rechnung: ${$("invNo").value||""}`;
     }
 
-    // ===== Clickable contacts =====
+    // ---------- clickable contacts ----------
     function syncContacts(){
+      const company = String($("issuerCompany").value||"Masculine Security").trim();
+      $("topBrand").textContent = company || "Masculine Security";
+
       const tel = String($("issuerPhone").value||"").replace(/\s+/g,"");
       const mail = String($("issuerEmail").value||"").trim();
+
       if(tel){
         $("telLink").href = `tel:${tel}`;
         $("telText").textContent = tel;
@@ -591,34 +660,11 @@
         $("mailLink").href = `mailto:${mail}`;
         $("mailText").textContent = mail;
       }
-      $("topBrand").textContent = $("issuerCompany").value || "Masculine Security";
     }
 
-    // ===== Customers (100% working select) =====
-    function customers(){
-      return loadJSON(KEY.CUSTOMERS, []);
-    }
-    function saveCustomers(arr){
-      saveJSON(KEY.CUSTOMERS, arr);
-    }
-    function refreshCustomerSelect(selectedId=""){
-      const list = customers();
-      const sel = $("customerSelect");
-      sel.innerHTML = "";
-      const o0 = document.createElement("option");
-      o0.value = "";
-      o0.textContent = "— auswählen —";
-      sel.appendChild(o0);
-
-      for(const c of list){
-        const o = document.createElement("option");
-        o.value = c.id;
-        o.textContent = c.name;
-        sel.appendChild(o);
-      }
-      sel.value = selectedId || "";
-      renderCustomerList();
-    }
+    // ---------- customers (100% working) ----------
+    function customers(){ return loadJSON(KEY.CUSTOMERS, []); }
+    function saveCustomers(arr){ saveJSON(KEY.CUSTOMERS, arr); }
 
     function cryptoId(){
       if(window.crypto?.getRandomValues){
@@ -627,6 +673,24 @@
         return a[0].toString(16)+a[1].toString(16);
       }
       return String(Date.now()) + Math.random().toString(16).slice(2);
+    }
+
+    function refreshCustomerSelect(selectedId=""){
+      const list = customers();
+      const sel = $("customerSelect");
+      sel.innerHTML = "";
+      const o0=document.createElement("option");
+      o0.value=""; o0.textContent="— auswählen —";
+      sel.appendChild(o0);
+
+      for(const c of list){
+        const o=document.createElement("option");
+        o.value=c.id;
+        o.textContent=c.name;
+        sel.appendChild(o);
+      }
+      sel.value = selectedId || "";
+      renderCustomerList();
     }
 
     function saveCustomer(){
@@ -673,13 +737,13 @@
       const wrap = $("custList");
       const list = customers();
       wrap.innerHTML = "";
-      for(const c of list.slice(0,10)){
+      for(const c of list.slice(0,12)){
         const el=document.createElement("div");
         el.className="item";
         el.innerHTML = `
           <div>
-            <b>${escapeHtml(c.name)}</b>
-            <small>${escapeHtml((c.address||"").slice(0,80))}${(c.address||"").length>80?"…":""}</small>
+            <b>${escapeHtml(c.name)}</b><br/>
+            <small>${escapeHtml((c.address||"").slice(0,90))}${(c.address||"").length>90?"…":""}</small>
           </div>
           <div class="btns">
             <button type="button" data-id="${escapeAttr(c.id)}">Wählen</button>
@@ -696,16 +760,16 @@
       });
     }
 
-    // ===== Invoices =====
+    // ---------- invoices ----------
     function invoices(){ return loadJSON(KEY.INVOICES, []); }
     function saveInvoices(arr){ saveJSON(KEY.INVOICES, arr); }
 
     function requiredOk(){
       const must = [
-        ["issuerCompany","Firmenname"],["issuerAddress","Adresse"],["issuerEmail","E-Mail"],
+        ["issuerCompany","Rechnungssteller"],["issuerAddress","Adresse"],["issuerEmail","E-Mail"],
         ["issuerTax","Steuernr./Hinweis"],["iban","IBAN"],["bic","BIC"],["holder","Kontoinhaber"],
-        ["custName","Kundenname"],["custAddress","Kundenadresse"],
-        ["invDate","Rechnungsdatum"],["dueDate","Fällig"],["invNo","Rechnungsnummer"],
+        ["custName","Kunde"],["custAddress","Kundenadresse"],
+        ["invDate","Rechnungsdatum"],["dueDate","Fälligkeit"],["invNo","Rechnungsnummer"],
         ["serviceTitle","Leistungsbeschreibung"]
       ];
       for(const [id,label] of must){
@@ -719,13 +783,15 @@
 
     function collectForm(){
       const ids = [
-        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTax","issuerVat",
-        "iban","bic","holder","vatMode",
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTax","issuerVatId","vatMode",
+        "iban","bic","holder",
         "custName","custEmail","custContact","custAddress",
         "invDate","dueDate","invNo","purpose",
-        "serviceTitle","objekt","zeitraum","note",
-        "mCount","pTag","pNacht","pSonntag","pFeiertag",
-        "hTag","hNacht","hSonntag","hFeiertag"
+        "serviceTitle","serviceDate","objekt","zeitraum",
+        "mCount","unit",
+        "pTag","pNacht","pSonntag","pFeiertag",
+        "hTag","hNacht","hSonntag","hFeiertag",
+        "note","paymentTerms"
       ];
       const f={};
       ids.forEach(id=>f[id]=$(id).value);
@@ -749,9 +815,7 @@
     function loadInvoice(no){
       const inv = invoices().find(x=>x.invNo===no);
       if(!inv){ setStatus("Rechnung nicht gefunden", false); return; }
-      Object.entries(inv).forEach(([k,v])=>{
-        if($(k)) $(k).value = v;
-      });
+      Object.entries(inv).forEach(([k,v])=>{ if($(k)) $(k).value = v; });
       if(inv.logo) setLogo(inv.logo, true);
       syncContacts();
       updatePurpose();
@@ -770,12 +834,12 @@
       const wrap=$("invList");
       const list=invoices();
       wrap.innerHTML="";
-      for(const inv of list.slice(0,10)){
+      for(const inv of list.slice(0,12)){
         const el=document.createElement("div");
         el.className="item";
         el.innerHTML=`
           <div>
-            <b class="mono">${escapeHtml(inv.invNo||"")}</b>
+            <b class="mono">${escapeHtml(inv.invNo||"")}</b><br/>
             <small>${escapeHtml(inv.invDate||"")} • ${escapeHtml(inv.custName||"")}</small><br/>
             <small class="mono">Gesamt: ${escapeHtml(inv.grandTotal||"")}</small>
           </div>
@@ -801,12 +865,14 @@
       });
     }
 
-    // ===== Calculation =====
+    // ---------- calculation (B2B positions) ----------
     function calculate(){
       syncContacts();
       updatePurpose();
 
       const m=safeNum($("mCount").value);
+      const unit = String($("unit").value||"Std.").trim() || "Std.";
+
       const h1=safeNum($("hTag").value);
       const h2=safeNum($("hNacht").value);
       const h3=safeNum($("hSonntag").value);
@@ -825,133 +891,176 @@
       const vatAmount=sub*vatRate;
       const grand=sub+vatAmount;
 
-      $("tH1").textContent=String(h1); $("tH2").textContent=String(h2); $("tH3").textContent=String(h3); $("tH4").textContent=String(h4);
-      $("tP1").textContent=fmtEUR(p1); $("tP2").textContent=fmtEUR(p2); $("tP3").textContent=fmtEUR(p3); $("tP4").textContent=fmtEUR(p4);
-      $("tS1").textContent=fmtEUR(s1); $("tS2").textContent=fmtEUR(s2); $("tS3").textContent=fmtEUR(s3); $("tS4").textContent=fmtEUR(s4);
+      // quantities shown as "Std. × Mitarbeiter" style like firms
+      $("tQty1").textContent = `${h1} ${unit} × ${m}`;
+      $("tQty2").textContent = `${h2} ${unit} × ${m}`;
+      $("tQty3").textContent = `${h3} ${unit} × ${m}`;
+      $("tQty4").textContent = `${h4} ${unit} × ${m}`;
 
-      $("subTotal").textContent=fmtEUR(sub);
-      $("grandTotal").textContent=fmtEUR(grand);
+      $("tP1").textContent = fmtEUR(p1);
+      $("tP2").textContent = fmtEUR(p2);
+      $("tP3").textContent = fmtEUR(p3);
+      $("tP4").textContent = fmtEUR(p4);
+
+      $("tS1").textContent = fmtEUR(s1);
+      $("tS2").textContent = fmtEUR(s2);
+      $("tS3").textContent = fmtEUR(s3);
+      $("tS4").textContent = fmtEUR(s4);
+
+      $("subTotal").textContent = fmtEUR(sub);
+      $("grandTotal").textContent = fmtEUR(grand);
 
       $("formulaLine").textContent = `${m} × ${h1} × ${fmtEUR(p1)}`;
 
       autoSave();
     }
 
-    // ===== AutoSave =====
-    let t=null;
+    // ---------- autosave ----------
+    let autosaveTimer=null;
     function autoSave(){
-      clearTimeout(t);
-      t=setTimeout(()=>{
-        saveJSON(KEY.APP, collectForm());
-      },250);
+      clearTimeout(autosaveTimer);
+      autosaveTimer=setTimeout(()=>saveJSON(KEY.AUTOSAVE, collectForm()), 250);
     }
     function restoreAutoSave(){
-      const f=loadJSON(KEY.APP,null);
+      const f=loadJSON(KEY.AUTOSAVE,null);
       if(!f) return;
-      Object.entries(f).forEach(([k,v])=>{
-        if($(k)) $(k).value=v;
-      });
+      Object.entries(f).forEach(([k,v])=>{ if($(k)) $(k).value=v; });
       if(f.logo) setLogo(f.logo,false);
     }
 
-    // ===== Print/PDF =====
-    function buildPrintHtml(f){
+    // ---------- A4 build ----------
+    function buildA4Html(f){
       const company=escapeHtml(f.issuerCompany||"");
-      const logo = f.logo ? `<div class="invLogo"><img src="${escapeAttr(f.logo)}"/></div>` : "";
+      const logo = f.logo ? `<div class="a4Logo"><img src="${escapeAttr(f.logo)}"/></div>` : "";
+
       const vatMode=f.vatMode;
-      const vatLine = (vatMode==="kmu")
+      const vatText = (vatMode==="kmu")
         ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
         : "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
 
       const m=safeNum(f.mCount);
+      const unit=String(f.unit||"Std.").trim() || "Std.";
+
       const h1=safeNum(f.hTag), h2=safeNum(f.hNacht), h3=safeNum(f.hSonntag), h4=safeNum(f.hFeiertag);
       const p1=safeNum(f.pTag), p2=safeNum(f.pNacht), p3=safeNum(f.pSonntag), p4=safeNum(f.pFeiertag);
+
       const s1=m*h1*p1, s2=m*h2*p2, s3=m*h3*p3, s4=m*h4*p4;
       const sub=s1+s2+s3+s4;
       const vatRate=(vatMode==="vat19")?0.19:0;
       const vatAmount=sub*vatRate;
       const grand=sub+vatAmount;
 
+      const custAddr=escapeHtml(f.custAddress||"").replaceAll("\n","<br/>");
+      const note=escapeHtml(f.note||"");
+      const terms=escapeHtml(f.paymentTerms||"");
+
       const obj=escapeHtml(f.objekt||"");
       const zr=escapeHtml(f.zeitraum||"");
-      const note=escapeHtml(f.note||"");
-      const custAddr=escapeHtml(f.custAddress||"").replaceAll("\n","<br/>");
+      const sdate=escapeHtml(f.serviceDate||"");
 
       return `
-        <div class="a4">
-          <div class="invHeader">
-            <div class="invLeft">
+        <div>
+          <div class="a4Header">
+            <div class="a4Left">
               ${logo}
               <div>
-                <p class="invTitle">Rechnung</p>
-                <div class="invMeta"><b>${company}</b></div>
-                <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
-                ${obj?`<div class="invMeta">Objekt/Ort: ${obj}</div>`:""}
-                ${zr?`<div class="invMeta">Zeitraum: ${zr}</div>`:""}
+                <p class="a4Title">Rechnung</p>
+                <div class="a4Meta"><b>${company}</b></div>
+                <div class="a4Meta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
+                ${obj?`<div class="a4Meta">Objekt/Ort: ${obj}</div>`:""}
+                ${zr?`<div class="a4Meta">Zeitraum: ${zr}</div>`:""}
+                ${sdate?`<div class="a4Meta">Leistungsdatum: ${sdate}</div>`:""}
               </div>
             </div>
 
-            <div class="invBox" style="min-width:260px">
-              <div class="invLine"><span><b>Rechnungsnr.</b></span><span class="mono">${escapeHtml(f.invNo||"")}</span></div>
-              <div class="invLine"><span>Datum</span><span>${escapeHtml(f.invDate||"")}</span></div>
-              <div class="invLine"><span>Fällig</span><span>${escapeHtml(f.dueDate||"")}</span></div>
-              <div class="invLine"><span>Zweck</span><span class="mono">${escapeHtml(f.purpose||"")}</span></div>
+            <div class="a4Box" style="min-width:270px">
+              <div class="a4Line"><span><b>Rechnungsnr.</b></span><span class="mono">${escapeHtml(f.invNo||"")}</span></div>
+              <div class="a4Line"><span>Rechnungsdatum</span><span>${escapeHtml(f.invDate||"")}</span></div>
+              <div class="a4Line"><span>Fällig am</span><span>${escapeHtml(f.dueDate||"")}</span></div>
+              <div class="a4Line"><span>Verwendungszweck</span><span class="mono">${escapeHtml(f.purpose||"")}</span></div>
             </div>
           </div>
 
-          <div class="invGrid2">
-            <div class="invBox">
+          <div class="a4Grid2">
+            <div class="a4Box">
               <h4>Rechnungssteller</h4>
-              <div class="invMeta"><b>${company}</b></div>
-              <div class="invMeta">${escapeHtml(f.issuerAddress||"")}</div>
-              <div class="invMeta">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
-              <div class="invMeta">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
-              <div class="invMeta">Steuernr./Hinweis: ${escapeHtml(f.issuerTax||"")}</div>
-              ${String(f.issuerVat||"").trim()?`<div class="invMeta">USt-IdNr: ${escapeHtml(f.issuerVat||"")}</div>`:""}
+              <div class="a4Meta"><b>${company}</b></div>
+              <div class="a4Meta">${escapeHtml(f.issuerAddress||"")}</div>
+              <div class="a4Meta">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
+              <div class="a4Meta">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
+              <div class="a4Meta">Steuernr./Hinweis: ${escapeHtml(f.issuerTax||"")}</div>
+              ${String(f.issuerVatId||"").trim()?`<div class="a4Meta">USt-IdNr: ${escapeHtml(f.issuerVatId||"")}</div>`:""}
             </div>
 
-            <div class="invBox">
-              <h4>Rechnung an</h4>
-              <div class="invMeta"><b>${escapeHtml(f.custName||"")}</b></div>
-              <div class="invMeta">${custAddr}</div>
-              ${String(f.custEmail||"").trim()?`<div class="invMeta">E-Mail: ${escapeHtml(f.custEmail||"")}</div>`:""}
-              ${String(f.custContact||"").trim()?`<div class="invMeta">Ansprechpartner: ${escapeHtml(f.custContact||"")}</div>`:""}
+            <div class="a4Box">
+              <h4>Rechnungsempfänger</h4>
+              <div class="a4Meta"><b>${escapeHtml(f.custName||"")}</b></div>
+              <div class="a4Meta">${custAddr}</div>
+              ${String(f.custEmail||"").trim()?`<div class="a4Meta">E-Mail: ${escapeHtml(f.custEmail||"")}</div>`:""}
+              ${String(f.custContact||"").trim()?`<div class="a4Meta">Ansprechpartner: ${escapeHtml(f.custContact||"")}</div>`:""}
             </div>
           </div>
 
-          <div class="invBox" style="margin-top:12px">
+          <div class="a4Box" style="margin-top:12px">
             <h4>Leistungsübersicht</h4>
-            <table class="invTable">
+
+            <table class="a4Table">
               <thead>
                 <tr>
-                  <th>Position</th>
-                  <th class="invRight">Mitarbeiter</th>
-                  <th class="invRight">Std.</th>
-                  <th class="invRight">Preis/Std.</th>
-                  <th class="invRight">Summe</th>
+                  <th>Pos.</th>
+                  <th>Bezeichnung</th>
+                  <th class="a4Right">Menge</th>
+                  <th class="a4Right">Einzelpreis</th>
+                  <th class="a4Right">Betrag</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>Tag</td><td class="invRight">${m}</td><td class="invRight">${h1}</td><td class="invRight">${fmtEUR(p1)}</td><td class="invRight">${fmtEUR(s1)}</td></tr>
-                <tr><td>Nacht</td><td class="invRight">${m}</td><td class="invRight">${h2}</td><td class="invRight">${fmtEUR(p2)}</td><td class="invRight">${fmtEUR(s2)}</td></tr>
-                <tr><td>Sonntag</td><td class="invRight">${m}</td><td class="invRight">${h3}</td><td class="invRight">${fmtEUR(p3)}</td><td class="invRight">${fmtEUR(s3)}</td></tr>
-                <tr><td>Feiertag</td><td class="invRight">${m}</td><td class="invRight">${h4}</td><td class="invRight">${fmtEUR(p4)}</td><td class="invRight">${fmtEUR(s4)}</td></tr>
+                <tr>
+                  <td class="mono">1</td>
+                  <td>Tagdienst</td>
+                  <td class="a4Right">${h1} ${unit} × ${m}</td>
+                  <td class="a4Right">${fmtEUR(p1)}</td>
+                  <td class="a4Right">${fmtEUR(s1)}</td>
+                </tr>
+                <tr>
+                  <td class="mono">2</td>
+                  <td>Nachtdienst</td>
+                  <td class="a4Right">${h2} ${unit} × ${m}</td>
+                  <td class="a4Right">${fmtEUR(p2)}</td>
+                  <td class="a4Right">${fmtEUR(s2)}</td>
+                </tr>
+                <tr>
+                  <td class="mono">3</td>
+                  <td>Sonntag</td>
+                  <td class="a4Right">${h3} ${unit} × ${m}</td>
+                  <td class="a4Right">${fmtEUR(p3)}</td>
+                  <td class="a4Right">${fmtEUR(s3)}</td>
+                </tr>
+                <tr>
+                  <td class="mono">4</td>
+                  <td>Feiertag</td>
+                  <td class="a4Right">${h4} ${unit} × ${m}</td>
+                  <td class="a4Right">${fmtEUR(p4)}</td>
+                  <td class="a4Right">${fmtEUR(s4)}</td>
+                </tr>
               </tbody>
             </table>
 
-            <div class="invTotals">
+            <div class="a4Totals">
               <div class="tline"><span>Zwischensumme (netto)</span><span>${fmtEUR(sub)}</span></div>
               ${vatRate>0?`<div class="tline"><span>USt 19%</span><span>${fmtEUR(vatAmount)}</span></div>`:""}
               <div class="tline grand"><span>Gesamtbetrag</span><span>${fmtEUR(grand)}</span></div>
             </div>
 
-            <div class="invFooter">
-              <div>${vatLine}</div>
+            <div class="a4Footer">
+              <div>${vatText}</div>
+              ${terms?`<div><b>Zahlungsbedingungen:</b> ${terms}</div>`:""}
               ${note?`<div><b>Hinweis:</b> ${note}</div>`:""}
               <div style="margin-top:10px">
                 <b>Bankverbindung:</b> IBAN ${escapeHtml(f.iban||"")} • BIC ${escapeHtml(f.bic||"")} • Inhaber ${escapeHtml(f.holder||"")}
               </div>
             </div>
+
           </div>
         </div>
       `;
@@ -965,27 +1074,47 @@
       })));
     }
 
+    // ---------- PDF export (NO blank page) ----------
     async function exportPdfFromForm(f){
-      $("printArea").innerHTML = buildPrintHtml(f);
-      $("printWrap").style.display="block";
-      await waitImagesLoaded($("printArea"));
+      if(!window.jspdf?.jsPDF){ setStatus("PDF Lib fehlt (jspdf).", false); return; }
 
-      const canvas = await html2canvas($("printArea"), {scale:2, useCORS:true, backgroundColor:"#ffffff"});
-      const imgData = canvas.toDataURL("image/png");
+      const wrap = $("invoiceA4");
+      wrap.innerHTML = buildA4Html(f);
+      $("printWrap").style.display="block";
+      await waitImagesLoaded(wrap);
+
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("p","mm","a4");
+
+      // Best method: jsPDF.html (stable sizing)
+      try{
+        await pdf.html(wrap, {
+          x: 10, y: 10, // margins in mm (works with html mode)
+          html2canvas: { scale: 2, useCORS: true, backgroundColor:"#ffffff" },
+          autoPaging: "text",
+          windowWidth: 1000
+        });
+        pdf.save(`${f.invNo||"Rechnung"}.pdf`);
+        $("printWrap").style.display="none";
+        setStatus("PDF gespeichert", true);
+        return;
+      }catch(e){
+        // Fallback: single canvas
+      }
+
+      // Fallback: canvas -> image
+      const canvas = await html2canvas(wrap, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
+      const imgData = canvas.toDataURL("image/png");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-
       const imgProps = pdf.getImageProperties(imgData);
       const imgW = pageW;
       const imgH = (imgProps.height * imgW) / imgProps.width;
 
-      const EPS=1;
       if(imgH <= pageH){
         pdf.addImage(imgData,"PNG",0,0,imgW,imgH);
       }else{
-        let y=0, remaining=imgH;
+        let y=0, remaining=imgH, EPS=1;
         while(remaining>EPS){
           pdf.addImage(imgData,"PNG",0,y? -y : 0,imgW,imgH);
           remaining -= pageH;
@@ -995,30 +1124,39 @@
       }
       pdf.save(`${f.invNo||"Rechnung"}.pdf`);
       $("printWrap").style.display="none";
-      setStatus("PDF gespeichert", true);
+      setStatus("PDF gespeichert (Fallback)", true);
     }
 
     async function exportPdf(){
       if(!requiredOk()) return;
       await exportPdfFromForm(collectForm());
     }
+
     async function doPrint(){
       if(!requiredOk()) return;
-      $("printArea").innerHTML = buildPrintHtml(collectForm());
+      const f=collectForm();
+      $("invoiceA4").innerHTML = buildA4Html(f);
       $("printWrap").style.display="block";
-      await waitImagesLoaded($("printArea"));
+      await waitImagesLoaded($("invoiceA4"));
       window.print();
       $("printWrap").style.display="none";
     }
 
-    // ===== Reset + New =====
+    // ---------- reset/new ----------
     function resetAll(){
       Object.values(KEY).forEach(k=>localStorage.removeItem(k));
       location.reload();
     }
+
     function newInvoice(){
-      // keep issuer + prices + vatMode
-      const keep = ["issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTax","issuerVat","iban","bic","holder","vatMode","pTag","pNacht","pSonntag","pFeiertag","mCount","serviceTitle"];
+      // keep issuer + pricing + VAT
+      const keep = [
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTax","issuerVatId","vatMode",
+        "iban","bic","holder",
+        "mCount","unit",
+        "pTag","pNacht","pSonntag","pFeiertag",
+        "serviceTitle","paymentTerms"
+      ];
       const snap={}; keep.forEach(id=>snap[id]=$(id).value);
 
       document.querySelectorAll("input,textarea,select").forEach(el=>{
@@ -1034,21 +1172,12 @@
       updatePurpose();
 
       $("hTag").value=0; $("hNacht").value=0; $("hSonntag").value=0; $("hFeiertag").value=0;
-      $("note").value=""; $("objekt").value=""; $("zeitraum").value="";
       $("customerSelect").value="";
       setStatus("Neue Rechnung", true);
       calculate();
     }
 
-    // ===== Escape =====
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-    }
-    function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
-
-    // ===== Wire =====
+    // ---------- wire ----------
     function wire(){
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change",(e)=>{
@@ -1064,12 +1193,15 @@
       $("btnReset").addEventListener("click", resetAll);
       $("btnNew").addEventListener("click", newInvoice);
 
-      $("btnSaveInv").addEventListener("click", saveInvoice);
-      $("btnShowInv").addEventListener("click", ()=>{ renderInvoiceList(); setStatus("Rechnungen aktualisiert", true); });
+      $("btnSave").addEventListener("click", saveInvoice);
+      $("btnRefreshLists").addEventListener("click", ()=>{
+        renderInvoiceList();
+        renderCustomerList();
+        setStatus("Listen aktualisiert", true);
+      });
 
       $("btnSaveCustomer").addEventListener("click", saveCustomer);
       $("btnDeleteCustomer").addEventListener("click", deleteCustomer);
-
       $("customerSelect").addEventListener("change", (e)=> loadCustomerById(e.target.value));
 
       $("invDate").addEventListener("change", ()=>{
@@ -1079,15 +1211,26 @@
         calculate();
       });
 
-      // auto-calc on inputs
-      document.querySelectorAll("input,textarea,select").forEach(el=>{
-        if(el.id==="logoFile") return;
+      // stable input listeners
+      const watchIds = [
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTax","issuerVatId","vatMode",
+        "iban","bic","holder",
+        "custName","custEmail","custContact","custAddress",
+        "serviceTitle","serviceDate","objekt","zeitraum",
+        "mCount","unit",
+        "pTag","pNacht","pSonntag","pFeiertag",
+        "hTag","hNacht","hSonntag","hFeiertag",
+        "note","paymentTerms"
+      ];
+      watchIds.forEach(id=>{
+        const el=$(id);
+        if(!el) return;
         el.addEventListener("input", calculate);
         el.addEventListener("change", calculate);
       });
     }
 
-    // ===== Init =====
+    // ---------- init ----------
     function init(){
       loadLogo();
       restoreAutoSave();
@@ -1099,9 +1242,10 @@
 
       refreshCustomerSelect("");
       renderInvoiceList();
+      renderCustomerList();
+
       syncContacts();
       calculate();
-
       setStatus("Bereit", true);
     }
 
