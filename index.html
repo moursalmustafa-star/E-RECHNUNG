@@ -255,6 +255,7 @@
       background:#fff;
       color:var(--muted);
       font-family:var(--mono);
+      white-space:nowrap;
     }
     .mono{font-family:var(--mono)}
     .hr{height:1px;background:rgba(227,233,242,.85);margin:12px 0}
@@ -323,7 +324,8 @@
     .invHeader .left{display:flex;gap:12px;align-items:center}
     .invLogo{width:54px;height:54px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef}
     .invLogo img{width:100%;height:100%;object-fit:cover}
-    .invTitle{font-size:24px;font-weight:950;margin:0}
+    .invTitle{font-size:26px;font-weight:950;margin:0;letter-spacing:-.4px}
+    .invBrand{font-size:13px;color:#0a2540;font-weight:950;margin-top:2px}
     .invMeta{font-size:12px;color:#334155}
     .invGrid2{display:grid;gap:10px}
     @media (min-width:900px){.invGrid2{grid-template-columns:1fr 1fr}}
@@ -353,7 +355,7 @@
             <img id="logoImg" alt="Logo"/>
           </div>
           <div>
-            <div class="title">Masculine Security</div>
+            <div class="title" id="brandTopTitle">Masculine Security</div>
             <div class="subtitle">Invoice Suite • Security Services • Corporate Billing System</div>
           </div>
         </div>
@@ -375,6 +377,7 @@
         • E-Mail:
         <button class="linkbtn" id="btnMail" type="button">Kontakt.mass.bremen@hotmail.com</button>
         <span class="badge"><span class="dot"></span> Auto-Save aktiv</span>
+        <span class="badge" id="b2bBadge"><span class="dot" style="background:#22c55e"></span> B2B Mode: OFF</span>
       </div>
 
     </div>
@@ -569,7 +572,7 @@
               <div class="row2">
                 <div>
                   <label>Anzahl Mitarbeiter *</label>
-                  <input id="mitarbeiter" type="number" min="0" value="5"/>
+                  <input id="mitarbeiter" type="number" min="0" value="1"/>
                 </div>
                 <div>
                   <label>Basis-Stundensatz Tag (€) *</label>
@@ -581,15 +584,32 @@
                 <div>
                   <label>Berechnungsart Zuschläge *</label>
                   <select id="modus">
-                    <option value="percent">Zuschlag % (auf Tagpreis)</option>
                     <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
+                    <option value="percent">Zuschlag % (auf Tagpreis)</option>
                   </select>
-                  <div class="note" style="margin-top:8px">Empfehlung: Kunde % → Prozent. Feste Stundensätze → Festpreis.</div>
+                  <div class="note" style="margin-top:8px">B2B Empfehlung: <b>Festpreise</b> (All-in). Prozent ist optional.</div>
                 </div>
+                <div>
+                  <label>B2B Modus (All-in Darstellung) *</label>
+                  <select id="b2bMode">
+                    <option value="off">OFF (Detail: Tag/Nacht/Sonntag/Feiertag)</option>
+                    <option value="on">ON (B2B: 1 Position, All-in)</option>
+                  </select>
+                  <div class="note" style="margin-top:8px">
+                    ON = Rechnung/PDF zeigt <b>nur eine Position</b> (professionell B2B). Intern bleibt die genaue Berechnung korrekt.
+                  </div>
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px">
                 <div>
                   <label>Verwendungszweck (auto)</label>
                   <input id="purpose" class="mono" readonly/>
                   <div class="note" style="margin-top:8px">Kunde kann bei Überweisung so schreiben.</div>
+                </div>
+                <div>
+                  <label>—</label>
+                  <input disabled value=""/>
                 </div>
               </div>
 
@@ -652,7 +672,7 @@
               <div class="hr"></div>
 
               <div class="row3">
-                <div id="percentBox">
+                <div id="percentBox" style="display:none">
                   <label>Nachtzuschlag (%)</label>
                   <input id="nachtPercent" type="number" min="0" step="0.01" value="0"/>
                   <label style="margin-top:10px">Sonntag (%)</label>
@@ -661,7 +681,7 @@
                   <input id="feiertagPercent" type="number" min="0" step="0.01" value="100"/>
                 </div>
 
-                <div id="fixedBox" style="display:none">
+                <div id="fixedBox">
                   <label>Festpreis Nacht (€)</label>
                   <input id="nachtFest" type="number" min="0" step="0.01" value="24"/>
                   <label style="margin-top:10px">Festpreis Sonntag (€)</label>
@@ -684,7 +704,10 @@
           <div class="card">
             <h2>
               <span>Berechnung & Summe</span>
-              <span class="pill mono" id="modeBadge">MODE: %</span>
+              <span style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                <span class="pill mono" id="modeBadge">MODE: FEST</span>
+                <span class="pill mono" id="b2bModeBadge">B2B: OFF</span>
+              </span>
             </h2>
             <div class="body">
               <div class="kpi">
@@ -710,25 +733,34 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  <!-- B2B Single Line -->
+                  <tr id="row_b2b" style="display:none">
+                    <td>Sicherheitsdienstleistung (All-in)</td>
+                    <td class="right mono" id="t_b2bStd">0</td>
+                    <td class="right mono" id="t_b2bPreis">0,00 €</td>
+                    <td class="right mono" id="t_b2bSum">0,00 €</td>
+                  </tr>
+
+                  <!-- Detail Lines -->
+                  <tr class="detailRow">
                     <td>Tagdienst</td>
                     <td class="right mono" id="t_tagStd">0</td>
                     <td class="right mono" id="t_tagPreis">0,00 €</td>
                     <td class="right mono" id="t_tagSum">0,00 €</td>
                   </tr>
-                  <tr>
+                  <tr class="detailRow">
                     <td>Nachtdienst</td>
                     <td class="right mono" id="t_nachtStd">0</td>
                     <td class="right mono" id="t_nachtPreis">0,00 €</td>
                     <td class="right mono" id="t_nachtSum">0,00 €</td>
                   </tr>
-                  <tr>
+                  <tr class="detailRow">
                     <td>Sonntag</td>
                     <td class="right mono" id="t_sonntagStd">0</td>
                     <td class="right mono" id="t_sonntagPreis">0,00 €</td>
                     <td class="right mono" id="t_sonntagSum">0,00 €</td>
                   </tr>
-                  <tr>
+                  <tr class="detailRow">
                     <td>Feiertag</td>
                     <td class="right mono" id="t_feiertagStd">0</td>
                     <td class="right mono" id="t_feiertagPreis">0,00 €</td>
@@ -742,6 +774,8 @@
               <div class="note">
                 <b>Wichtig:</b> Mitarbeiter werden automatisch multipliziert:
                 <span class="mono">(Mitarbeiter × Stunden × Preis)</span>.
+                <br/>
+                <b>B2B Mode ON:</b> Anzeige/PDF = 1 Position, intern bleibt die Berechnung korrekt.
               </div>
             </div>
           </div>
@@ -866,7 +900,7 @@
         setLogo(saved, false);
       }else{
         const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" rx="24" fill="#0b5fa8"/><text x="60" y="72" font-size="54" text-anchor="middle" fill="white" font-family="Arial" font-weight="900">M</text></svg>`);
-        setLogo(`data:image/svg+xml,${svg}`, false);
+        setLogo(\`data:image/svg+xml,\${svg}\`, false);
       }
     }
 
@@ -897,6 +931,20 @@
       $("percentBox").style.display = (m==="percent") ? "" : "none";
       $("fixedBox").style.display = (m==="fixed") ? "" : "none";
       $("modeBadge").textContent = (m==="percent") ? "MODE: %" : "MODE: FEST";
+    }
+
+    function toggleB2BUI(){
+      const on = $("b2bMode").value === "on";
+      $("b2bModeBadge").textContent = on ? "B2B: ON" : "B2B: OFF";
+      $("b2bBadge").innerHTML = on
+        ? `<span class="dot" style="background:#22c55e"></span> B2B Mode: ON`
+        : `<span class="dot" style="background:#94a3b8"></span> B2B Mode: OFF`;
+      $("b2bBadge").style.color = on ? "#0f172a" : "var(--muted)";
+      $("b2bBadge").style.borderColor = on ? "rgba(34,197,94,.28)" : "var(--line)";
+
+      // Summary table rows
+      $("row_b2b").style.display = on ? "" : "none";
+      document.querySelectorAll(".detailRow").forEach(r=> r.style.display = on ? "none" : "");
     }
 
     function validateCore(){
@@ -950,7 +998,7 @@
       const {start: nightStart, end: nightEnd} = getNightWindow();
 
       let nightMin = 0;
-      const nightEndMod = nightEnd % 1440; // 360
+      const nightEndMod = nightEnd % 1440;
       for(let i=start;i<end;i++){
         const mod = i % 1440;
         const isNight = (mod >= nightStart) || (mod < nightEndMod);
@@ -967,8 +1015,12 @@
     // ===== Calculation =====
     function calculate(){
       toggleModeUI();
+      toggleB2BUI();
       updateVatHint();
       updatePurpose();
+
+      // Sync top title
+      $("brandTopTitle").textContent = ($("issuerCompany").value || "Masculine Security").trim();
 
       const m = safeNum($("mitarbeiter").value);
       const tagPreis = safeNum($("tagPreis").value);
@@ -1006,6 +1058,7 @@
       const vatAmount = subTotal * vatRate;
       const grandTotal = subTotal + vatAmount;
 
+      // Detail table values
       $("t_tagStd").textContent = String(tagH);
       $("t_nachtStd").textContent = String(nachtH);
       $("t_sonntagStd").textContent = String(sonntagH);
@@ -1021,6 +1074,15 @@
       $("t_sonntagSum").textContent = fmtEUR(sonntagSum);
       $("t_feiertagSum").textContent = fmtEUR(feiertagSum);
 
+      // B2B single line (blended unit price)
+      const totalHours = tagH + nachtH + sonntagH + feiertagH;
+      const qty = m * totalHours;
+      const blended = (qty > 0) ? (subTotal / qty) : 0;
+
+      $("t_b2bStd").textContent = String(totalHours.toFixed(2));
+      $("t_b2bPreis").textContent = fmtEUR(blended);
+      $("t_b2bSum").textContent = fmtEUR(subTotal);
+
       $("subTotal").textContent = fmtEUR(subTotal);
       $("grandTotal").textContent = fmtEUR(grandTotal);
 
@@ -1028,9 +1090,14 @@
       const zr = String($("zeitraum").value||"").trim();
       const note = String($("note").value||"").trim();
 
+      const b2bOn = $("b2bMode").value === "on";
       const modeLine = (mode==="percent")
         ? `Zuschläge gemäß Prozent (auf Tagpreis ${fmtEUR(tagPreis)}).`
         : `Stundensätze laut Vereinbarung (Festpreise).`;
+
+      const b2bLine = b2bOn
+        ? `B2B: All-in Darstellung (eine Position). Abrechnung gemäß Einsatznachweis; Durchschnittspreis ergibt sich aus Einsatzzeiten (inkl. Zuschläge).`
+        : `Detail: Tag/Nacht/Sonntag/Feiertag werden einzeln ausgewiesen.`;
 
       const vatLine = (vatMode==="kmu")
         ? `Gemäß §19 UStG wird keine Umsatzsteuer berechnet.`
@@ -1038,32 +1105,47 @@
 
       const nightText = $("nachtRule").value==="23-06" ? "23:00 – 06:00" : ($("nachtRule").value==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
-      $("rechnungText").value = [
-        `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
-        obj ? `Objekt/Ort: ${obj}` : "",
-        zr ? `Zeitraum: ${zr}` : "",
-        "",
-        `Tagdienst (${fmtEUR(tagPreis)}/Std)`,
-        `${m} Mitarbeiter × ${tagH} Std`,
-        "",
-        `Nachtdienst (${fmtEUR(nachtPreisFinal)}/Std)`,
-        `${m} Mitarbeiter × ${nachtH} Std`,
-        "",
-        `Sonntag (${fmtEUR(sonntagPreisFinal)}/Std)`,
-        `${m} Mitarbeiter × ${sonntagH} Std`,
-        "",
-        `Feiertag (${fmtEUR(feiertagPreisFinal)}/Std)`,
-        `${m} Mitarbeiter × ${feiertagH} Std`,
-        "",
-        `Zwischensumme (netto): ${fmtEUR(subTotal)}`,
-        `${vatLine}`,
-        `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
-        "",
-        modeLine,
-        `Nachtzeit laut Vereinbarung: ${nightText}`,
-        "Abrechnung gemäß Einsatzzeiten.",
-        note ? `Hinweis: ${note}` : ""
-      ].filter(Boolean).join("\n");
+      // Auto Rechnung Text
+      if(b2bOn){
+        $("rechnungText").value = [
+          `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
+          obj ? `Objekt/Ort: ${obj}` : "",
+          zr ? `Zeitraum: ${zr}` : "",
+          "",
+          `Abrechnung (B2B All-in):`,
+          `Gesamtstunden: ${totalHours.toFixed(2)} Std`,
+          `Durchschnittspreis/Std: ${fmtEUR(blended)}`,
+          `Zwischensumme (netto): ${fmtEUR(subTotal)}`,
+          `${vatLine}`,
+          `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
+          "",
+          `Einsatzzeiten gemäß Absprache.`,
+          `Nachtzeit laut Vereinbarung: ${nightText}`,
+          `Leistung im Rahmen eines Subunternehmer-Einsatzes erbracht.`,
+          note ? `Hinweis: ${note}` : ""
+        ].filter(Boolean).join("\n");
+      }else{
+        $("rechnungText").value = [
+          `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
+          obj ? `Objekt/Ort: ${obj}` : "",
+          zr ? `Zeitraum: ${zr}` : "",
+          "",
+          `Tagdienst (${fmtEUR(tagPreis)}/Std) — ${m} × ${tagH} Std`,
+          `Nachtdienst (${fmtEUR(nachtPreisFinal)}/Std) — ${m} × ${nachtH} Std`,
+          `Sonntag (${fmtEUR(sonntagPreisFinal)}/Std) — ${m} × ${sonntagH} Std`,
+          `Feiertag (${fmtEUR(feiertagPreisFinal)}/Std) — ${m} × ${feiertagH} Std`,
+          "",
+          `Zwischensumme (netto): ${fmtEUR(subTotal)}`,
+          `${vatLine}`,
+          `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
+          "",
+          modeLine,
+          b2bLine,
+          `Nachtzeit laut Vereinbarung: ${nightText}`,
+          "Abrechnung gemäß Einsatzzeiten.",
+          note ? `Hinweis: ${note}` : ""
+        ].filter(Boolean).join("\n");
+      }
 
       autoSave();
     }
@@ -1144,7 +1226,7 @@
         "issuerIban","issuerBic","issuerHolder",
         "custName","custEmail","custContact","custAddress",
         "invDate","dueDate","invNo","vatMode","serviceTitle","objekt","zeitraum",
-        "mitarbeiter","tagPreis","modus","purpose",
+        "mitarbeiter","tagPreis","modus","b2bMode","purpose",
         "shiftStart","shiftEnd","nachtRule",
         "tagH","nachtH","sonntagH","feiertagH",
         "nachtPercent","sonntagPercent","feiertagPercent",
@@ -1257,6 +1339,7 @@
     function buildPrintHtml(inv){
       const f = inv.form;
       const company = String(f.issuerCompany || "Masculine Security").trim();
+      const b2bOn = String(f.b2bMode||"off") === "on";
 
       const logoSrc = inv.logoDataUrl || $("logoImg").src || "";
       const logo = logoSrc ? `<div class="invLogo"><img src="${escapeAttr(logoSrc)}"/></div>` : "";
@@ -1306,16 +1389,96 @@
       const note = String(f.note||"").trim();
       const nightText = f.nachtRule==="23-06" ? "23:00 – 06:00" : (f.nachtRule==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
+      const totalHours = tagH + nachtH + sonntagH + feiertagH;
+      const qty = m * totalHours;
+      const blended = (qty > 0) ? (subTotal / qty) : 0;
+
+      const headerMeta = `
+        <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
+        ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
+        ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
+      `;
+
+      const detailTable = `
+        <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
+        <table class="invTable">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th class="invRight">Mitarbeiter</th>
+              <th class="invRight">Std.</th>
+              <th class="invRight">Preis/Std.</th>
+              <th class="invRight">Summe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tagdienst</td>
+              <td class="invRight">${m}</td>
+              <td class="invRight">${tagH}</td>
+              <td class="invRight">${fmtEUR(tagPreis)}</td>
+              <td class="invRight">${fmtEUR(tagSum)}</td>
+            </tr>
+            <tr>
+              <td>Nachtdienst</td>
+              <td class="invRight">${m}</td>
+              <td class="invRight">${nachtH}</td>
+              <td class="invRight">${fmtEUR(nachtPreisFinal)}</td>
+              <td class="invRight">${fmtEUR(nachtSum)}</td>
+            </tr>
+            <tr>
+              <td>Sonntag</td>
+              <td class="invRight">${m}</td>
+              <td class="invRight">${sonntagH}</td>
+              <td class="invRight">${fmtEUR(sonntagPreisFinal)}</td>
+              <td class="invRight">${fmtEUR(sonntagSum)}</td>
+            </tr>
+            <tr>
+              <td>Feiertag</td>
+              <td class="invRight">${m}</td>
+              <td class="invRight">${feiertagH}</td>
+              <td class="invRight">${fmtEUR(feiertagPreisFinal)}</td>
+              <td class="invRight">${fmtEUR(feiertagSum)}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      const b2bTable = `
+        <div class="mini">Einsatzzeiten gemäß Absprache. Abrechnung gemäß Einsatznachweis.</div>
+        <table class="invTable">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th class="invRight">Mitarbeiter</th>
+              <th class="invRight">Std.</th>
+              <th class="invRight">Preis/Std.</th>
+              <th class="invRight">Summe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sicherheitsdienstleistung (All-in, inkl. Zuschläge)</td>
+              <td class="invRight">${m}</td>
+              <td class="invRight">${totalHours.toFixed(2)}</td>
+              <td class="invRight">${fmtEUR(blended)}</td>
+              <td class="invRight">${fmtEUR(subTotal)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mini" style="margin-top:6px">
+          Hinweis: Der ausgewiesene Preis/Std. ist ein <b>Durchschnittspreis</b> (berechnet aus Einsatzzeiten inkl. Zuschläge).
+        </div>
+      `;
+
       return `
         <div class="invHeader">
           <div class="left">
             ${logo}
             <div>
               <p class="invTitle">Rechnung</p>
-              <div class="invMeta"><b>${escapeHtml(company)}</b></div>
-              <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
-              ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
-              ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
+              <div class="invBrand">${escapeHtml(company)}</div>
+              ${headerMeta}
             </div>
           </div>
           <div class="invBox" style="min-width:260px">
@@ -1348,49 +1511,7 @@
 
         <div class="invBox" style="margin-top:12px">
           <h4>Leistungsübersicht</h4>
-          <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
-
-          <table class="invTable">
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th class="invRight">Mitarbeiter</th>
-                <th class="invRight">Std.</th>
-                <th class="invRight">Preis/Std.</th>
-                <th class="invRight">Summe</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Tagdienst</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${tagH}</td>
-                <td class="invRight">${fmtEUR(tagPreis)}</td>
-                <td class="invRight">${fmtEUR(tagSum)}</td>
-              </tr>
-              <tr>
-                <td>Nachtdienst</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${nachtH}</td>
-                <td class="invRight">${fmtEUR(nachtPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(nachtSum)}</td>
-              </tr>
-              <tr>
-                <td>Sonntag</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${sonntagH}</td>
-                <td class="invRight">${fmtEUR(sonntagPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(sonntagSum)}</td>
-              </tr>
-              <tr>
-                <td>Feiertag</td>
-                <td class="invRight">${m}</td>
-                <td class="invRight">${feiertagH}</td>
-                <td class="invRight">${fmtEUR(feiertagPreisFinal)}</td>
-                <td class="invRight">${fmtEUR(feiertagSum)}</td>
-              </tr>
-            </tbody>
-          </table>
+          ${b2bOn ? b2bTable : detailTable}
 
           <div class="invTotals">
             <div class="tline"><span>Zwischensumme (netto)</span><span>${fmtEUR(subTotal)}</span></div>
@@ -1401,6 +1522,7 @@
           <div class="invFooter">
             <div>${escapeHtml(vatLine)}</div>
             <div>${escapeHtml(modeLine)} Abrechnung gemäß Einsatzzeiten.</div>
+            <div><b>Leistung:</b> im Rahmen eines Subunternehmer-Einsatzes erbracht.</div>
             ${note ? `<div><b>Hinweis:</b> ${escapeHtml(note)}</div>` : ``}
             <div style="margin-top:10px">
               <b>Bankverbindung:</b> IBAN ${escapeHtml(f.issuerIban||"")} • BIC ${escapeHtml(f.issuerBic||"")} • Inhaber ${escapeHtml(f.issuerHolder||"")}
@@ -1565,7 +1687,7 @@
         "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
         "custName","custEmail","custContact","custAddress","customerPick",
         "vatMode","serviceTitle","objekt","zeitraum",
-        "mitarbeiter","tagPreis","modus",
+        "mitarbeiter","tagPreis","modus","b2bMode",
         "nachtPercent","sonntagPercent","feiertagPercent",
         "nachtFest","sonntagFest","feiertagFest",
         "nachtRule"
@@ -1664,6 +1786,7 @@
       // changes
       $("vatMode").addEventListener("change", calculate);
       $("modus").addEventListener("change", calculate);
+      $("b2bMode").addEventListener("change", calculate);
 
       // auto day/night
       $("shiftStart").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
@@ -1689,6 +1812,7 @@
       updatePurpose();
       renderCustomers();
       toggleModeUI();
+      toggleB2BUI();
       calculateDayNight();
       renderInvoices();
       renderCustomerList();
