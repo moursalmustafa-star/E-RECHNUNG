@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Masculine Security — Rechnung (Business Ready)</title>
+  <title>Masculine Security — Invoice Suite</title>
 
   <!-- PDF libs -->
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -11,84 +11,324 @@
 
   <style>
     :root{
-      --blue:#0b5fa8; --blue2:#0a4d86; --bg:#f2f5f9; --card:#fff; --ink:#0b1220;
-      --muted:#6b7a90; --line:#d7e0ea; --ok:#21d19f; --bad:#ff4d6d; --r:16px;
-      --shadow:0 12px 34px rgba(0,0,0,.12);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
+      --brand:#0b5fa8;
+      --brand2:#0a4d86;
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --ink:#0b1220;
+      --muted:#66758f;
+      --line:#e3e9f2;
+
+      --r:18px;
+      --shadow:0 18px 55px rgba(15,23,42,.10);
+      --shadow2:0 10px 26px rgba(15,23,42,.08);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
     }
+
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
-    .topbar{position:sticky;top:0;z-index:5;background:linear-gradient(90deg,var(--blue2),var(--blue));color:#fff;padding:14px 16px;box-shadow:var(--shadow)}
-    .topbar .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:10px;min-width:260px}
-    .logo{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.14);display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.22)}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(11,95,168,.14), transparent 55%),
+        radial-gradient(1000px 600px at 90% 0%, rgba(10,77,134,.10), transparent 50%),
+        var(--bg);
+    }
+
+    /* ===== Topbar (Enterprise) ===== */
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      background:rgba(255,255,255,.72);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(227,233,242,.75);
+    }
+    .topbarInner{
+      max-width:1240px;
+      margin:0 auto;
+      padding:14px 16px;
+    }
+    .row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width:280px;
+    }
+    .logo{
+      width:46px;height:46px;border-radius:14px;
+      display:grid;place-items:center;overflow:hidden;
+      background:linear-gradient(180deg, rgba(11,95,168,.10), rgba(11,95,168,.02));
+      border:1px solid rgba(11,95,168,.18);
+      box-shadow: var(--shadow2);
+    }
     .logo img{width:100%;height:100%;object-fit:cover}
-    .title{font-weight:800;line-height:1.1}
-    .subtitle{font-size:12px;opacity:.85}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-    button{border:0;border-radius:999px;padding:10px 12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter: blur(6px)}
-    button:hover{filter:brightness(1.05)}
-    button.primary{background:#fff;color:var(--blue2);border-color:#fff}
-    button.ghost{background:transparent}
-    button.danger{background:rgba(255,77,109,.20);border-color:rgba(255,77,109,.35)}
-    button.ok{background:rgba(33,209,159,.18);border-color:rgba(33,209,159,.35)}
-    .wrap{max-width:1200px;margin:18px auto;padding:0 14px 50px}
+    .title{
+      font-weight:950;
+      letter-spacing:-.2px;
+      line-height:1.1;
+      font-size:15px;
+      color:#0a2540;
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .actions{display:flex; gap:8px; flex-wrap:wrap; margin-left:auto}
+
+    /* ===== Buttons (enterprise) ===== */
+    button{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+      background:#fff;
+      color:#0a2540;
+      box-shadow:0 6px 18px rgba(15,23,42,.06);
+      transition: transform .06s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    button:hover{box-shadow:0 10px 24px rgba(15,23,42,.10); border-color:#d7e2f0}
+    button:active{transform: translateY(1px)}
+    button.primary{
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      color:#fff;
+      border-color:rgba(11,95,168,.35);
+      box-shadow:0 14px 32px rgba(11,95,168,.22);
+    }
+    button.primary:hover{box-shadow:0 18px 42px rgba(11,95,168,.28)}
+    button.ghost{background:transparent; box-shadow:none}
+    button.ok{
+      background:linear-gradient(180deg, #17b897, #12a988);
+      border-color:rgba(18,169,136,.35);
+      color:#fff;
+      box-shadow:0 14px 32px rgba(18,169,136,.20);
+    }
+    button.danger{
+      background:linear-gradient(180deg, #ff4d6d, #e11d48);
+      border-color:rgba(225,29,72,.35);
+      color:#fff;
+      box-shadow:0 14px 32px rgba(225,29,72,.18);
+    }
+
+    /* Contact chips */
+    .brandSub{
+      margin-top:10px;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .linkbtn{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0a2540;
+      font-weight:900;
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+      cursor:pointer;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:#22c55e}
+
+    /* ===== Sidebar Layout (Enterprise) ===== */
+    .appShell{
+      max-width:1240px;
+      margin:0 auto;
+      padding:18px 14px 50px;
+      display:grid;
+      gap:14px;
+    }
+    @media (min-width:1020px){
+      .appShell{ grid-template-columns: 260px 1fr; }
+    }
+    .sidebar{
+      background:#fff;
+      border:1px solid rgba(227,233,242,.85);
+      border-radius:18px;
+      box-shadow: 0 18px 55px rgba(15,23,42,.08);
+      overflow:hidden;
+      position:sticky;
+      top:92px;
+      height: calc(100vh - 110px);
+    }
+    .sideHead{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(227,233,242,.85);
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+    }
+    .sideHead .h1{font-weight:950;color:#0a2540;font-size:14px}
+    .sideHead .h2{font-size:12px;color:#66758f;margin-top:4px}
+    .sideNav{padding:10px}
+    .sideBtn{
+      width:100%;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid transparent;
+      background:transparent;
+      cursor:pointer;
+      font-weight:950;
+      color:#0a2540;
+      box-shadow:none;
+    }
+    .sideBtn:hover{background:rgba(11,95,168,.06);border-color:rgba(11,95,168,.12)}
+    .sideBtn.active{
+      background:linear-gradient(180deg, rgba(11,95,168,.12), rgba(11,95,168,.05));
+      border-color:rgba(11,95,168,.18);
+    }
+    .sideTag{
+      font-size:12px;
+      color:#66758f;
+      border:1px solid rgba(227,233,242,.95);
+      background:#fff;
+      padding:4px 8px;
+      border-radius:999px;
+      font-family: var(--mono);
+    }
+    .mainArea{min-width:0}
+    .view{display:none}
+    .view.active{display:block}
+
+    /* ===== Cards ===== */
     .grid{display:grid;gap:14px}
-    @media (min-width:980px){.grid{grid-template-columns:1.2fr .9fr}}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
-    .card h2{margin:0;padding:14px 16px;font-size:14px;letter-spacing:.2px;background:linear-gradient(180deg,#fff,#f7fafc);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    @media (min-width:1020px){.grid{grid-template-columns:1.35fr .85fr}}
+    .card{
+      background:var(--card);
+      border:1px solid rgba(227,233,242,.85);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0;
+      padding:14px 16px;
+      font-size:13px;
+      letter-spacing:.2px;
+      color:#0a2540;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border-bottom:1px solid rgba(227,233,242,.85);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
     .card .body{padding:14px 16px}
+
     .row2{display:grid;gap:10px}
-    @media (min-width:720px){.row2{grid-template-columns:1fr 1fr}}
+    @media (min-width:760px){.row2{grid-template-columns:1fr 1fr}}
     .row3{display:grid;gap:10px}
-    @media (min-width:720px){.row3{grid-template-columns:1fr 1fr 1fr}}
-    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
-    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 10px;font:inherit;background:#fff;outline:none}
-    input:focus,select:focus,textarea:focus{border-color:#9cc7ef;box-shadow:0 0 0 4px rgba(11,95,168,.12)}
-    textarea{min-height:90px;resize:vertical}
-    .pill{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+    @media (min-width:760px){.row3{grid-template-columns:1fr 1fr 1fr}}
+
+    label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px;font-weight:700}
+    input, select, textarea{
+      width:100%;
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:14px;
+      padding:11px 12px;
+      font:inherit;
+      background:#fff;
+      outline:none;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(11,95,168,.45);
+      box-shadow:0 0 0 4px rgba(11,95,168,.10);
+    }
+    textarea{min-height:92px;resize:vertical}
+
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
+    .mono{font-family:var(--mono)}
+    .hr{height:1px;background:rgba(227,233,242,.85);margin:12px 0}
+
+    .note{
+      font-size:12px;
+      color:var(--muted);
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:14px;
+      padding:10px;
+    }
+
+    /* ===== KPI ===== */
     .kpi{display:grid;gap:10px}
-    @media (min-width:720px){.kpi{grid-template-columns:1fr 1fr}}
-    .kpi .box{border:1px dashed var(--line);border-radius:14px;padding:12px;background:linear-gradient(180deg,#fff,#fbfdff)}
-    .kpi .big{font-size:22px;font-weight:900}
-    .kpi .small{font-size:12px;color:var(--muted)}
-    .table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    .table th,.table td{padding:10px 10px;border-bottom:1px solid var(--line);font-size:13px}
-    .table th{background:#f7fafc;text-align:left;color:#223;font-weight:800}
+    @media (min-width:760px){.kpi{grid-template-columns:1fr 1fr}}
+    .kpi .box{
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      padding:12px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+    }
+    .kpi .big{font-size:22px;font-weight:950}
+    .kpi .small{font-size:12px;color:var(--muted);font-weight:700}
+
+    /* ===== Table ===== */
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .table th,.table td{padding:10px 10px;border-bottom:1px solid rgba(227,233,242,.95);font-size:13px}
+    .table th{background:#f7fafc;text-align:left;color:#0a2540;font-weight:900}
     .table tr:last-child td{border-bottom:0}
     .right{text-align:right}
-    .mono{font-family:var(--mono)}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .note{font-size:12px;color:var(--muted);background:#fbfdff;border:1px solid var(--line);border-radius:14px;padding:10px}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:var(--muted)}
-    .dot{width:8px;height:8px;border-radius:99px;background:var(--ok)}
+
+    /* ===== Lists ===== */
     .list{display:grid;gap:10px}
-    .item{border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;background:#fff}
+    .item{
+      border:1px solid rgba(227,233,242,.95);
+      border-radius:16px;
+      padding:12px;
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      background:#fff;
+      box-shadow:0 10px 26px rgba(15,23,42,.06);
+    }
     .item b{display:block}
     .item small{color:var(--muted)}
     .item .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .item .btns button{color:var(--blue2);background:#fff;border:1px solid var(--line)}
-    .item .btns button.danger{color:#b90d2a;border-color:rgba(255,77,109,.55)}
-    .footerbar{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .brandSub{margin-top:10px;font-size:12px;color:rgba(255,255,255,.9);opacity:.95;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .linkbtn{padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-weight:800}
+    .item .btns button{border-radius:12px}
 
-    /* Printable area */
+    /* ===== PRINT/PDF ===== */
     #printArea{background:#fff;color:#111;padding:18px;width:210mm;min-height:297mm;margin:0 auto}
-    @media print{body{background:#fff}.topbar,.wrap{display:none!important}#printArea{display:block!important;box-shadow:none;border:none}}
+    @media print{
+      body{background:#fff}
+      .topbar,.appShell{display:none!important}
+      #printArea{display:block!important;box-shadow:none;border:none}
+    }
     #printAreaWrap{display:none}
     .mini{font-size:11px;color:#444}
+
     .invHeader{display:flex;justify-content:space-between;gap:16px}
     .invHeader .left{display:flex;gap:12px;align-items:center}
-    .invLogo{width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid #e5e8ef}
+    .invLogo{width:54px;height:54px;border-radius:16px;overflow:hidden;border:1px solid #e5e8ef}
     .invLogo img{width:100%;height:100%;object-fit:cover}
-    .invTitle{font-size:22px;font-weight:900;margin:0}
-    .invMeta{font-size:12px;color:#333}
+    .invTitle{font-size:24px;font-weight:950;margin:0}
+    .invMeta{font-size:12px;color:#334155}
     .invGrid2{display:grid;gap:10px}
     @media (min-width:900px){.invGrid2{grid-template-columns:1fr 1fr}}
-    .invBox{border:1px solid #e5e8ef;border-radius:14px;padding:12px}
-    .invBox h4{margin:0 0 8px;font-size:12px;color:#222}
+    .invBox{border:1px solid #e5e8ef;border-radius:16px;padding:12px}
+    .invBox h4{margin:0 0 8px;font-size:12px;color:#0a2540}
     .invBox .line{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0}
     .invTable{width:100%;border-collapse:collapse;margin-top:10px}
     .invTable th,.invTable td{border:1px solid #e5e8ef;padding:8px;font-size:12px}
@@ -96,371 +336,422 @@
     .invRight{text-align:right}
     .invTotals{display:grid;gap:8px;margin-top:10px}
     .invTotals .tline{display:flex;justify-content:space-between;font-size:12px}
-    .invTotals .grand{font-size:14px;font-weight:900}
-    .invFooter{margin-top:14px;font-size:11px;color:#333}
+    .invTotals .grand{font-size:14px;font-weight:950}
+    .invFooter{margin-top:14px;font-size:11px;color:#334155}
   </style>
 </head>
 
 <body>
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="row">
-      <div class="brand">
-        <div class="logo" title="Logo (fest gespeichert)">
-          <img id="logoImg" alt="Logo"/>
+    <div class="topbarInner">
+
+      <div class="row">
+        <div class="brand">
+          <div class="logo" title="Logo (fest gespeichert)">
+            <img id="logoImg" alt="Logo"/>
+          </div>
+          <div>
+            <div class="title">Masculine Security</div>
+            <div class="subtitle">Invoice Suite • Security Services • Corporate Billing System</div>
+          </div>
         </div>
-        <div>
-          <div class="title">Masculine Security — Rechnung</div>
-          <div class="subtitle">Business Ready • Hybrid Zuschläge (%/Festpreis) • Auto Tag/Nacht • PDF/Print • Kunden/Rechnungen speichern</div>
+
+        <div class="actions">
+          <button class="ghost" id="btnLogo" type="button">Logo ändern</button>
+          <button class="ghost" id="btnNew" type="button">Neu</button>
+          <button class="ok" id="btnSave" type="button">Rechnung speichern</button>
+          <button class="ghost" id="btnList" type="button">Rechnungen</button>
+          <button class="danger" id="btnReset" type="button">Reset</button>
+          <button class="primary" id="btnPdf" type="button">PDF speichern</button>
+          <button class="primary" id="btnPrint" type="button">Print</button>
         </div>
       </div>
 
-      <div class="actions">
-        <button class="ghost" id="btnLogo" type="button">Logo ändern</button>
-        <button class="ghost" id="btnNew" type="button">Neu</button>
-        <button class="ok" id="btnSave" type="button">Rechnung speichern</button>
-        <button class="ghost" id="btnList" type="button">Rechnungen</button>
-        <button class="danger" id="btnReset" type="button">Reset</button>
-        <button class="primary" id="btnPdf" type="button">PDF speichern</button>
-        <button class="primary" id="btnPrint" type="button">Print</button>
+      <div class="brandSub">
+        Tel:
+        <button class="linkbtn" id="btnCall" type="button">015778697052</button>
+        • E-Mail:
+        <button class="linkbtn" id="btnMail" type="button">Kontakt.mass.bremen@hotmail.com</button>
+        <span class="badge"><span class="dot"></span> Auto-Save aktiv</span>
       </div>
-    </div>
 
-    <div class="brandSub">
-      Tel:
-      <button class="linkbtn" id="btnCall" type="button">015778697052</button>
-      • E-Mail:
-      <button class="linkbtn" id="btnMail" type="button">Kontakt.mass.bremen@hotmail.com</button>
-      <span class="badge"><span class="dot"></span> Auto-Save aktiviert</span>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="grid">
+  <!-- APP SHELL (SIDEBAR + MAIN) -->
+  <div class="appShell">
 
-      <!-- LEFT -->
-      <div class="card">
-        <h2>
-          <span>Rechnungsdaten</span>
-          <span class="pill mono" id="liveStatus">Bereit</span>
-        </h2>
-        <div class="body">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sideHead">
+        <div class="h1">Masculine Security</div>
+        <div class="h2">Corporate Invoice Suite</div>
+      </div>
 
-          <!-- Firmenname/Brand + Adresse -->
-          <div class="row2">
-            <div>
-              <label>Firmenname / Brand *</label>
-              <input id="issuerCompany" value="Masculine Security"/>
-            </div>
-            <div>
-              <label>Adresse *</label>
-              <input id="issuerAddress" value="Werschenregerstraße 6 • 28237 Bremen" />
-            </div>
-          </div>
+      <div class="sideNav">
+        <button class="sideBtn active" id="navCreate" type="button">
+          <span>➕ Rechnung erstellen</span>
+          <span class="sideTag">FORM</span>
+        </button>
 
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Telefon</label>
-              <input id="issuerPhone" value="015778697052" />
-            </div>
-            <div>
-              <label>E-Mail *</label>
-              <input id="issuerEmail" value="Kontakt.mass.bremen@hotmail.com" />
-            </div>
-          </div>
+        <button class="sideBtn" id="navInvoices" type="button">
+          <span>📄 Rechnungen</span>
+          <span class="sideTag" id="navInvCount">0</span>
+        </button>
 
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Steuernummer / Hinweis *</label>
-              <input id="issuerTaxNo" value="wird nachgereicht" />
-              <div class="note" style="margin-top:8px">Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.</div>
-            </div>
-            <div>
-              <label>USt-IdNr (optional)</label>
-              <input id="issuerVatId" placeholder="DE123456789" />
-            </div>
-          </div>
+        <button class="sideBtn" id="navCustomers" type="button">
+          <span>👤 Kunden</span>
+          <span class="sideTag" id="navCustCount">0</span>
+        </button>
 
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>IBAN *</label>
-              <input id="issuerIban" value="DE98 1001 1001 2333 0146 96" />
-            </div>
-            <div>
-              <label>BIC *</label>
-              <input id="issuerBic" value="NTSBDEB1XXX" />
-            </div>
-          </div>
+        <button class="sideBtn" id="navSettings" type="button">
+          <span>⚙ Einstellungen</span>
+          <span class="sideTag">LOGO</span>
+        </button>
+      </div>
+    </aside>
 
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Kontoinhaber *</label>
-              <input id="issuerHolder" value="MUSTAFA MURSAL ABDI" />
-            </div>
-            <div>
-              <label>—</label>
-              <input disabled value=""/>
-            </div>
-          </div>
+    <!-- MAIN -->
+    <main class="mainArea">
 
-          <div class="hr"></div>
+      <!-- VIEW: CREATE -->
+      <div class="view active" id="viewCreate">
+        <div class="grid">
 
-          <div class="row2">
-            <div>
-              <label>Kunde auswählen</label>
-              <select id="customerPick"></select>
-              <div class="footerbar">
-                <button id="btnSaveCustomer" class="ghost" type="button" style="color:var(--blue2);background:#fff;border:1px solid var(--line)">Kunde speichern</button>
-                <button id="btnDeleteCustomer" class="danger" type="button" style="color:#b90d2a;background:#fff;border:1px solid rgba(255,77,109,.55)">Kunde löschen</button>
+          <!-- LEFT: FORM -->
+          <div class="card">
+            <h2>
+              <span>Rechnungsdaten</span>
+              <span class="pill" id="liveStatus">Bereit</span>
+            </h2>
+
+            <div class="body">
+
+              <div class="row2">
+                <div>
+                  <label>Firmenname / Brand *</label>
+                  <input id="issuerCompany" value="Masculine Security"/>
+                </div>
+                <div>
+                  <label>Adresse *</label>
+                  <input id="issuerAddress" value="Werschenregerstraße 6 • 28237 Bremen"/>
+                </div>
               </div>
-            </div>
-            <div>
-              <label>Kundenname (zum Speichern) *</label>
-              <input id="custName" placeholder="Firma / Name" />
+
               <div class="row2" style="margin-top:10px">
                 <div>
-                  <label>E-Mail (optional)</label>
-                  <input id="custEmail" placeholder="kunde@email.de" />
+                  <label>Telefon</label>
+                  <input id="issuerPhone" value="015778697052"/>
                 </div>
                 <div>
-                  <label>Ansprechpartner (optional)</label>
-                  <input id="custContact" placeholder="Ansprechpartner" />
+                  <label>E-Mail *</label>
+                  <input id="issuerEmail" value="Kontakt.mass.bremen@hotmail.com"/>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div style="margin-top:10px">
-            <label>Kundendaten (Adresse / Ansprechpartner) *</label>
-            <textarea id="custAddress" placeholder="Straße • PLZ Ort&#10;Ansprechpartner"></textarea>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row3">
-            <div>
-              <label>Rechnungsdatum *</label>
-              <input id="invDate" type="date"/>
-            </div>
-            <div>
-              <label>Fällig am *</label>
-              <input id="dueDate" type="date"/>
-              <div class="note" style="margin-top:8px">Standard = +14 Tage (du kannst ändern).</div>
-            </div>
-            <div>
-              <label>Rechnungsnummer *</label>
-              <input id="invNo" class="mono" />
-              <div class="note" style="margin-top:8px">Auto pro Tag laufend (YYYYMMDD-0001).</div>
-            </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>USt-Status *</label>
-              <select id="vatMode">
-                <option value="kmu">0% (Kleinunternehmer §19)</option>
-                <option value="vat19">19% USt</option>
-              </select>
-              <div class="note" style="margin-top:8px" id="vatHint">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
-            </div>
-            <div>
-              <label>Leistungsbeschreibung *</label>
-              <input id="serviceTitle" value="Sicherheitsdienstleistung – Objektschutz" />
               <div class="row2" style="margin-top:10px">
                 <div>
-                  <label>Objekt / Ort (optional)</label>
-                  <input id="objekt" placeholder="z.B. Baustelle – Bremen" />
+                  <label>Steuernummer / Hinweis *</label>
+                  <input id="issuerTaxNo" value="wird nachgereicht"/>
+                  <div class="note" style="margin-top:8px">Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.</div>
                 </div>
                 <div>
-                  <label>Auftragszeitraum (optional)</label>
-                  <input id="zeitraum" placeholder="z.B. 08.03.2026 – 09.03.2026" />
+                  <label>USt-IdNr (optional)</label>
+                  <input id="issuerVatId" placeholder="DE123456789"/>
                 </div>
               </div>
+
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>IBAN *</label>
+                  <input id="issuerIban" value="DE98 1001 1001 2333 0146 96"/>
+                </div>
+                <div>
+                  <label>BIC *</label>
+                  <input id="issuerBic" value="NTSBDEB1XXX"/>
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>Kontoinhaber *</label>
+                  <input id="issuerHolder" value="MUSTAFA MURSAL ABDI"/>
+                </div>
+                <div>
+                  <label>—</label>
+                  <input disabled value=""/>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row2">
+                <div>
+                  <label>Kunde auswählen</label>
+                  <select id="customerPick"></select>
+
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                    <button id="btnSaveCustomer" class="ghost" type="button">Kunde speichern</button>
+                    <button id="btnDeleteCustomer" class="danger" type="button">Kunde löschen</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label>Kundenname (zum Speichern) *</label>
+                  <input id="custName" placeholder="Firma / Name"/>
+                  <div class="row2" style="margin-top:10px">
+                    <div>
+                      <label>E-Mail (optional)</label>
+                      <input id="custEmail" placeholder="kunde@email.de"/>
+                    </div>
+                    <div>
+                      <label>Ansprechpartner (optional)</label>
+                      <input id="custContact" placeholder="Ansprechpartner"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:10px">
+                <label>Kundendaten (Adresse / Ansprechpartner) *</label>
+                <textarea id="custAddress" placeholder="Straße • PLZ Ort&#10;Ansprechpartner"></textarea>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row3">
+                <div>
+                  <label>Rechnungsdatum *</label>
+                  <input id="invDate" type="date"/>
+                </div>
+                <div>
+                  <label>Fällig am *</label>
+                  <input id="dueDate" type="date"/>
+                  <div class="note" style="margin-top:8px">Standard = +14 Tage (du kannst ändern).</div>
+                </div>
+                <div>
+                  <label>Rechnungsnummer *</label>
+                  <input id="invNo" class="mono"/>
+                  <div class="note" style="margin-top:8px">Auto pro Tag laufend (YYYYMMDD-0001).</div>
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>USt-Status *</label>
+                  <select id="vatMode">
+                    <option value="kmu">0% (Kleinunternehmer §19)</option>
+                    <option value="vat19">19% USt</option>
+                  </select>
+                  <div class="note" style="margin-top:8px" id="vatHint">Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</div>
+                </div>
+
+                <div>
+                  <label>Leistungsbeschreibung *</label>
+                  <input id="serviceTitle" value="Sicherheitsdienstleistung – Objektschutz"/>
+                  <div class="row2" style="margin-top:10px">
+                    <div>
+                      <label>Objekt / Ort (optional)</label>
+                      <input id="objekt" placeholder="z.B. Baustelle – Bremen"/>
+                    </div>
+                    <div>
+                      <label>Auftragszeitraum (optional)</label>
+                      <input id="zeitraum" placeholder="z.B. 08.03.2026 – 09.03.2026"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row2">
+                <div>
+                  <label>Anzahl Mitarbeiter *</label>
+                  <input id="mitarbeiter" type="number" min="0" value="5"/>
+                </div>
+                <div>
+                  <label>Basis-Stundensatz Tag (€) *</label>
+                  <input id="tagPreis" type="number" min="0" step="0.01" value="23"/>
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>Berechnungsart Zuschläge *</label>
+                  <select id="modus">
+                    <option value="percent">Zuschlag % (auf Tagpreis)</option>
+                    <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
+                  </select>
+                  <div class="note" style="margin-top:8px">Empfehlung: Kunde % → Prozent. Feste Stundensätze → Festpreis.</div>
+                </div>
+                <div>
+                  <label>Verwendungszweck (auto)</label>
+                  <input id="purpose" class="mono" readonly/>
+                  <div class="note" style="margin-top:8px">Kunde kann bei Überweisung so schreiben.</div>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <!-- AUTO Tag/Nacht -->
+              <div class="row3">
+                <div>
+                  <label>Schicht Beginn</label>
+                  <input id="shiftStart" type="time" value="18:00"/>
+                </div>
+                <div>
+                  <label>Schicht Ende</label>
+                  <input id="shiftEnd" type="time" value="06:00"/>
+                </div>
+                <div>
+                  <label>Nachtzeit Regel</label>
+                  <select id="nachtRule">
+                    <option value="22-06">22:00 – 06:00 (Standard)</option>
+                    <option value="23-06">23:00 – 06:00</option>
+                    <option value="20-06">20:00 – 06:00</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="note" style="margin-top:10px">
+                Auto-Funktion berechnet <b>Tagstunden</b> und <b>Nachtstunden</b> aus Beginn/Ende.
+                Sonntag/Feiertag trägst du separat ein.
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row3">
+                <div>
+                  <label>Tagstunden</label>
+                  <input id="tagH" type="number" min="0" step="0.25" value="0"/>
+                </div>
+                <div>
+                  <label>Nachtstunden</label>
+                  <input id="nachtH" type="number" min="0" step="0.25" value="0"/>
+                </div>
+                <div>
+                  <label>Sonntagstunden</label>
+                  <input id="sonntagH" type="number" min="0" step="0.25" value="0"/>
+                </div>
+              </div>
+
+              <div class="row2" style="margin-top:10px">
+                <div>
+                  <label>Feiertagstunden</label>
+                  <input id="feiertagH" type="number" min="0" step="0.25" value="0"/>
+                  <div class="note" style="margin-top:8px">Keine Doppelzählung: Stunden nur in <b>eine</b> Kategorie eintragen.</div>
+                </div>
+                <div>
+                  <label>Hinweis / Notiz (optional)</label>
+                  <textarea id="note" placeholder="z.B. laut Vereinbarung / Einsatzzeiten / Ansprechpartner..."></textarea>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="row3">
+                <div id="percentBox">
+                  <label>Nachtzuschlag (%)</label>
+                  <input id="nachtPercent" type="number" min="0" step="0.01" value="0"/>
+                  <label style="margin-top:10px">Sonntag (%)</label>
+                  <input id="sonntagPercent" type="number" min="0" step="0.01" value="50"/>
+                  <label style="margin-top:10px">Feiertag (%)</label>
+                  <input id="feiertagPercent" type="number" min="0" step="0.01" value="100"/>
+                </div>
+
+                <div id="fixedBox" style="display:none">
+                  <label>Festpreis Nacht (€)</label>
+                  <input id="nachtFest" type="number" min="0" step="0.01" value="24"/>
+                  <label style="margin-top:10px">Festpreis Sonntag (€)</label>
+                  <input id="sonntagFest" type="number" min="0" step="0.01" value="30"/>
+                  <label style="margin-top:10px">Festpreis Feiertag (€)</label>
+                  <input id="feiertagFest" type="number" min="0" step="0.01" value="36"/>
+                </div>
+
+                <div>
+                  <label>Rechnung Text (auto)</label>
+                  <textarea id="rechnungText"></textarea>
+                  <div class="note" style="margin-top:8px">Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).</div>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="hr"></div>
+          <!-- RIGHT: SUMMARY -->
+          <div class="card">
+            <h2>
+              <span>Berechnung & Summe</span>
+              <span class="pill mono" id="modeBadge">MODE: %</span>
+            </h2>
+            <div class="body">
+              <div class="kpi">
+                <div class="box">
+                  <div class="small">Zwischensumme (netto)</div>
+                  <div class="big mono" id="subTotal">0,00 €</div>
+                </div>
+                <div class="box">
+                  <div class="small">Gesamt (brutto)</div>
+                  <div class="big mono" id="grandTotal">0,00 €</div>
+                </div>
+              </div>
 
-          <div class="row2">
-            <div>
-              <label>Anzahl Mitarbeiter *</label>
-              <input id="mitarbeiter" type="number" min="0" value="5"/>
-            </div>
-            <div>
-              <label>Basis-Stundensatz Tag (€) *</label>
-              <input id="tagPreis" type="number" min="0" step="0.01" value="23"/>
-            </div>
-          </div>
+              <div class="hr"></div>
 
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Berechnungsart Zuschläge *</label>
-              <select id="modus">
-                <option value="percent">Zuschlag % (auf Tagpreis)</option>
-                <option value="fixed">Festpreis (eigener Preis pro Std.)</option>
-              </select>
-              <div class="note" style="margin-top:8px">Empfehlung: Kunde % → Prozent. Feste Stundensätze → Festpreis.</div>
-            </div>
-            <div>
-              <label>Verwendungszweck (auto)</label>
-              <input id="purpose" class="mono" readonly />
-              <div class="note" style="margin-top:8px">Kunde kann bei Überweisung so schreiben.</div>
-            </div>
-          </div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Position</th>
+                    <th class="right">Std.</th>
+                    <th class="right">Preis/Std.</th>
+                    <th class="right">Summe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Tagdienst</td>
+                    <td class="right mono" id="t_tagStd">0</td>
+                    <td class="right mono" id="t_tagPreis">0,00 €</td>
+                    <td class="right mono" id="t_tagSum">0,00 €</td>
+                  </tr>
+                  <tr>
+                    <td>Nachtdienst</td>
+                    <td class="right mono" id="t_nachtStd">0</td>
+                    <td class="right mono" id="t_nachtPreis">0,00 €</td>
+                    <td class="right mono" id="t_nachtSum">0,00 €</td>
+                  </tr>
+                  <tr>
+                    <td>Sonntag</td>
+                    <td class="right mono" id="t_sonntagStd">0</td>
+                    <td class="right mono" id="t_sonntagPreis">0,00 €</td>
+                    <td class="right mono" id="t_sonntagSum">0,00 €</td>
+                  </tr>
+                  <tr>
+                    <td>Feiertag</td>
+                    <td class="right mono" id="t_feiertagStd">0</td>
+                    <td class="right mono" id="t_feiertagPreis">0,00 €</td>
+                    <td class="right mono" id="t_feiertagSum">0,00 €</td>
+                  </tr>
+                </tbody>
+              </table>
 
-          <div class="hr"></div>
+              <div class="hr"></div>
 
-          <!-- ✅ AUTO TAG/NACHT -->
-          <div class="row3">
-            <div>
-              <label>Schicht Beginn</label>
-              <input id="shiftStart" type="time" value="18:00"/>
-            </div>
-            <div>
-              <label>Schicht Ende</label>
-              <input id="shiftEnd" type="time" value="06:00"/>
-            </div>
-            <div>
-              <label>Nachtzeit Regel</label>
-              <select id="nachtRule">
-                <option value="22-06">22:00 – 06:00 (Standard)</option>
-                <option value="23-06">23:00 – 06:00</option>
-                <option value="20-06">20:00 – 06:00</option>
-              </select>
-            </div>
-          </div>
-          <div class="note" style="margin-top:10px">
-            Auto-Funktion berechnet <b>Tagstunden</b> und <b>Nachtstunden</b> aus Beginn/Ende. Sonntag/Feiertag trägst du weiterhin separat ein.
-          </div>
-
-          <div class="hr"></div>
-
-          <!-- Hours -->
-          <div class="row3">
-            <div>
-              <label>Tagstunden</label>
-              <input id="tagH" type="number" min="0" step="0.25" value="0"/>
-            </div>
-            <div>
-              <label>Nachtstunden</label>
-              <input id="nachtH" type="number" min="0" step="0.25" value="0"/>
-            </div>
-            <div>
-              <label>Sonntagstunden</label>
-              <input id="sonntagH" type="number" min="0" step="0.25" value="0"/>
-            </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
-            <div>
-              <label>Feiertagstunden</label>
-              <input id="feiertagH" type="number" min="0" step="0.25" value="0"/>
-              <div class="note" style="margin-top:8px">Keine Doppelzählung: Stunden nur in <b>eine</b> Kategorie eintragen.</div>
-            </div>
-            <div>
-              <label>Hinweis / Notiz (optional)</label>
-              <textarea id="note" placeholder="z.B. laut Vereinbarung / Einsatzzeiten / Ansprechpartner..."></textarea>
-            </div>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="row3">
-            <div id="percentBox">
-              <label>Nachtzuschlag (%)</label>
-              <input id="nachtPercent" type="number" min="0" step="0.01" value="0"/>
-              <label style="margin-top:10px">Sonntag (%)</label>
-              <input id="sonntagPercent" type="number" min="0" step="0.01" value="50"/>
-              <label style="margin-top:10px">Feiertag (%)</label>
-              <input id="feiertagPercent" type="number" min="0" step="0.01" value="100"/>
-            </div>
-
-            <div id="fixedBox" style="display:none">
-              <label>Festpreis Nacht (€)</label>
-              <input id="nachtFest" type="number" min="0" step="0.01" value="24"/>
-              <label style="margin-top:10px">Festpreis Sonntag (€)</label>
-              <input id="sonntagFest" type="number" min="0" step="0.01" value="30"/>
-              <label style="margin-top:10px">Festpreis Feiertag (€)</label>
-              <input id="feiertagFest" type="number" min="0" step="0.01" value="36"/>
-            </div>
-
-            <div>
-              <label>Rechnung Text (auto)</label>
-              <textarea id="rechnungText"></textarea>
-              <div class="note" style="margin-top:8px">Text wird automatisch aktualisiert (du kannst trotzdem manuell ändern).</div>
+              <div class="note">
+                <b>Wichtig:</b> Mitarbeiter werden automatisch multipliziert:
+                <span class="mono">(Mitarbeiter × Stunden × Preis)</span>.
+              </div>
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- RIGHT -->
-      <div class="grid" style="grid-template-columns:1fr;gap:14px">
+      <!-- VIEW: INVOICES -->
+      <div class="view" id="viewInvoices">
         <div class="card">
-          <h2>
-            <span>Berechnung & Summe</span>
-            <span class="pill mono" id="modeBadge">MODE: %</span>
-          </h2>
-          <div class="body">
-            <div class="kpi">
-              <div class="box">
-                <div class="small">Zwischensumme (netto)</div>
-                <div class="big mono" id="subTotal">0,00 €</div>
-              </div>
-              <div class="box">
-                <div class="small">Gesamt (brutto)</div>
-                <div class="big mono" id="grandTotal">0,00 €</div>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Position</th>
-                  <th class="right">Std.</th>
-                  <th class="right">Preis/Std.</th>
-                  <th class="right">Summe</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Tagdienst</td>
-                  <td class="right mono" id="t_tagStd">0</td>
-                  <td class="right mono" id="t_tagPreis">0,00 €</td>
-                  <td class="right mono" id="t_tagSum">0,00 €</td>
-                </tr>
-                <tr>
-                  <td>Nachtdienst</td>
-                  <td class="right mono" id="t_nachtStd">0</td>
-                  <td class="right mono" id="t_nachtPreis">0,00 €</td>
-                  <td class="right mono" id="t_nachtSum">0,00 €</td>
-                </tr>
-                <tr>
-                  <td>Sonntag</td>
-                  <td class="right mono" id="t_sonntagStd">0</td>
-                  <td class="right mono" id="t_sonntagPreis">0,00 €</td>
-                  <td class="right mono" id="t_sonntagSum">0,00 €</td>
-                </tr>
-                <tr>
-                  <td>Feiertag</td>
-                  <td class="right mono" id="t_feiertagStd">0</td>
-                  <td class="right mono" id="t_feiertagPreis">0,00 €</td>
-                  <td class="right mono" id="t_feiertagSum">0,00 €</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="hr"></div>
-
-            <div class="note">
-              <b>Wichtig:</b> Mitarbeiter werden automatisch multipliziert:
-              <span class="mono">(Mitarbeiter × Stunden × Preis)</span>.
-            </div>
-          </div>
-        </div>
-
-        <div class="card" id="listCard" style="display:none">
           <h2>
             <span>Gespeicherte Rechnungen</span>
             <span class="pill mono" id="invCount">0</span>
@@ -471,7 +762,46 @@
         </div>
       </div>
 
-    </div>
+      <!-- VIEW: CUSTOMERS -->
+      <div class="view" id="viewCustomers">
+        <div class="card">
+          <h2>
+            <span>Kunden</span>
+            <span class="pill mono" id="custCount">0</span>
+          </h2>
+          <div class="body">
+            <div class="note">Liste deiner gespeicherten Kunden (Auswählen führt zurück zum Formular).</div>
+            <div class="hr"></div>
+            <div class="list" id="custList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: SETTINGS -->
+      <div class="view" id="viewSettings">
+        <div class="card">
+          <h2>
+            <span>Einstellungen</span>
+            <span class="pill mono">Brand</span>
+          </h2>
+          <div class="body">
+            <div class="note">Logo (fest gespeichert) + Firmenname kannst du hier schnell ändern.</div>
+            <div class="hr"></div>
+            <div class="row2">
+              <div>
+                <label>Firmenname / Brand</label>
+                <input id="issuerCompanyMirror" placeholder="Masculine Security"/>
+              </div>
+              <div>
+                <label>Logo</label>
+                <button class="primary" type="button" id="btnLogo2">Logo ändern</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
   </div>
 
   <!-- PRINT/PDF AREA -->
@@ -482,11 +812,11 @@
 
   <script>
     // ===== Storage Keys =====
-    const KEY_APP = "ms_rechnung_app_v2";      // bumped version
+    const KEY_APP = "ms_rechnung_app_v3";
     const KEY_CUSTOMERS = "ms_customers_v1";
     const KEY_INVOICES = "ms_invoices_v1";
     const KEY_COUNTERS = "ms_inv_counters_v1";
-    const KEY_LOGO = "ms_logo_v1";            // FEST LOGO
+    const KEY_LOGO = "ms_logo_v1";
 
     // ===== Helpers =====
     const $ = (id)=>document.getElementById(id);
@@ -516,8 +846,8 @@
     };
     const setStatus = (txt, ok=true)=>{
       $("liveStatus").textContent = txt;
-      $("liveStatus").style.borderColor = ok ? "rgba(33,209,159,.35)" : "rgba(255,77,109,.45)";
-      $("liveStatus").style.color = ok ? "var(--muted)" : "#b90d2a";
+      $("liveStatus").style.borderColor = ok ? "rgba(34,197,94,.35)" : "rgba(225,29,72,.35)";
+      $("liveStatus").style.color = ok ? "var(--muted)" : "#b91c1c";
     };
 
     const loadJSON = (k, fallback)=>{
@@ -595,7 +925,7 @@
       return true;
     }
 
-    // ===== AUTO Tag/Nacht calculation =====
+    // ===== AUTO Tag/Nacht =====
     function parseTimeToMinutes(t){
       if(!t) return null;
       const [h,m] = t.split(":").map(Number);
@@ -604,9 +934,9 @@
     }
     function getNightWindow(){
       const rule = $("nachtRule").value;
-      if(rule==="23-06") return {start: 23*60, end: 30*60}; // 06 next day
+      if(rule==="23-06") return {start: 23*60, end: 30*60};
       if(rule==="20-06") return {start: 20*60, end: 30*60};
-      return {start: 22*60, end: 30*60}; // default 22-06
+      return {start: 22*60, end: 30*60};
     }
     function calculateDayNight(){
       const start = parseTimeToMinutes($("shiftStart").value);
@@ -614,29 +944,27 @@
       if(start===null || endRaw===null) return;
 
       let end = endRaw;
-      if(end <= start) end += 1440; // pass midnight
+      if(end <= start) end += 1440;
 
       const totalMin = end - start;
-      if(totalMin < 0) return;
-
       const {start: nightStart, end: nightEnd} = getNightWindow();
 
-      // count night minutes by iterating minute by minute (simple & reliable)
       let nightMin = 0;
+      const nightEndMod = nightEnd % 1440; // 360
       for(let i=start;i<end;i++){
         const mod = i % 1440;
-        const isNight = (mod >= nightStart) || (mod < (nightEnd % 1440)); // nightEnd%1440 = 360
+        const isNight = (mod >= nightStart) || (mod < nightEndMod);
         if(isNight) nightMin++;
       }
 
       const nightH = nightMin / 60;
       const dayH = (totalMin/60) - nightH;
 
-      // write hours (keep 2 decimals)
       $("tagH").value = Math.max(0, dayH).toFixed(2);
       $("nachtH").value = Math.max(0, nightH).toFixed(2);
     }
 
+    // ===== Calculation =====
     function calculate(){
       toggleModeUI();
       updateVatHint();
@@ -696,13 +1024,10 @@
       $("subTotal").textContent = fmtEUR(subTotal);
       $("grandTotal").textContent = fmtEUR(grandTotal);
 
-      // Rechnung text
       const obj = String($("objekt").value||"").trim();
       const zr = String($("zeitraum").value||"").trim();
       const note = String($("note").value||"").trim();
-      const company = String($("issuerCompany").value||"Masculine Security").trim();
 
-      const nightRuleText = $("nachtRule").value.replace("-", ":00 – ").replace("06", "06:00");
       const modeLine = (mode==="percent")
         ? `Zuschläge gemäß Prozent (auf Tagpreis ${fmtEUR(tagPreis)}).`
         : `Stundensätze laut Vereinbarung (Festpreise).`;
@@ -711,12 +1036,12 @@
         ? `Gemäß §19 UStG wird keine Umsatzsteuer berechnet.`
         : `Umsatzsteuer 19%: ${fmtEUR(vatAmount)} (in Gesamtbetrag enthalten).`;
 
-      const extraA = obj ? `Objekt/Ort: ${obj}` : "";
-      const extraB = zr ? `Zeitraum: ${zr}` : "";
+      const nightText = $("nachtRule").value==="23-06" ? "23:00 – 06:00" : ($("nachtRule").value==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
       $("rechnungText").value = [
         `${$("serviceTitle").value} — Einsatz mit ${m} Mitarbeitern`,
-        extraA, extraB,
+        obj ? `Objekt/Ort: ${obj}` : "",
+        zr ? `Zeitraum: ${zr}` : "",
         "",
         `Tagdienst (${fmtEUR(tagPreis)}/Std)`,
         `${m} Mitarbeiter × ${tagH} Std`,
@@ -735,7 +1060,7 @@
         `Gesamtbetrag: ${fmtEUR(grandTotal)}`,
         "",
         modeLine,
-        `Nachtzeit laut Vereinbarung: ${$("nachtRule").value==="22-06" ? "22:00 – 06:00" : ($("nachtRule").value==="23-06" ? "23:00 – 06:00" : "20:00 – 06:00")}`,
+        `Nachtzeit laut Vereinbarung: ${nightText}`,
         "Abrechnung gemäß Einsatzzeiten.",
         note ? `Hinweis: ${note}` : ""
       ].filter(Boolean).join("\n");
@@ -759,7 +1084,15 @@
         o.textContent = c.name;
         sel.appendChild(o);
       }
+      updateCustomerCounts(customers);
     }
+
+    function updateCustomerCounts(customers){
+      const cnt = customers.length;
+      $("custCount").textContent = String(cnt);
+      $("navCustCount").textContent = String(cnt);
+    }
+
     function saveCustomer(){
       const name = String($("custName").value||"").trim();
       const address = String($("custAddress").value||"").trim();
@@ -777,7 +1110,9 @@
       renderCustomers();
       $("customerPick").value = id;
       setStatus("Kunde gespeichert", true);
+      renderCustomerList();
     }
+
     function loadCustomer(id){
       const customers = loadJSON(KEY_CUSTOMERS, []);
       const c = customers.find(x=>x.id===id);
@@ -789,6 +1124,7 @@
       setStatus("Kunde geladen", true);
       calculate();
     }
+
     function deleteCustomer(){
       const id = $("customerPick").value;
       if(!id){ setStatus("Kein Kunde ausgewählt", false); return; }
@@ -797,6 +1133,7 @@
       renderCustomers();
       $("customerPick").value = "";
       setStatus("Kunde gelöscht", true);
+      renderCustomerList();
     }
 
     // ===== Invoices =====
@@ -838,11 +1175,14 @@
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gespeichert", true);
       renderInvoices();
+      updateInvoiceCounts();
     }
 
     function renderInvoices(){
       const invoices = loadJSON(KEY_INVOICES, []);
       $("invCount").textContent = String(invoices.length);
+      $("navInvCount").textContent = String(invoices.length);
+
       const wrap = $("invList");
       wrap.innerHTML = "";
       for(const inv of invoices){
@@ -862,6 +1202,7 @@
         `;
         wrap.appendChild(el);
       }
+
       wrap.querySelectorAll("button").forEach(b=>{
         b.addEventListener("click", async ()=>{
           const act = b.getAttribute("data-act");
@@ -876,21 +1217,30 @@
       });
     }
 
+    function updateInvoiceCounts(){
+      const invoices = loadJSON(KEY_INVOICES, []);
+      $("invCount").textContent = String(invoices.length);
+      $("navInvCount").textContent = String(invoices.length);
+    }
+
     function loadInvoice(invNo){
       const invoices = loadJSON(KEY_INVOICES, []);
       const inv = invoices.find(x=>x.invNo===invNo);
       if(!inv){ setStatus("Rechnung nicht gefunden", false); return; }
       for(const [k,v] of Object.entries(inv.form || {})){ if($(k)) $(k).value = v; }
-      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); } // keep fest
+      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); }
       setStatus("Rechnung geladen", true);
+      calculateDayNight();
       calculate();
-      showList(false);
+      setActiveNav("navCreate","viewCreate");
     }
+
     function deleteInvoice(invNo){
       const invoices = loadJSON(KEY_INVOICES, []).filter(x=>x.invNo!==invNo);
       saveJSON(KEY_INVOICES, invoices);
       setStatus("Rechnung gelöscht", true);
       renderInvoices();
+      updateInvoiceCounts();
     }
 
     // ===== wait images before PDF/Print =====
@@ -954,7 +1304,6 @@
       const obj = String(f.objekt||"").trim();
       const zr = String(f.zeitraum||"").trim();
       const note = String(f.note||"").trim();
-
       const nightText = f.nachtRule==="23-06" ? "23:00 – 06:00" : (f.nachtRule==="20-06" ? "20:00 – 06:00" : "22:00 – 06:00");
 
       return `
@@ -1000,6 +1349,7 @@
         <div class="invBox" style="margin-top:12px">
           <h4>Leistungsübersicht</h4>
           <div class="mini">Nachtzeit laut Vereinbarung: ${escapeHtml(nightText)}</div>
+
           <table class="invTable">
             <thead>
               <tr>
@@ -1129,15 +1479,87 @@
       }
     }
 
-    // ===== UI actions =====
-    function showList(show){
-      $("listCard").style.display = show ? "" : "none";
-      if(show){ renderInvoices(); }
+    // ===== Customers list view =====
+    function renderCustomerList(){
+      const wrap = $("custList");
+      if(!wrap) return;
+      const customers = loadJSON(KEY_CUSTOMERS, []);
+      $("custCount").textContent = String(customers.length);
+      $("navCustCount").textContent = String(customers.length);
+
+      wrap.innerHTML = "";
+      customers.forEach(c=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div>
+            <b>${escapeHtml(c.name||"")}</b>
+            <small>${escapeHtml((c.address||"").slice(0,120))}${(c.address||"").length>120?"…":""}</small>
+          </div>
+          <div class="btns">
+            <button type="button" data-id="${escapeAttr(c.id)}">Auswählen</button>
+          </div>
+        `;
+        wrap.appendChild(el);
+      });
+
+      wrap.querySelectorAll("button[data-id]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          const id = b.getAttribute("data-id");
+          $("customerPick").value = id;
+          $("customerPick").dispatchEvent(new Event("change"));
+          setActiveNav("navCreate","viewCreate");
+        });
+      });
     }
+
+    // ===== Nav =====
+    function setActiveNav(btnId, viewId){
+      ["navCreate","navInvoices","navCustomers","navSettings"].forEach(id=>{
+        const b = $(id);
+        if(b) b.classList.toggle("active", id===btnId);
+      });
+      ["viewCreate","viewInvoices","viewCustomers","viewSettings"].forEach(id=>{
+        const v = $(id);
+        if(v) v.classList.toggle("active", id===viewId);
+      });
+    }
+
+    function syncCompanyMirror(){
+      const main = $("issuerCompany");
+      const mir = $("issuerCompanyMirror");
+      if(!main || !mir) return;
+      mir.value = main.value || "";
+      mir.oninput = ()=>{
+        main.value = mir.value;
+        calculate();
+      };
+    }
+
+    function wireSidebar(){
+      $("navCreate")?.addEventListener("click", ()=> setActiveNav("navCreate","viewCreate"));
+      $("navInvoices")?.addEventListener("click", ()=>{
+        setActiveNav("navInvoices","viewInvoices");
+        renderInvoices();
+      });
+      $("navCustomers")?.addEventListener("click", ()=>{
+        setActiveNav("navCustomers","viewCustomers");
+        renderCustomerList();
+      });
+      $("navSettings")?.addEventListener("click", ()=>{
+        setActiveNav("navSettings","viewSettings");
+        syncCompanyMirror();
+      });
+
+      $("btnLogo2")?.addEventListener("click", ()=> $("logoFile")?.click());
+    }
+
+    // ===== UI actions =====
     function resetAll(){
       localStorage.removeItem(KEY_APP);
       location.reload();
     }
+
     function newInvoice(){
       const keep = [
         "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
@@ -1149,7 +1571,7 @@
         "nachtRule"
       ];
       const snapshot = {};
-      for(const id of keep){ if($(id)) snapshot[id] = $(id).value; }
+      keep.forEach(id=>{ if($(id)) snapshot[id] = $(id).value; });
 
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
@@ -1157,7 +1579,7 @@
         el.value = "";
       });
 
-      for(const [id,val] of Object.entries(snapshot)){ if($(id)) $(id).value = val; }
+      Object.entries(snapshot).forEach(([id,val])=>{ if($(id)) $(id).value = val; });
 
       $("invDate").value = todayISO();
       $("dueDate").value = addDaysISO($("invDate").value, 14);
@@ -1195,7 +1617,7 @@
       return String(Date.now()) + Math.random().toString(16).slice(2);
     }
 
-    // ===== Event wiring =====
+    // ===== Wire =====
     function wire(){
       $("btnCall").addEventListener("click", ()=>{
         const tel = String($("issuerPhone").value || "015778697052").replace(/\s+/g,"");
@@ -1206,7 +1628,7 @@
         window.location.href = `mailto:${mail}`;
       });
 
-      // FEST LOGO
+      // logo
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change", (e)=>{
         const file = e.target.files?.[0];
@@ -1216,15 +1638,15 @@
         rd.readAsDataURL(file);
       });
 
-      // actions
-      $("btnSave").addEventListener("click", saveInvoice);
+      // header actions
       $("btnPdf").addEventListener("click", exportPdf);
       $("btnPrint").addEventListener("click", doPrint);
       $("btnReset").addEventListener("click", resetAll);
       $("btnNew").addEventListener("click", newInvoice);
+      $("btnSave").addEventListener("click", saveInvoice);
       $("btnList").addEventListener("click", ()=>{
-        const now = $("listCard").style.display==="none";
-        showList(now);
+        setActiveNav("navInvoices","viewInvoices");
+        renderInvoices();
       });
 
       // customers
@@ -1239,23 +1661,26 @@
         calculate();
       });
 
-      // mode changes
+      // changes
       $("vatMode").addEventListener("change", calculate);
       $("modus").addEventListener("change", calculate);
 
-      // AUTO day/night
+      // auto day/night
       $("shiftStart").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("shiftEnd").addEventListener("input", ()=>{ calculateDayNight(); calculate(); });
       $("nachtRule").addEventListener("change", ()=>{ calculateDayNight(); calculate(); });
 
-      // all inputs
+      // input auto calc
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
-        if(el.id==="shiftStart" || el.id==="shiftEnd" || el.id==="nachtRule") return; // handled above
+        if(el.id==="shiftStart" || el.id==="shiftEnd" || el.id==="nachtRule") return;
         el.addEventListener("input", calculate);
       });
+
+      wireSidebar();
     }
 
+    // ===== Init =====
     function initDefaults(){
       $("invDate").value = $("invDate").value || todayISO();
       $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
@@ -1265,6 +1690,9 @@
       renderCustomers();
       toggleModeUI();
       calculateDayNight();
+      renderInvoices();
+      renderCustomerList();
+      syncCompanyMirror();
       setStatus("Bereit", true);
     }
 
@@ -1275,7 +1703,6 @@
       wire();
       initDefaults();
       calculate();
-      showList(false);
     });
   </script>
 </body>
