@@ -11,44 +11,23 @@
 
   <style>
     :root{
-      --blue:#0b5fa8;
-      --blue2:#0a4d86;
-      --bg:#f2f5f9;
-      --card:#fff;
-      --ink:#0b1220;
-      --muted:#6b7a90;
-      --line:#d7e0ea;
-      --ok:#21d19f;
-      --warn:#ffce54;
-      --bad:#ff4d6d;
-      --r:16px;
+      --blue:#0b5fa8; --blue2:#0a4d86; --bg:#f2f5f9; --card:#fff; --ink:#0b1220;
+      --muted:#6b7a90; --line:#d7e0ea; --ok:#21d19f; --bad:#ff4d6d; --r:16px;
       --shadow:0 12px 34px rgba(0,0,0,.12);
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
-    .topbar{
-      position:sticky;top:0;z-index:5;
-      background:linear-gradient(90deg,var(--blue2),var(--blue));
-      color:#fff; padding:14px 16px; box-shadow:var(--shadow);
-    }
+    .topbar{position:sticky;top:0;z-index:5;background:linear-gradient(90deg,var(--blue2),var(--blue));color:#fff;padding:14px 16px;box-shadow:var(--shadow)}
     .topbar .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:10px;min-width:260px}
-    .logo{
-      width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.14);
-      display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.22);
-    }
+    .logo{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.14);display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.22)}
     .logo img{width:100%;height:100%;object-fit:cover}
     .title{font-weight:800;line-height:1.1}
     .subtitle{font-size:12px;opacity:.85}
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
-    button, .btn{
-      border:0; border-radius:999px; padding:10px 12px; font-weight:700;
-      cursor:pointer; background:rgba(255,255,255,.14); color:#fff;
-      border:1px solid rgba(255,255,255,.22);
-      backdrop-filter: blur(6px);
-    }
+    button{border:0;border-radius:999px;padding:10px 12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter: blur(6px)}
     button:hover{filter:brightness(1.05)}
     button.primary{background:#fff;color:var(--blue2);border-color:#fff}
     button.ghost{background:transparent}
@@ -57,96 +36,47 @@
     .wrap{max-width:1200px;margin:18px auto;padding:0 14px 50px}
     .grid{display:grid;gap:14px}
     @media (min-width:980px){.grid{grid-template-columns:1.2fr .9fr}}
-    .card{
-      background:var(--card); border:1px solid var(--line); border-radius:var(--r);
-      box-shadow:var(--shadow); overflow:hidden;
-    }
-    .card h2{
-      margin:0; padding:14px 16px; font-size:14px; letter-spacing:.2px;
-      background:linear-gradient(180deg,#ffffff, #f7fafc);
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+    .card h2{margin:0;padding:14px 16px;font-size:14px;letter-spacing:.2px;background:linear-gradient(180deg,#fff,#f7fafc);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
     .card .body{padding:14px 16px}
-    .muted{color:var(--muted)}
     .row2{display:grid;gap:10px}
     @media (min-width:720px){.row2{grid-template-columns:1fr 1fr}}
     .row3{display:grid;gap:10px}
     @media (min-width:720px){.row3{grid-template-columns:1fr 1fr 1fr}}
     label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
-    input, select, textarea{
-      width:100%; border:1px solid var(--line); border-radius:12px;
-      padding:10px 10px; font:inherit; background:#fff; outline:none;
-    }
-    input:focus,select:focus,textarea:focus{border-color:#9cc7ef; box-shadow:0 0 0 4px rgba(11,95,168,.12)}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 10px;font:inherit;background:#fff;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:#9cc7ef;box-shadow:0 0 0 4px rgba(11,95,168,.12)}
     textarea{min-height:90px;resize:vertical}
-    .pill{
-      font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line);
-      background:#fff; color:var(--muted);
-    }
+    .pill{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
     .kpi{display:grid;gap:10px}
     @media (min-width:720px){.kpi{grid-template-columns:1fr 1fr}}
-    .kpi .box{
-      border:1px dashed var(--line); border-radius:14px; padding:12px;
-      background:linear-gradient(180deg,#fff,#fbfdff);
-    }
+    .kpi .box{border:1px dashed var(--line);border-radius:14px;padding:12px;background:linear-gradient(180deg,#fff,#fbfdff)}
     .kpi .big{font-size:22px;font-weight:900}
     .kpi .small{font-size:12px;color:var(--muted)}
-    .table{
-      width:100%; border-collapse:separate; border-spacing:0;
-      border:1px solid var(--line); border-radius:14px; overflow:hidden;
-    }
+    .table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
     .table th,.table td{padding:10px 10px;border-bottom:1px solid var(--line);font-size:13px}
-    .table th{background:#f7fafc;text-align:left;color:#223; font-weight:800}
+    .table th{background:#f7fafc;text-align:left;color:#223;font-weight:800}
     .table tr:last-child td{border-bottom:0}
     .right{text-align:right}
     .mono{font-family:var(--mono)}
     .hr{height:1px;background:var(--line);margin:12px 0}
-    .note{
-      font-size:12px;color:var(--muted);
-      background:#fbfdff;border:1px solid var(--line);border-radius:14px;
-      padding:10px;
-    }
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:7px 10px;border-radius:999px;border:1px solid var(--line);
-      background:#fff;font-size:12px;color:var(--muted)
-    }
+    .note{font-size:12px;color:var(--muted);background:#fbfdff;border:1px solid var(--line);border-radius:14px;padding:10px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:var(--muted)}
     .dot{width:8px;height:8px;border-radius:99px;background:var(--ok)}
-    .list{
-      display:grid;gap:10px;
-    }
-    .item{
-      border:1px solid var(--line); border-radius:14px; padding:10px;
-      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
-      background:#fff;
-    }
+    .list{display:grid;gap:10px}
+    .item{border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;background:#fff}
     .item b{display:block}
     .item small{color:var(--muted)}
     .item .btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .item .btns button{color:var(--blue2);background:#fff;border:1px solid var(--line)}
     .item .btns button.danger{color:#b90d2a;border-color:rgba(255,77,109,.55)}
-    .footerbar{
-      margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    }
-    .brandSub{
-      margin-top:10px; font-size:12px; color:rgba(255,255,255,.9); opacity:.95;
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .linkbtn{
-      padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.35);
-      background:rgba(255,255,255,.12); color:#fff; cursor:pointer; font-weight:800;
-    }
+    .footerbar{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .brandSub{margin-top:10px;font-size:12px;color:rgba(255,255,255,.9);opacity:.95;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .linkbtn{padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-weight:800}
+
     /* Printable area */
-    #printArea{
-      background:#fff; color:#111; padding:18px;
-      width:210mm; min-height:297mm; margin:0 auto;
-    }
-    @media print{
-      body{background:#fff}
-      .topbar,.wrap{display:none!important}
-      #printArea{display:block!important; box-shadow:none; border:none}
-    }
+    #printArea{background:#fff;color:#111;padding:18px;width:210mm;min-height:297mm;margin:0 auto}
+    @media print{body{background:#fff}.topbar,.wrap{display:none!important}#printArea{display:block!important;box-shadow:none;border:none}}
     #printAreaWrap{display:none}
     .mini{font-size:11px;color:#444}
     .invHeader{display:flex;justify-content:space-between;gap:16px}
@@ -155,7 +85,6 @@
     .invLogo img{width:100%;height:100%;object-fit:cover}
     .invTitle{font-size:22px;font-weight:900;margin:0}
     .invMeta{font-size:12px;color:#333}
-    .invGrid{display:grid;gap:10px;margin-top:14px}
     .invGrid2{display:grid;gap:10px}
     @media (min-width:900px){.invGrid2{grid-template-columns:1fr 1fr}}
     .invBox{border:1px solid #e5e8ef;border-radius:14px;padding:12px}
@@ -177,7 +106,7 @@
     <div class="row">
       <div class="brand">
         <div class="logo" title="Logo (fest gespeichert)">
-          <img id="logoImg" alt="Logo" />
+          <img id="logoImg" alt="Logo"/>
         </div>
         <div>
           <div class="title">Masculine Security — Rechnung</div>
@@ -186,13 +115,13 @@
       </div>
 
       <div class="actions">
-        <button class="ghost" id="btnLogo">Logo ändern</button>
-        <button class="ghost" id="btnNew">Neu</button>
-        <button class="ok" id="btnSave">Rechnung speichern</button>
-        <button class="ghost" id="btnList">Rechnungen</button>
-        <button class="danger" id="btnReset">Reset</button>
-        <button class="primary" id="btnPdf">PDF speichern</button>
-        <button class="primary" id="btnPrint">Print</button>
+        <button class="ghost" id="btnLogo" type="button">Logo ändern</button>
+        <button class="ghost" id="btnNew" type="button">Neu</button>
+        <button class="ok" id="btnSave" type="button">Rechnung speichern</button>
+        <button class="ghost" id="btnList" type="button">Rechnungen</button>
+        <button class="danger" id="btnReset" type="button">Reset</button>
+        <button class="primary" id="btnPdf" type="button">PDF speichern</button>
+        <button class="primary" id="btnPrint" type="button">Print</button>
       </div>
     </div>
 
@@ -208,7 +137,7 @@
   <div class="wrap">
     <div class="grid">
 
-      <!-- LEFT: FORM -->
+      <!-- LEFT -->
       <div class="card">
         <h2>
           <span>Rechnungsdaten</span>
@@ -216,22 +145,30 @@
         </h2>
         <div class="body">
 
+          <!-- ✅ NEW: Firmenname/Brand -->
           <div class="row2">
+            <div>
+              <label>Firmenname / Brand *</label>
+              <input id="issuerCompany" value="Masculine Security"/>
+            </div>
             <div>
               <label>Adresse *</label>
               <input id="issuerAddress" value="Werschenregerstraße 6 • 28237 Bremen" />
-            </div>
-            <div>
-              <label>Telefon</label>
-              <input id="issuerPhone" value="015778697052" />
             </div>
           </div>
 
           <div class="row2" style="margin-top:10px">
             <div>
+              <label>Telefon</label>
+              <input id="issuerPhone" value="015778697052" />
+            </div>
+            <div>
               <label>E-Mail *</label>
               <input id="issuerEmail" value="Kontakt.mass.bremen@hotmail.com" />
             </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px">
             <div>
               <label>Steuernummer / Hinweis *</label>
               <input id="issuerTaxNo" value="wird nachgereicht" />
@@ -239,27 +176,31 @@
                 Wenn du noch keine Steuernummer hast: „wird nachgereicht“ ist ok.
               </div>
             </div>
-          </div>
-
-          <div class="row2" style="margin-top:10px">
             <div>
               <label>USt-IdNr (optional)</label>
               <input id="issuerVatId" placeholder="DE123456789" />
             </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px">
             <div>
               <label>IBAN *</label>
               <input id="issuerIban" value="DE98 1001 1001 2333 0146 96" />
+            </div>
+            <div>
+              <label>BIC *</label>
+              <input id="issuerBic" value="NTSBDEB1XXX" />
             </div>
           </div>
 
           <div class="row2" style="margin-top:10px">
             <div>
-              <label>BIC *</label>
-              <input id="issuerBic" value="NTSBDEB1XXX" />
-            </div>
-            <div>
               <label>Kontoinhaber *</label>
               <input id="issuerHolder" value="MUSTAFA MURSAL ABDI" />
+            </div>
+            <div>
+              <label>—</label>
+              <input disabled value=""/>
             </div>
           </div>
 
@@ -436,9 +377,8 @@
         </div>
       </div>
 
-      <!-- RIGHT: SUMMARY + LIST -->
+      <!-- RIGHT -->
       <div class="grid" style="grid-template-columns:1fr;gap:14px">
-
         <div class="card">
           <h2>
             <span>Berechnung & Summe</span>
@@ -513,16 +453,15 @@
             <div class="list" id="invList"></div>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 
   <!-- PRINT/PDF AREA -->
-  <div id="printAreaWrap">
-    <div id="printArea"></div>
-  </div>
+  <div id="printAreaWrap"><div id="printArea"></div></div>
 
+  <!-- logo upload -->
   <input id="logoFile" type="file" accept="image/*" style="display:none"/>
 
   <script>
@@ -530,8 +469,8 @@
     const KEY_APP = "ms_rechnung_app_v1";
     const KEY_CUSTOMERS = "ms_customers_v1";
     const KEY_INVOICES = "ms_invoices_v1";
-    const KEY_LOGO = "ms_logo_v1";
     const KEY_COUNTERS = "ms_inv_counters_v1";
+    const KEY_LOGO = "ms_logo_v1";
 
     // ===== Helpers =====
     const $ = (id)=>document.getElementById(id);
@@ -565,25 +504,36 @@
       $("liveStatus").style.color = ok ? "var(--muted)" : "#b90d2a";
     };
 
-    // ===== Data =====
     const loadJSON = (k, fallback)=>{
       try{ const v = localStorage.getItem(k); return v? JSON.parse(v) : fallback; }catch(e){ return fallback; }
     };
     const saveJSON = (k, v)=> localStorage.setItem(k, JSON.stringify(v));
 
+    // ===== FEST LOGO =====
+    function setLogo(dataUrl, persist=true){
+      $("logoImg").src = dataUrl;
+      if(persist) localStorage.setItem(KEY_LOGO, dataUrl);
+    }
+    function loadLogo(){
+      const saved = localStorage.getItem(KEY_LOGO);
+      if(saved){
+        setLogo(saved, false);
+      }else{
+        const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" rx="24" fill="#0b5fa8"/><text x="60" y="72" font-size="54" text-anchor="middle" fill="white" font-family="Arial" font-weight="900">M</text></svg>`);
+        setLogo(`data:image/svg+xml,${svg}`, false);
+      }
+    }
+
     // ===== Init defaults =====
     function initDefaults(){
-      $("invDate").value = todayISO();
-      $("dueDate").value = addDaysISO($("invDate").value, 14);
-
-      // invoice number auto
-      $("invNo").value = nextInvoiceNo($("invDate").value);
-
+      $("invDate").value = $("invDate").value || todayISO();
+      $("dueDate").value = $("dueDate").value || addDaysISO($("invDate").value, 14);
+      $("invNo").value = $("invNo").value || nextInvoiceNo($("invDate").value);
       $("modeBadge").textContent = "MODE: %";
       updateVatHint();
       updatePurpose();
       renderCustomers();
-      setStatus("Bereit");
+      setStatus("Bereit", true);
     }
 
     function nextInvoiceNo(invDateISO){
@@ -596,21 +546,10 @@
       return `MS-${d}-${String(next).padStart(4,"0")}`;
     }
 
-    function peekNextInvoiceNo(invDateISO){
-      const counters = loadJSON(KEY_COUNTERS, {});
-      const d = yyyymmdd(invDateISO || todayISO());
-      const cur = safeNum(counters[d]) || 0;
-      const next = cur + 1;
-      return `MS-${d}-${String(next).padStart(4,"0")}`;
-    }
-
     function updateVatHint(){
-      const mode = $("vatMode").value;
-      if(mode==="kmu"){
-        $("vatHint").textContent = "Gemäß §19 UStG wird keine Umsatzsteuer berechnet.";
-      }else{
-        $("vatHint").textContent = "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
-      }
+      $("vatHint").textContent = ($("vatMode").value==="kmu")
+        ? "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."
+        : "Umsatzsteuer 19% wird berechnet und ausgewiesen.";
     }
 
     function updatePurpose(){
@@ -627,6 +566,7 @@
 
     function validateCore(){
       const must = [
+        ["issuerCompany","Firmenname"],   // ✅ REQUIRED
         ["issuerAddress","Adresse"],
         ["issuerEmail","E-Mail"],
         ["issuerTaxNo","Steuernummer/Hinweis"],
@@ -663,11 +603,9 @@
       const sonntagH = safeNum($("sonntagH").value);
       const feiertagH = safeNum($("feiertagH").value);
 
-      // Final prices
       const mode = $("modus").value;
 
       let nachtPreisFinal = 0, sonntagPreisFinal = 0, feiertagPreisFinal = 0;
-
       if(mode==="percent"){
         const nachtP = safeNum($("nachtPercent").value);
         const sonntagP = safeNum($("sonntagPercent").value);
@@ -681,7 +619,6 @@
         feiertagPreisFinal = safeNum($("feiertagFest").value);
       }
 
-      // Totals (Mitarbeiter x Stunden x Preis)
       const tagSum = m * tagH * tagPreis;
       const nachtSum = m * nachtH * nachtPreisFinal;
       const sonntagSum = m * sonntagH * sonntagPreisFinal;
@@ -689,14 +626,11 @@
 
       const subTotal = tagSum + nachtSum + sonntagSum + feiertagSum;
 
-      // VAT
       const vatMode = $("vatMode").value;
       const vatRate = (vatMode==="vat19") ? 0.19 : 0;
       const vatAmount = subTotal * vatRate;
       const grandTotal = subTotal + vatAmount;
 
-      // Right table view (show total hours as Stunden * Mitarbeiter or raw hours?)
-      // We show raw hours and mention multiplier elsewhere; sums already include multiplier.
       $("t_tagStd").textContent = String(tagH);
       $("t_nachtStd").textContent = String(nachtH);
       $("t_sonntagStd").textContent = String(sonntagH);
@@ -715,7 +649,6 @@
       $("subTotal").textContent = fmtEUR(subTotal);
       $("grandTotal").textContent = fmtEUR(grandTotal);
 
-      // Build Rechnung text (auto)
       const obj = String($("objekt").value||"").trim();
       const zr = String($("zeitraum").value||"").trim();
       const note = String($("note").value||"").trim();
@@ -753,9 +686,8 @@
         "",
         modeLine,
         "Abrechnung gemäß Einsatzzeiten.",
-        note ? "" : "",
         note ? `Hinweis: ${note}` : ""
-      ].filter(x => x!=="" || true);
+      ];
 
       $("rechnungText").value = lines.join("\n");
       autoSave();
@@ -826,11 +758,8 @@
     // ===== Invoices =====
     function saveInvoice(){
       if(!validateCore()) return;
-
-      // build object
       const inv = collectInvoice();
       const invoices = loadJSON(KEY_INVOICES, []);
-      // overwrite if exists
       const idx = invoices.findIndex(x=>x.invNo===inv.invNo);
       if(idx>=0) invoices[idx] = inv; else invoices.unshift(inv);
       saveJSON(KEY_INVOICES, invoices);
@@ -879,14 +808,10 @@
       const invoices = loadJSON(KEY_INVOICES, []);
       const inv = invoices.find(x=>x.invNo===invNo);
       if(!inv){ setStatus("Rechnung nicht gefunden", false); return; }
-
-      // fill fields
       for(const [k,v] of Object.entries(inv.form || {})){
         if($(k)) $(k).value = v;
       }
-      // logo
-      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, false); }
-
+      if(inv.logoDataUrl){ setLogo(inv.logoDataUrl, true); }
       setStatus("Rechnung geladen", true);
       calculate();
       showList(false);
@@ -900,8 +825,8 @@
     }
 
     function collectInvoice(){
-      // snapshot form values
       const fields = [
+        "issuerCompany", // ✅ NEW
         "issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId",
         "issuerIban","issuerBic","issuerHolder",
         "custName","custEmail","custContact","custAddress",
@@ -916,8 +841,7 @@
       for(const id of fields){
         if($(id)) form[id] = $(id).value;
       }
-      // computed totals
-      const inv = {
+      return {
         invNo: $("invNo").value,
         invDate: $("invDate").value,
         custName: $("custName").value,
@@ -928,14 +852,26 @@
         logoDataUrl: $("logoImg").src || "",
         form
       };
-      return inv;
+    }
+
+    // ===== wait images before PDF/Print =====
+    function waitImagesLoaded(root){
+      const imgs = Array.from(root.querySelectorAll("img")).filter(i=>i.src);
+      return Promise.all(imgs.map(img => new Promise(res=>{
+        if(img.complete) return res();
+        img.onload = ()=>res();
+        img.onerror = ()=>res();
+      })));
     }
 
     // ===== PDF/Print =====
     function buildPrintHtml(inv){
       const f = inv.form;
 
-      const logo = inv.logoDataUrl ? `<div class="invLogo"><img src="${escapeAttr(inv.logoDataUrl)}"/></div>` : "";
+      const company = String(f.issuerCompany || "Masculine Security").trim();
+
+      const logoSrc = inv.logoDataUrl || $("logoImg").src || "";
+      const logo = logoSrc ? `<div class="invLogo"><img src="${escapeAttr(logoSrc)}"/></div>` : "";
 
       const vatMode = f.vatMode;
       const vatLine = (vatMode==="kmu")
@@ -947,8 +883,6 @@
         ? `Zuschläge gemäß Prozent (auf Tagpreis).`
         : `Stundensätze laut Vereinbarung (Festpreise).`;
 
-      // recompute to show exacts
-      // Use the live compute function by reading from f (safe)
       const m = safeNum(f.mitarbeiter);
       const tagPreis = safeNum(f.tagPreis);
       const tagH = safeNum(f.tagH);
@@ -989,6 +923,8 @@
             ${logo}
             <div>
               <p class="invTitle">Rechnung</p>
+              <!-- ✅ NOW: show company/brand -->
+              <div class="invMeta"><b>${escapeHtml(company)}</b></div>
               <div class="invMeta"><b>${escapeHtml(f.serviceTitle||"")}</b></div>
               ${obj ? `<div class="invMeta">Objekt/Ort: ${escapeHtml(obj)}</div>` : ``}
               ${zr ? `<div class="invMeta">Zeitraum: ${escapeHtml(zr)}</div>` : ``}
@@ -1005,6 +941,8 @@
         <div class="invGrid2" style="margin-top:12px">
           <div class="invBox">
             <h4>Rechnungssteller</h4>
+            <!-- ✅ NOW: show company/brand -->
+            <div class="mini"><b>${escapeHtml(company)}</b></div>
             <div class="mini">${escapeHtml(f.issuerAddress||"")}</div>
             <div class="mini">Tel: ${escapeHtml(f.issuerPhone||"")}</div>
             <div class="mini">E-Mail: ${escapeHtml(f.issuerEmail||"")}</div>
@@ -1093,8 +1031,6 @@
       const printArea = $("printArea");
       printArea.innerHTML = buildPrintHtml(inv);
       $("printAreaWrap").style.display = "block";
-
-      // Wait for images
       await waitImagesLoaded(printArea);
 
       const canvas = await html2canvas(printArea, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
@@ -1105,7 +1041,6 @@
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
 
-      // Fit image
       const imgProps = pdf.getImageProperties(imgData);
       const imgW = pageW;
       const imgH = (imgProps.height * imgW) / imgProps.width;
@@ -1113,7 +1048,6 @@
       if(imgH <= pageH){
         pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
       }else{
-        // Multi-page slicing
         let y = 0;
         let remaining = imgH;
         while(remaining > 0){
@@ -1137,32 +1071,6 @@
       await waitImagesLoaded($("printArea"));
       window.print();
       $("printAreaWrap").style.display = "none";
-    }
-
-    function waitImagesLoaded(root){
-      const imgs = Array.from(root.querySelectorAll("img")).filter(i=>i.src);
-      return Promise.all(imgs.map(img => new Promise(res=>{
-        if(img.complete) return res();
-        img.onload = ()=>res();
-        img.onerror = ()=>res();
-      })));
-    }
-
-    // ===== Logo =====
-    function setLogo(dataUrl, persist=true){
-      $("logoImg").src = dataUrl;
-      if(persist) localStorage.setItem(KEY_LOGO, dataUrl);
-    }
-
-    function loadLogo(){
-      const saved = localStorage.getItem(KEY_LOGO);
-      if(saved){
-        setLogo(saved, false);
-      }else{
-        // default tiny logo placeholder
-        const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" rx="24" fill="#0b5fa8"/><text x="60" y="72" font-size="54" text-anchor="middle" fill="white" font-family="Arial" font-weight="900">M</text></svg>`);
-        setLogo(`data:image/svg+xml,${svg}`, false);
-      }
     }
 
     // ===== Auto Save =====
@@ -1191,15 +1099,12 @@
 
     function resetAll(){
       localStorage.removeItem(KEY_APP);
-      // do not delete customers/invoices/logo unless user wants
-      // only reset current form
       location.reload();
     }
 
     function newInvoice(){
-      // keep issuer + customer, reset hours & numbers
       const keep = [
-        "issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
+        "issuerCompany","issuerAddress","issuerPhone","issuerEmail","issuerTaxNo","issuerVatId","issuerIban","issuerBic","issuerHolder",
         "custName","custEmail","custContact","custAddress","customerPick",
         "vatMode","serviceTitle","objekt","zeitraum",
         "mitarbeiter","tagPreis","modus",
@@ -1211,24 +1116,18 @@
         if($(id)) snapshot[id] = $(id).value;
       }
 
-      // reset everything
       document.querySelectorAll("input,textarea,select").forEach(el=>{
-        // don't reset file
         if(el.id==="logoFile") return;
         if(el.type==="date") return;
         el.value = "";
       });
 
-      // restore kept
       for(const [id,val] of Object.entries(snapshot)){
         if($(id)) $(id).value = val;
       }
 
       $("invDate").value = todayISO();
       $("dueDate").value = addDaysISO($("invDate").value, 14);
-
-      // next invoice number preview without consuming counter?
-      // We will generate and consume when set; that's fine for business tracking:
       $("invNo").value = nextInvoiceNo($("invDate").value);
 
       $("tagH").value = 0; $("nachtH").value = 0; $("sonntagH").value = 0; $("feiertagH").value = 0;
@@ -1260,7 +1159,6 @@
 
     // ===== Event wiring =====
     function wire(){
-      // clickable tel/mail
       $("btnCall").addEventListener("click", ()=>{
         const tel = String($("issuerPhone").value || "015778697052").replace(/\s+/g,"");
         window.location.href = `tel:${tel}`;
@@ -1270,17 +1168,15 @@
         window.location.href = `mailto:${mail}`;
       });
 
-      // logo change
       $("btnLogo").addEventListener("click", ()=> $("logoFile").click());
       $("logoFile").addEventListener("change", (e)=>{
         const file = e.target.files?.[0];
         if(!file) return;
         const rd = new FileReader();
-        rd.onload = ()=> { setLogo(String(rd.result||"")); setStatus("Logo gespeichert", true); };
+        rd.onload = ()=> { setLogo(String(rd.result||""), true); setStatus("Logo gespeichert", true); };
         rd.readAsDataURL(file);
       });
 
-      // main actions
       $("btnSave").addEventListener("click", saveInvoice);
       $("btnPdf").addEventListener("click", exportPdf);
       $("btnPrint").addEventListener("click", doPrint);
@@ -1291,15 +1187,12 @@
         showList(now);
       });
 
-      // customers
       $("btnSaveCustomer").addEventListener("click", saveCustomer);
       $("btnDeleteCustomer").addEventListener("click", deleteCustomer);
       $("customerPick").addEventListener("change", (e)=> loadCustomer(e.target.value));
 
-      // auto update invoice no based on date (preview + regenerate)
       $("invDate").addEventListener("change", ()=>{
         $("dueDate").value = addDaysISO($("invDate").value, 14);
-        // suggest next number (consume counter to avoid duplicates in business)
         $("invNo").value = nextInvoiceNo($("invDate").value);
         calculate();
       });
@@ -1307,7 +1200,6 @@
       $("vatMode").addEventListener("change", calculate);
       $("modus").addEventListener("change", calculate);
 
-      // all inputs calculate + autosave
       document.querySelectorAll("input,textarea,select").forEach(el=>{
         if(el.id==="logoFile") return;
         el.addEventListener("input", calculate);
@@ -1319,18 +1211,8 @@
       loadLogo();
       restoreAutoSave();
       wire();
-
-      // if missing invoice date, set defaults
-      if(!$("invDate").value) $("invDate").value = todayISO();
-      if(!$("dueDate").value) $("dueDate").value = addDaysISO($("invDate").value, 14);
-
-      // if missing invNo, peek then consume on first save/new; better: set now & consume
-      if(!$("invNo").value) $("invNo").value = nextInvoiceNo($("invDate").value);
-
-      renderCustomers();
+      initDefaults();
       calculate();
-
-      // start hidden list
       showList(false);
       setStatus("Bereit", true);
     });
